@@ -115,7 +115,8 @@ function AI() {
         actions={<Badge variant="outline" className="gap-1"><Sparkles className="size-3" /> Powered by Lovable AI</Badge>}
       />
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2 mb-4">
+        {!tenantCtx && org && <div className="col-span-full text-xs text-muted-foreground">Carregando contexto da empresa para a IA...</div>}
         {actions.map(a => (
           <Button
             key={a.key}
