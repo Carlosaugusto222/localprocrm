@@ -1,0 +1,147 @@
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { TrendingUp, Users, Calendar, DollarSign, ShoppingBag } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageContainer, PageHeader } from "@/components/page-header";
+import { useCurrentOrg } from "@/hooks/use-current-org";
+import { supabase } from "@/integrations/supabase/client";
+import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid } from "recharts";
+import { format, subDays, startOfMonth } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { Badge } from "@/components/ui/badge";
+
+export const Route = createFileRoute("/_authenticated/dashboard")({
+  head: () => ({ meta: [{ title: "Dashboard — LocalPro CRM" }] }),
+  component: Dashboard,
+});
+
+function brl(n: number) { return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
+
+function Dashboard() {
+  const { org } = useCurrentOrg();
+  const orgId = org?.id;
+
+  const { data: stats } = useQuery({
+    enabled: !!orgId,
+    queryKey: ["dashboard", orgId],
+    queryFn: async () => {
+      const monthStart = startOfMonth(new Date()).toISOString();
+      const [customers, appointments, txs, sales] = await Promise.all([
+        supabase.from("customers").select("id, created_at").eq("organization_id", orgId!),
+        supabase.from("appointments").select("id, starts_at, status").eq("organization_id", orgId!).gte("starts_at", monthStart),
+        supabase.from("transactions").select("amount, kind, paid_at, created_at").eq("organization_id", orgId!).gte("created_at", monthStart),
+        supabase.from("sales").select("id, total, created_at, status").eq("organization_id", orgId!).gte("created_at", monthStart),
+      ]);
+      const allTxs = txs.data ?? [];
+      const revenue = allTxs.filter(t => t.kind === "income").reduce((s, t) => s + Number(t.amount), 0);
+      const expenses = allTxs.filter(t => t.kind === "expense").reduce((s, t) => s + Number(t.amount), 0);
+      const newCustomers = (customers.data ?? []).filter(c => new Date(c.created_at) >= startOfMonth(new Date())).length;
+      const salesTotal = (sales.data ?? []).reduce((s, x) => s + Number(x.total), 0);
+      const salesCount = (sales.data ?? []).length;
+      const avgTicket = salesCount ? salesTotal / salesCount : 0;
+      // last 14 days revenue
+      const days = Array.from({ length: 14 }).map((_, i) => {
+        const d = subDays(new Date(), 13 - i);
+        const key = format(d, "yyyy-MM-dd");
+        const total = allTxs
+          .filter(t => t.kind === "income" && format(new Date(t.created_at), "yyyy-MM-dd") === key)
+          .reduce((s, t) => s + Number(t.amount), 0);
+        return { day: format(d, "dd/MM"), receita: total };
+      });
+      return {
+        revenue, expenses,
+        newCustomers,
+        totalCustomers: customers.data?.length ?? 0,
+        appointments: appointments.data?.length ?? 0,
+        upcoming: (appointments.data ?? []).filter(a => new Date(a.starts_at) >= new Date() && a.status !== "cancelled").slice(0, 5),
+        salesCount, avgTicket,
+        days,
+      };
+    },
+  });
+
+  return (
+    <PageContainer>
+      <PageHeader title="Visão geral" description={`Bem-vindo, ${org?.name ?? ""}.`} />
+
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+        <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} accent="text-success" />
+        <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} />
+        <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} />
+        <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} />
+        <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} />
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-4 mt-6">
+        <Card className="lg:col-span-2">
+          <CardHeader><CardTitle>Receita — últimos 14 dias</CardTitle></CardHeader>
+          <CardContent className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={stats?.days ?? []}>
+                <defs>
+                  <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="day" stroke="var(--color-muted-foreground)" fontSize={12} />
+                <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
+                <Tooltip contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 8 }} />
+                <Area type="monotone" dataKey="receita" stroke="var(--color-primary)" fill="url(#g)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader><CardTitle>Receita x Despesa</CardTitle></CardHeader>
+          <CardContent className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={[{ name: "Mês", receita: stats?.revenue ?? 0, despesa: stats?.expenses ?? 0 }]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
+                <XAxis dataKey="name" stroke="var(--color-muted-foreground)" fontSize={12} />
+                <YAxis stroke="var(--color-muted-foreground)" fontSize={12} />
+                <Tooltip contentStyle={{ background: "var(--color-card)", border: "1px solid var(--color-border)", borderRadius: 8 }} />
+                <Bar dataKey="receita" fill="var(--color-success)" radius={[6,6,0,0]} />
+                <Bar dataKey="despesa" fill="var(--color-destructive)" radius={[6,6,0,0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader><CardTitle>Próximos agendamentos</CardTitle></CardHeader>
+        <CardContent>
+          {!stats?.upcoming?.length ? (
+            <p className="text-sm text-muted-foreground">Nenhum agendamento nos próximos dias.</p>
+          ) : (
+            <ul className="divide-y">
+              {stats.upcoming.map((a: any) => (
+                <li key={a.id} className="py-3 flex items-center justify-between">
+                  <span className="text-sm">{format(new Date(a.starts_at), "dd 'de' MMMM, HH:mm", { locale: ptBR })}</span>
+                  <Badge variant="outline">{a.status}</Badge>
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </PageContainer>
+  );
+}
+
+function Stat({ icon: Icon, label, value, accent }: { icon: React.ComponentType<{className?: string}>; label: string; value: string; accent?: string }) {
+  return (
+    <Card>
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
+          <Icon className={`size-4 ${accent ?? "text-muted-foreground"}`} />
+        </div>
+        <div className={`mt-2 text-xl sm:text-2xl font-display font-bold ${accent ?? ""}`}>{value}</div>
+      </CardContent>
+    </Card>
+  );
+}
