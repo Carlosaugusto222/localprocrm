@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone } from "lucide-react";
+import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone, Tag } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { startOfMonth, subMonths, endOfMonth } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({ meta: [{ title: "Assistente IA — LocalPro CRM" }] }),
@@ -29,9 +31,47 @@ function AI() {
   const [input, setInput] = useState("");
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+
+  const { data: tenantCtx } = useQuery({
+    enabled: !!org?.id,
+    queryKey: ["ai-tenant-ctx", org?.id],
+    queryFn: async () => {
+      const orgId = org!.id;
+      const monthStart = startOfMonth(new Date()).toISOString();
+      const prevStart = startOfMonth(subMonths(new Date(), 1)).toISOString();
+      const prevEnd = endOfMonth(subMonths(new Date(), 1)).toISOString();
+      const [cust, sales, txs, prod, prevTxs] = await Promise.all([
+        supabase.from("customers").select("id,status", { count: "exact" }).eq("organization_id", orgId),
+        supabase.from("sales").select("total").eq("organization_id", orgId).gte("created_at", monthStart),
+        supabase.from("transactions").select("kind,amount").eq("organization_id", orgId).gte("created_at", monthStart),
+        supabase.from("products").select("name,price,kind,category,stock_qty,stock_min,track_stock").eq("organization_id", orgId).limit(50),
+        supabase.from("transactions").select("kind,amount").eq("organization_id", orgId).gte("created_at", prevStart).lte("created_at", prevEnd),
+      ]);
+      const inc = (r: any[]) => r.filter(t => t.kind === "income").reduce((s, t) => s + Number(t.amount), 0);
+      const exp = (r: any[]) => r.filter(t => t.kind === "expense").reduce((s, t) => s + Number(t.amount), 0);
+      const totalCust = cust.count ?? 0;
+      const inactive = (cust.data ?? []).filter((c: any) => c.status === "inactive").length;
+      return {
+        empresa: { nome: org!.name, segmento: org!.segment, cidade: (org as any).city },
+        metricas_mes: {
+          receita: inc(txs.data ?? []),
+          despesa: exp(txs.data ?? []),
+          vendas: (sales.data ?? []).length,
+          ticket_medio: (sales.data ?? []).length ? (sales.data ?? []).reduce((s, x: any) => s + Number(x.total), 0) / (sales.data ?? []).length : 0,
+        },
+        mes_anterior: { receita: inc(prevTxs.data ?? []), despesa: exp(prevTxs.data ?? []) },
+        clientes: { total: totalCust, inativos: inactive },
+        catalogo: (prod.data ?? []).map((p: any) => ({ nome: p.name, tipo: p.kind, preco: Number(p.price), categoria: p.category })),
+        estoque_baixo: (prod.data ?? []).filter((p: any) => p.track_stock && Number(p.stock_qty) <= Number(p.stock_min)).map((p: any) => p.name),
+      };
+    },
   });
+
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/chat", body: () => ({ tenant: tenantCtx }) }),
+    [tenantCtx],
+  );
+  const { messages, sendMessage, status } = useChat({ transport });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -62,6 +102,7 @@ function AI() {
   const actions = [
     { key: "summarize", label: "Resumir base de clientes", icon: Users },
     { key: "campaign", label: "Gerar campanha WhatsApp", icon: Megaphone },
+    { key: "promotion", label: "Sugerir promoção do mês", icon: Tag },
     { key: "welcome", label: "Mensagem de boas-vindas", icon: MessageSquareText },
     { key: "report", label: "Relatório do mês em texto", icon: BarChart3 },
   ];
@@ -74,7 +115,8 @@ function AI() {
         actions={<Badge variant="outline" className="gap-1"><Sparkles className="size-3" /> Powered by Lovable AI</Badge>}
       />
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2 mb-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-2 mb-4">
+        {!tenantCtx && org && <div className="col-span-full text-xs text-muted-foreground">Carregando contexto da empresa para a IA...</div>}
         {actions.map(a => (
           <Button
             key={a.key}
@@ -154,6 +196,16 @@ async function buildActionPrompt(key: string, orgId: string, orgName: string): P
 
   if (key === "welcome") {
     return `Escreva 3 variações de mensagem de boas-vindas via WhatsApp para um novo cliente de ${orgName}. Tom: acolhedor, profissional, brasileiro. Inclua placeholder {{nome}} e {{empresa}}. Máximo 4 linhas cada.`;
+  }
+
+  if (key === "promotion") {
+    const [prods, inactive] = await Promise.all([
+      supabase.from("products").select("name,price,kind,category,stock_qty,stock_min,track_stock").eq("organization_id", orgId).eq("active", true).limit(50),
+      supabase.from("customers").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("status", "inactive"),
+    ]);
+    const cat = (prods.data ?? []) as any[];
+    const overstock = cat.filter(p => p.track_stock && Number(p.stock_qty) > Number(p.stock_min) * 2).map(p => p.name);
+    return `Use o contexto da empresa (já enviado) e os dados abaixo para sugerir UMA promoção do mês alinhada ao segmento.\n\nCatálogo (até 50): ${JSON.stringify(cat.slice(0, 20).map(p => ({ nome: p.name, tipo: p.kind, preco: Number(p.price), cat: p.category })))}\nProdutos com estoque alto (priorizar girar): ${JSON.stringify(overstock)}\nClientes inativos: ${inactive.count ?? 0}\n\nEntregue em markdown:\n1) Nome da promoção (chamativo)\n2) Mecânica (combo, desconto %, brinde, etc — escolha a melhor)\n3) Produtos/serviços incluídos (do catálogo acima)\n4) Preço promocional sugerido e margem estimada\n5) Mensagem WhatsApp pronta para disparo (máx 4 linhas, com {{nome}})\n6) Período sugerido e meta de vendas`;
   }
 
   if (key === "report") {

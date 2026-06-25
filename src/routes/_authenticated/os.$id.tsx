@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt } from "lucide-react";
 import { PageContainer } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateBusinessPDF } from "@/lib/exporters";
 
 export const Route = createFileRoute("/_authenticated/os/$id")({
   component: OSDetail,
@@ -130,11 +131,23 @@ function OSDetail() {
             {os.customer?.name ?? "Sem cliente"} · Aberta em {new Date(os.opened_at).toLocaleDateString("pt-BR")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Select value={os.status} onValueChange={v => updateOS.mutate({ status: v })}>
             <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
             <SelectContent>{STATUS.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
           </Select>
+          <Button variant="outline" size="sm" className="gap-1"
+            onClick={() => generateBusinessPDF({
+              kind: "quote", number: os.number, org: org ?? {}, customer: os.customer,
+              title: os.title, items: items.map((it: any) => ({ description: it.description, quantity: Number(it.quantity), unit_price: Number(it.unit_price), total: Number(it.total) })),
+              notes: os.description, total: Number(os.total ?? 0),
+            })}><FileText className="size-4" /> Orçamento</Button>
+          <Button variant="outline" size="sm" className="gap-1"
+            onClick={() => generateBusinessPDF({
+              kind: "receipt", number: os.number, org: org ?? {}, customer: os.customer,
+              title: os.title, items: items.map((it: any) => ({ description: it.description, quantity: Number(it.quantity), unit_price: Number(it.unit_price), total: Number(it.total) })),
+              notes: os.description, total: Number(os.total ?? 0),
+            })}><Receipt className="size-4" /> Recibo</Button>
           {os.status !== "done" && os.status !== "delivered" && (
             <Button onClick={() => closeOS.mutate()} disabled={closeOS.isPending}>Concluir e faturar</Button>
           )}
