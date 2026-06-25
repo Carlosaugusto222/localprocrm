@@ -16,8 +16,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedWhatsappRouteImport } from './routes/_authenticated/whatsapp'
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
+import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCrmRouteImport } from './routes/_authenticated/crm'
@@ -59,6 +61,11 @@ const AuthenticatedVendasRoute = AuthenticatedVendasRouteImport.update({
   path: '/vendas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
+  id: '/super-admin',
+  path: '/super-admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -67,6 +74,11 @@ const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   id: '/ia',
   path: '/ia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFunilRoute = AuthenticatedFunilRouteImport.update({
+  id: '/funil',
+  path: '/funil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
@@ -110,8 +122,10 @@ export interface FileRoutesByFullPath {
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/funil': typeof AuthenticatedFunilRoute
   '/ia': typeof AuthenticatedIaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/api/chat': typeof ApiChatRoute
@@ -126,8 +140,10 @@ export interface FileRoutesByTo {
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/funil': typeof AuthenticatedFunilRoute
   '/ia': typeof AuthenticatedIaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/api/chat': typeof ApiChatRoute
@@ -144,8 +160,10 @@ export interface FileRoutesById {
   '/_authenticated/crm': typeof AuthenticatedCrmRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
+  '/_authenticated/funil': typeof AuthenticatedFunilRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
+  '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/vendas': typeof AuthenticatedVendasRoute
   '/_authenticated/whatsapp': typeof AuthenticatedWhatsappRoute
   '/api/chat': typeof ApiChatRoute
@@ -162,8 +180,10 @@ export interface FileRouteTypes {
     | '/crm'
     | '/dashboard'
     | '/financeiro'
+    | '/funil'
     | '/ia'
     | '/relatorios'
+    | '/super-admin'
     | '/vendas'
     | '/whatsapp'
     | '/api/chat'
@@ -178,8 +198,10 @@ export interface FileRouteTypes {
     | '/crm'
     | '/dashboard'
     | '/financeiro'
+    | '/funil'
     | '/ia'
     | '/relatorios'
+    | '/super-admin'
     | '/vendas'
     | '/whatsapp'
     | '/api/chat'
@@ -195,8 +217,10 @@ export interface FileRouteTypes {
     | '/_authenticated/crm'
     | '/_authenticated/dashboard'
     | '/_authenticated/financeiro'
+    | '/_authenticated/funil'
     | '/_authenticated/ia'
     | '/_authenticated/relatorios'
+    | '/_authenticated/super-admin'
     | '/_authenticated/vendas'
     | '/_authenticated/whatsapp'
     | '/api/chat'
@@ -262,6 +286,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVendasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/super-admin': {
+      id: '/_authenticated/super-admin'
+      path: '/super-admin'
+      fullPath: '/super-admin'
+      preLoaderRoute: typeof AuthenticatedSuperAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/relatorios': {
       id: '/_authenticated/relatorios'
       path: '/relatorios'
@@ -274,6 +305,13 @@ declare module '@tanstack/react-router' {
       path: '/ia'
       fullPath: '/ia'
       preLoaderRoute: typeof AuthenticatedIaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/funil': {
+      id: '/_authenticated/funil'
+      path: '/funil'
+      fullPath: '/funil'
+      preLoaderRoute: typeof AuthenticatedFunilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/financeiro': {
@@ -338,8 +376,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCrmRoute: typeof AuthenticatedCrmRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
+  AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
+  AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
   AuthenticatedWhatsappRoute: typeof AuthenticatedWhatsappRoute
 }
@@ -350,8 +390,10 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCrmRoute: AuthenticatedCrmRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
+  AuthenticatedFunilRoute: AuthenticatedFunilRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
+  AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedVendasRoute: AuthenticatedVendasRoute,
   AuthenticatedWhatsappRoute: AuthenticatedWhatsappRoute,
 }
@@ -369,13 +411,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
