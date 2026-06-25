@@ -153,7 +153,8 @@ function Dashboard() {
   );
 }
 
-function Stat({ icon: Icon, label, value, accent }: { icon: React.ComponentType<{className?: string}>; label: string; value: string; accent?: string }) {
+function Stat({ icon: Icon, label, value, accent, deltaPct }: { icon: React.ComponentType<{className?: string}>; label: string; value: string; accent?: string; deltaPct?: number }) {
+  const up = (deltaPct ?? 0) >= 0;
   return (
     <Card>
       <CardContent className="p-4">
@@ -162,6 +163,12 @@ function Stat({ icon: Icon, label, value, accent }: { icon: React.ComponentType<
           <Icon className={`size-4 ${accent ?? "text-muted-foreground"}`} />
         </div>
         <div className={`mt-2 text-xl sm:text-2xl font-display font-bold ${accent ?? ""}`}>{value}</div>
+        {deltaPct !== undefined && (
+          <div className={`mt-1 flex items-center gap-1 text-xs ${up ? "text-success" : "text-destructive"}`}>
+            {up ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
+            {up ? "+" : ""}{deltaPct.toFixed(1)}% vs mês anterior
+          </div>
+        )}
       </CardContent>
     </Card>
   );
