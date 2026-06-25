@@ -41,7 +41,7 @@ function CaixaPage() {
   const { data: movements = [] } = useQuery({
     enabled: !!openSession?.id,
     queryKey: ["cash-mov", openSession?.id],
-    queryFn: async () => (await supabase.from("transactions").select("*").eq("cash_session_id", openSession!.id).order("occurred_at")).data ?? [],
+    queryFn: async () => (await supabase.from("transactions").select("*").eq("cash_session_id", openSession!.id).order("created_at")).data ?? [],
   });
 
   const openCash = useMutation({
@@ -58,8 +58,9 @@ function CaixaPage() {
   const closeCash = useMutation({
     mutationFn: async ({ amount, notes }: { amount: number; notes: string }) => {
       if (!openSession) return;
-      const income = movements.filter(m => m.type === "income").reduce((a, b) => a + Number(b.amount), 0);
-      const expense = movements.filter(m => m.type === "expense").reduce((a, b) => a + Number(b.amount), 0);
+      const income = movements.filter((m: any) => m.kind === "income").reduce((a: number, b: any) => a + Number(b.amount), 0);
+      const expense = movements.filter((m: any) => m.kind === "expense").reduce((a: number, b: any) => a + Number(b.amount), 0);
+
       const expected = Number(openSession.opening_amount) + income - expense;
       const { data: { user } } = await supabase.auth.getUser();
       const { error } = await supabase.from("cash_sessions").update({
