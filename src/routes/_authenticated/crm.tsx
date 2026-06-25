@@ -43,7 +43,7 @@ function CRM() {
     queryFn: async () => {
       let q = supabase.from("customers").select("*").eq("organization_id", org!.id).order("created_at", { ascending: false });
       if (search) q = q.ilike("name", `%${search}%`);
-      if (statusFilter !== "all") q = q.eq("status", statusFilter);
+      if (statusFilter !== "all") q = q.eq("status", statusFilter as Customer["status"]);
       const { data, error } = await q;
       if (error) throw error;
       return (data ?? []) as Customer[];

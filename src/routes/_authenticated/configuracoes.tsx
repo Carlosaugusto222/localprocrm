@@ -60,7 +60,7 @@ function Settings() {
   const changePlan = useMutation({
     mutationFn: async (plan: "basic"|"pro"|"premium") => {
       if (!org) throw new Error("Sem empresa");
-      const newMods = PLANS.find(p => p.id === plan)!.modules;
+      const newMods = [...PLANS.find(p => p.id === plan)!.modules];
       const { error } = await supabase.from("organizations").update({ plan, enabled_modules: newMods }).eq("id", org.id);
       if (error) throw error;
     },
