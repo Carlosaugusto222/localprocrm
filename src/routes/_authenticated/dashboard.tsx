@@ -25,51 +25,72 @@ function Dashboard() {
     enabled: !!orgId,
     queryKey: ["dashboard", orgId],
     queryFn: async () => {
-      const monthStart = startOfMonth(new Date()).toISOString();
-      const [customers, appointments, txs, sales] = await Promise.all([
+      const now = new Date();
+      const monthStart = startOfMonth(now);
+      const prevStart = startOfMonth(subMonths(now, 1));
+      const prevEnd = endOfMonth(subMonths(now, 1));
+
+      const [customers, appointments, txs, prevTxs, sales, prevSales, prevCustomers] = await Promise.all([
         supabase.from("customers").select("id, created_at").eq("organization_id", orgId!),
-        supabase.from("appointments").select("id, starts_at, status").eq("organization_id", orgId!).gte("starts_at", monthStart),
-        supabase.from("transactions").select("amount, kind, paid_at, created_at").eq("organization_id", orgId!).gte("created_at", monthStart),
-        supabase.from("sales").select("id, total, created_at, status").eq("organization_id", orgId!).gte("created_at", monthStart),
+        supabase.from("appointments").select("id, starts_at, status").eq("organization_id", orgId!).gte("starts_at", monthStart.toISOString()),
+        supabase.from("transactions").select("amount, kind, paid_at, created_at").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
+        supabase.from("transactions").select("amount, kind").eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
+        supabase.from("sales").select("id, total, created_at, status").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
+        supabase.from("sales").select("id, total").eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
+        supabase.from("customers").select("id", { count: "exact", head: true }).eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
       ]);
+
       const allTxs = txs.data ?? [];
       const revenue = allTxs.filter(t => t.kind === "income").reduce((s, t) => s + Number(t.amount), 0);
       const expenses = allTxs.filter(t => t.kind === "expense").reduce((s, t) => s + Number(t.amount), 0);
-      const newCustomers = (customers.data ?? []).filter(c => new Date(c.created_at) >= startOfMonth(new Date())).length;
+      const prevRevenue = (prevTxs.data ?? []).filter(t => t.kind === "income").reduce((s, t) => s + Number(t.amount), 0);
+
+      const newCustomers = (customers.data ?? []).filter(c => new Date(c.created_at) >= monthStart).length;
+      const prevNewCustomers = prevCustomers.count ?? 0;
+
       const salesTotal = (sales.data ?? []).reduce((s, x) => s + Number(x.total), 0);
       const salesCount = (sales.data ?? []).length;
+      const prevSalesCount = (prevSales.data ?? []).length;
+      const prevSalesTotal = (prevSales.data ?? []).reduce((s, x) => s + Number(x.total), 0);
       const avgTicket = salesCount ? salesTotal / salesCount : 0;
-      // last 14 days revenue
+      const prevAvgTicket = prevSalesCount ? prevSalesTotal / prevSalesCount : 0;
+
       const days = Array.from({ length: 14 }).map((_, i) => {
-        const d = subDays(new Date(), 13 - i);
+        const d = subDays(now, 13 - i);
         const key = format(d, "yyyy-MM-dd");
         const total = allTxs
           .filter(t => t.kind === "income" && format(new Date(t.created_at), "yyyy-MM-dd") === key)
           .reduce((s, t) => s + Number(t.amount), 0);
         return { day: format(d, "dd/MM"), receita: total };
       });
+
       return {
-        revenue, expenses,
-        newCustomers,
+        revenue, expenses, prevRevenue,
+        newCustomers, prevNewCustomers,
         totalCustomers: customers.data?.length ?? 0,
         appointments: appointments.data?.length ?? 0,
-        upcoming: (appointments.data ?? []).filter(a => new Date(a.starts_at) >= new Date() && a.status !== "cancelled").slice(0, 5),
-        salesCount, avgTicket,
+        upcoming: (appointments.data ?? []).filter(a => new Date(a.starts_at) >= now && a.status !== "cancelled").slice(0, 5),
+        salesCount, prevSalesCount, avgTicket, prevAvgTicket,
         days,
       };
     },
   });
 
+  const delta = (cur: number, prev: number) => {
+    if (!prev) return cur > 0 ? 100 : 0;
+    return ((cur - prev) / prev) * 100;
+  };
+
   return (
     <PageContainer>
-      <PageHeader title="Visão geral" description={`Bem-vindo, ${org?.name ?? ""}.`} />
+      <PageHeader title="Visão geral" description={`Bem-vindo, ${org?.name ?? ""}. Comparativo vs mês anterior.`} />
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} accent="text-success" />
-        <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} />
+        <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} deltaPct={delta(stats?.revenue ?? 0, stats?.prevRevenue ?? 0)} accent="text-success" />
+        <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} deltaPct={delta(stats?.newCustomers ?? 0, stats?.prevNewCustomers ?? 0)} />
         <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} />
-        <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} />
-        <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} />
+        <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} deltaPct={delta(stats?.salesCount ?? 0, stats?.prevSalesCount ?? 0)} />
+        <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} deltaPct={delta(stats?.avgTicket ?? 0, stats?.prevAvgTicket ?? 0)} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4 mt-6">
