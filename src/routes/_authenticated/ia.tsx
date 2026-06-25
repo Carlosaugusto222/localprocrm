@@ -128,26 +128,28 @@ function AI() {
 
 async function buildActionPrompt(key: string, orgId: string, orgName: string): Promise<string | null> {
   if (key === "summarize") {
-    const { data: cs = [] } = await supabase
+    const res = await supabase
       .from("customers")
       .select("name,status,tags,pipeline_stage,created_at")
       .eq("organization_id", orgId)
       .limit(200);
+    const cs = (res.data ?? []) as any[];
     const total = cs.length;
-    const byStatus = cs.reduce<Record<string, number>>((a, c: any) => { a[c.status] = (a[c.status] ?? 0) + 1; return a; }, {});
-    const byStage = cs.reduce<Record<string, number>>((a, c: any) => { a[c.pipeline_stage || "new"] = (a[c.pipeline_stage || "new"] ?? 0) + 1; return a; }, {});
-    const tagCount = cs.flatMap((c: any) => c.tags ?? []).reduce<Record<string, number>>((a, t) => { a[t] = (a[t] ?? 0) + 1; return a; }, {});
+    const byStatus = cs.reduce<Record<string, number>>((a, c) => { a[c.status] = (a[c.status] ?? 0) + 1; return a; }, {});
+    const byStage = cs.reduce<Record<string, number>>((a, c) => { a[c.pipeline_stage || "new"] = (a[c.pipeline_stage || "new"] ?? 0) + 1; return a; }, {});
+    const tagCount = cs.flatMap(c => c.tags ?? []).reduce<Record<string, number>>((a, t) => { a[t] = (a[t] ?? 0) + 1; return a; }, {});
     return `Resuma a base de clientes de ${orgName} e dê 5 insights acionáveis.\n\nTotal: ${total}\nPor status: ${JSON.stringify(byStatus)}\nPor etapa do funil: ${JSON.stringify(byStage)}\nTags mais comuns: ${JSON.stringify(tagCount)}`;
   }
 
   if (key === "campaign") {
-    const { data: inactive = [] } = await supabase
+    const res = await supabase
       .from("customers")
       .select("name,tags")
       .eq("organization_id", orgId)
       .eq("status", "inactive")
       .limit(20);
-    return `Crie uma campanha de reativação via WhatsApp para ${orgName}. ${inactive.length} clientes inativos (exemplos de nomes: ${inactive.slice(0,5).map((c: any) => c.name).join(", ") || "—"}).\n\nEntregue:\n1) Objetivo da campanha\n2) Mensagem WhatsApp curta com personalização {{nome}} (máx. 3 linhas)\n3) Mensagem de follow-up 3 dias depois\n4) Oferta sugerida\n5) KPI para medir.`;
+    const inactive = (res.data ?? []) as any[];
+    return `Crie uma campanha de reativação via WhatsApp para ${orgName}. ${inactive.length} clientes inativos (exemplos de nomes: ${inactive.slice(0,5).map(c => c.name).join(", ") || "—"}).\n\nEntregue:\n1) Objetivo da campanha\n2) Mensagem WhatsApp curta com personalização {{nome}} (máx. 3 linhas)\n3) Mensagem de follow-up 3 dias depois\n4) Oferta sugerida\n5) KPI para medir.`;
   }
 
   if (key === "welcome") {
