@@ -31,9 +31,47 @@ function AI() {
   const [input, setInput] = useState("");
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, sendMessage, status } = useChat({
-    transport: new DefaultChatTransport({ api: "/api/chat" }),
+
+  const { data: tenantCtx } = useQuery({
+    enabled: !!org?.id,
+    queryKey: ["ai-tenant-ctx", org?.id],
+    queryFn: async () => {
+      const orgId = org!.id;
+      const monthStart = startOfMonth(new Date()).toISOString();
+      const prevStart = startOfMonth(subMonths(new Date(), 1)).toISOString();
+      const prevEnd = endOfMonth(subMonths(new Date(), 1)).toISOString();
+      const [cust, sales, txs, prod, prevTxs] = await Promise.all([
+        supabase.from("customers").select("id,status", { count: "exact" }).eq("organization_id", orgId),
+        supabase.from("sales").select("total").eq("organization_id", orgId).gte("created_at", monthStart),
+        supabase.from("transactions").select("kind,amount").eq("organization_id", orgId).gte("created_at", monthStart),
+        supabase.from("products").select("name,price,kind,category,stock_qty,stock_min,track_stock").eq("organization_id", orgId).limit(50),
+        supabase.from("transactions").select("kind,amount").eq("organization_id", orgId).gte("created_at", prevStart).lte("created_at", prevEnd),
+      ]);
+      const inc = (r: any[]) => r.filter(t => t.kind === "income").reduce((s, t) => s + Number(t.amount), 0);
+      const exp = (r: any[]) => r.filter(t => t.kind === "expense").reduce((s, t) => s + Number(t.amount), 0);
+      const totalCust = cust.count ?? 0;
+      const inactive = (cust.data ?? []).filter((c: any) => c.status === "inactive").length;
+      return {
+        empresa: { nome: org!.name, segmento: org!.segment, cidade: (org as any).city },
+        metricas_mes: {
+          receita: inc(txs.data ?? []),
+          despesa: exp(txs.data ?? []),
+          vendas: (sales.data ?? []).length,
+          ticket_medio: (sales.data ?? []).length ? (sales.data ?? []).reduce((s, x: any) => s + Number(x.total), 0) / (sales.data ?? []).length : 0,
+        },
+        mes_anterior: { receita: inc(prevTxs.data ?? []), despesa: exp(prevTxs.data ?? []) },
+        clientes: { total: totalCust, inativos: inactive },
+        catalogo: (prod.data ?? []).map((p: any) => ({ nome: p.name, tipo: p.kind, preco: Number(p.price), categoria: p.category })),
+        estoque_baixo: (prod.data ?? []).filter((p: any) => p.track_stock && Number(p.stock_qty) <= Number(p.stock_min)).map((p: any) => p.name),
+      };
+    },
   });
+
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/chat", body: () => ({ tenant: tenantCtx }) }),
+    [tenantCtx],
+  );
+  const { messages, sendMessage, status } = useChat({ transport });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -64,6 +102,7 @@ function AI() {
   const actions = [
     { key: "summarize", label: "Resumir base de clientes", icon: Users },
     { key: "campaign", label: "Gerar campanha WhatsApp", icon: Megaphone },
+    { key: "promotion", label: "Sugerir promoção do mês", icon: Tag },
     { key: "welcome", label: "Mensagem de boas-vindas", icon: MessageSquareText },
     { key: "report", label: "Relatório do mês em texto", icon: BarChart3 },
   ];
