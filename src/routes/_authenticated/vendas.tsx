@@ -43,6 +43,7 @@ function Sales() {
 function ProductsList({ orgId }: { orgId?: string }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
   const { data = [] } = useQuery({
     enabled: !!orgId,
     queryKey: ["products", orgId],
@@ -52,53 +53,100 @@ function ProductsList({ orgId }: { orgId?: string }) {
     mutationFn: async (id: string) => { await supabase.from("products").delete().eq("id", id); },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["products"] }),
   });
+
+  const handleOpen = (v: boolean) => { setOpen(v); if (!v) setEditing(null); };
+  const openEdit = (p: any) => { setEditing(p); setOpen(true); };
+
   return (
     <div className="mt-4">
       <div className="flex justify-end mb-3">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button className="gap-1"><Plus className="size-4" /> Novo</Button></DialogTrigger>
-          <ProductDialog orgId={orgId} onClose={() => setOpen(false)} />
+        <Dialog open={open} onOpenChange={handleOpen}>
+          <DialogTrigger asChild><Button className="gap-1" onClick={() => setEditing(null)}><Plus className="size-4" /> Novo</Button></DialogTrigger>
+          <ProductDialog orgId={orgId} editing={editing} onClose={() => handleOpen(false)} />
         </Dialog>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {data.map((p: any) => (
-          <Card key={p.id} className="p-4">
-            <div className="flex items-start justify-between">
-              <div className="size-9 rounded-lg bg-accent grid place-items-center text-accent-foreground"><Package className="size-4" /></div>
-              <Button variant="ghost" size="icon" onClick={() => del.mutate(p.id)}><Trash2 className="size-4" /></Button>
-            </div>
-            <h3 className="font-semibold mt-2">{p.name}</h3>
-            <div className="text-xs text-muted-foreground">{p.category ?? p.kind}</div>
-            <div className="mt-2 font-display font-bold text-lg">{brl(Number(p.price))}</div>
-          </Card>
-        ))}
+        {data.map((p: any) => {
+          const low = p.track_stock && Number(p.stock_qty) <= Number(p.stock_min);
+          return (
+            <Card key={p.id} className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="size-9 rounded-lg bg-accent grid place-items-center text-accent-foreground"><Package className="size-4" /></div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="size-4" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => del.mutate(p.id)}><Trash2 className="size-4" /></Button>
+                </div>
+              </div>
+              <h3 className="font-semibold mt-2">{p.name}</h3>
+              <div className="text-xs text-muted-foreground flex gap-2 flex-wrap">
+                <span>{p.kind === "service" ? "Serviço" : "Produto"}</span>
+                {p.sku && <span>· SKU {p.sku}</span>}
+                {p.category && <span>· {p.category}</span>}
+              </div>
+              <div className="mt-2 flex items-end justify-between">
+                <div className="font-display font-bold text-lg">{brl(Number(p.price))}</div>
+                {p.track_stock && (
+                  <Badge variant={low ? "destructive" : "outline"} className="text-[10px]">
+                    Estoque: {Number(p.stock_qty)}
+                  </Badge>
+                )}
+              </div>
+            </Card>
+          );
+        })}
         {data.length === 0 && <p className="text-sm text-muted-foreground col-span-full py-8 text-center">Nenhum produto ou serviço cadastrado.</p>}
       </div>
     </div>
   );
 }
 
-function ProductDialog({ orgId, onClose }: { orgId?: string; onClose: () => void }) {
+function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: any; onClose: () => void }) {
   const qc = useQueryClient();
-  const [form, setForm] = useState({ name: "", description: "", category: "", kind: "product", price: "" });
-  const create = useMutation({
+  const isEdit = !!editing;
+  const [form, setForm] = useState({
+    name: editing?.name ?? "",
+    description: editing?.description ?? "",
+    category: editing?.category ?? "",
+    kind: editing?.kind ?? "product",
+    price: editing?.price?.toString() ?? "",
+    sku: editing?.sku ?? "",
+    cost: editing?.cost?.toString() ?? "",
+    track_stock: editing?.track_stock ?? false,
+    stock_qty: editing?.stock_qty?.toString() ?? "0",
+    stock_min: editing?.stock_min?.toString() ?? "0",
+    duration_minutes: editing?.duration_minutes?.toString() ?? "",
+  });
+  const save = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error("Sem empresa");
-      const { error } = await supabase.from("products").insert({
-        organization_id: orgId, name: form.name, description: form.description || null,
-        category: form.category || null, kind: form.kind, price: Number(form.price),
-      });
+      const payload: any = {
+        organization_id: orgId,
+        name: form.name,
+        description: form.description || null,
+        category: form.category || null,
+        kind: form.kind,
+        price: Number(form.price),
+        sku: form.sku || null,
+        cost: form.cost ? Number(form.cost) : null,
+        track_stock: form.track_stock,
+        stock_qty: Number(form.stock_qty || 0),
+        stock_min: Number(form.stock_min || 0),
+        duration_minutes: form.duration_minutes ? Number(form.duration_minutes) : null,
+      };
+      const { error } = isEdit
+        ? await supabase.from("products").update(payload).eq("id", editing.id)
+        : await supabase.from("products").insert(payload);
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast.success("Salvo"); onClose(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast.success(isEdit ? "Atualizado" : "Salvo"); onClose(); },
     onError: (e: any) => toast.error(e.message),
   });
   return (
-    <DialogContent>
-      <DialogHeader><DialogTitle>Novo produto ou serviço</DialogTitle></DialogHeader>
-      <form onSubmit={(e) => { e.preventDefault(); create.mutate(); }} className="space-y-3">
-        <div className="space-y-1.5"><Label>Nome</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
-        <div className="grid grid-cols-2 gap-3">
+    <DialogContent className="max-w-xl">
+      <DialogHeader><DialogTitle>{isEdit ? "Editar item" : "Novo produto ou serviço"}</DialogTitle></DialogHeader>
+      <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-3">
+        <div className="space-y-1.5"><Label>Nome *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
+        <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1.5"><Label>Tipo</Label>
             <Select value={form.kind} onValueChange={v => setForm({ ...form, kind: v })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
@@ -108,13 +156,34 @@ function ProductDialog({ orgId, onClose }: { orgId?: string; onClose: () => void
               </SelectContent>
             </Select>
           </div>
-          <div className="space-y-1.5"><Label>Preço (R$)</Label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>Preço (R$) *</Label><Input type="number" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>Custo (R$)</Label><Input type="number" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} /></div>
         </div>
-        <div className="space-y-1.5"><Label>Categoria</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></div>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1.5"><Label>SKU / Código</Label><Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="Ex: BRB-001" /></div>
+          <div className="space-y-1.5"><Label>Categoria</Label><Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></div>
+        </div>
+        {form.kind === "service" && (
+          <div className="space-y-1.5"><Label>Duração (minutos)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: e.target.value })} placeholder="Ex: 30" /></div>
+        )}
+        {form.kind === "product" && (
+          <div className="border rounded-lg p-3 space-y-3">
+            <label className="flex items-center gap-2 text-sm cursor-pointer">
+              <input type="checkbox" checked={form.track_stock} onChange={e => setForm({ ...form, track_stock: e.target.checked })} />
+              Controlar estoque deste produto
+            </label>
+            {form.track_stock && (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5"><Label className="text-xs">Quantidade atual</Label><Input type="number" step="0.001" value={form.stock_qty} onChange={(e) => setForm({ ...form, stock_qty: e.target.value })} /></div>
+                <div className="space-y-1.5"><Label className="text-xs">Estoque mínimo</Label><Input type="number" step="0.001" value={form.stock_min} onChange={(e) => setForm({ ...form, stock_min: e.target.value })} /></div>
+              </div>
+            )}
+          </div>
+        )}
         <div className="space-y-1.5"><Label>Descrição</Label><Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2} /></div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" disabled={create.isPending}>Salvar</Button>
+          <Button type="submit" disabled={save.isPending}>Salvar</Button>
         </DialogFooter>
       </form>
     </DialogContent>
