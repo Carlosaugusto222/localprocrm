@@ -2,6 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
+  Wrench, Banknote, UserCog,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -12,20 +13,21 @@ import { useIsSuperAdmin } from "@/hooks/use-is-super-admin";
 
 type Item = { title: string; url: string; icon: typeof Sun; module?: string };
 
-// Daily operational tools — what the user touches every day
 const diaADia: Item[] = [
   { title: "Hoje", url: "/hoje", icon: Sun },
   { title: "Agenda", url: "/agenda", icon: Calendar, module: "appointments" },
   { title: "Vendas", url: "/vendas", icon: ShoppingBag, module: "sales" },
+  { title: "Ordens de Serviço", url: "/os", icon: Wrench, module: "service_orders" },
+  { title: "Caixa", url: "/caixa", icon: Banknote, module: "cash" },
   { title: "Clientes", url: "/crm", icon: Users, module: "crm" },
   { title: "Funil", url: "/funil", icon: Kanban, module: "crm" },
   { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
 ];
 
-// Management — strategic / periodic
 const gestao: Item[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
+  { title: "Equipe", url: "/equipe", icon: UserCog, module: "team" },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
   { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
 ];
@@ -69,16 +71,12 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Dia a dia</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>{renderItems(diaADia)}</SidebarMenu>
-          </SidebarGroupContent>
+          <SidebarGroupContent><SidebarMenu>{renderItems(diaADia)}</SidebarMenu></SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
           <SidebarGroupLabel>Gestão</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>{renderItems(gestao)}</SidebarMenu>
-          </SidebarGroupContent>
+          <SidebarGroupContent><SidebarMenu>{renderItems(gestao)}</SidebarMenu></SidebarGroupContent>
         </SidebarGroup>
 
         <SidebarGroup>
@@ -88,16 +86,14 @@ export function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/guia")}>
                   <Link to="/guia" className="flex items-center gap-2">
-                    <BookOpen className="size-4" />
-                    <span>Guia de Uso</span>
+                    <BookOpen className="size-4" /><span>Guia de Uso</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/configuracoes")}>
                   <Link to="/configuracoes" className="flex items-center gap-2">
-                    <Settings className="size-4" />
-                    <span>Configurações</span>
+                    <Settings className="size-4" /><span>Configurações</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -105,8 +101,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={pathname.startsWith("/super-admin")}>
                     <Link to="/super-admin" className="flex items-center gap-2">
-                      <ShieldCheck className="size-4" />
-                      <span>Super Admin</span>
+                      <ShieldCheck className="size-4" /><span>Super Admin</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
