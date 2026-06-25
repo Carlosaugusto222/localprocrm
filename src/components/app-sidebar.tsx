@@ -1,17 +1,19 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
-  MessageCircle, Sparkles, BarChart3, Settings, Zap,
+  MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
   SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarHeader, useSidebar,
 } from "@/components/ui/sidebar";
 import { useEnabledModules } from "@/hooks/use-current-org";
+import { useIsSuperAdmin } from "@/hooks/use-is-super-admin";
 
 const items = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
   { title: "Clientes (CRM)", url: "/crm", icon: Users, module: "crm" },
+  { title: "Funil de Vendas", url: "/funil", icon: Kanban, module: "crm" },
   { title: "Agenda", url: "/agenda", icon: Calendar, module: "appointments" },
   { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
   { title: "Vendas", url: "/vendas", icon: ShoppingBag, module: "sales" },
@@ -25,6 +27,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: r => r.location.pathname });
   const isEnabled = useEnabledModules();
+  const isSuperAdmin = useIsSuperAdmin();
 
   return (
     <Sidebar collapsible="icon">
@@ -71,6 +74,16 @@ export function AppSidebar() {
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
+              {isSuperAdmin && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={pathname.startsWith("/super-admin")}>
+                    <Link to="/super-admin" className="flex items-center gap-2">
+                      <ShieldCheck className="size-4" />
+                      <span>Super Admin</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

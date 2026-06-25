@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Download } from "lucide-react";
+import { FileText, FileSpreadsheet, Download } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { exportCSV, exportPDF, exportXLSX } from "@/lib/exporters";
 
 export const Route = createFileRoute("/_authenticated/relatorios")({
   head: () => ({ meta: [{ title: "Relatórios — LocalPro CRM" }] }),
@@ -17,17 +18,6 @@ export const Route = createFileRoute("/_authenticated/relatorios")({
 });
 
 function brl(n: number) { return Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }); }
-
-function exportCSV(rows: any[], filename: string) {
-  if (!rows.length) return;
-  const headers = Object.keys(rows[0]);
-  const csv = [headers.join(","), ...rows.map(r => headers.map(h => JSON.stringify(r[h] ?? "")).join(","))].join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = filename; a.click();
-  URL.revokeObjectURL(url);
-}
 
 function Reports() {
   const { org } = useCurrentOrg();
@@ -40,7 +30,7 @@ function Reports() {
 
   return (
     <PageContainer>
-      <PageHeader title="Relatórios" description="Análise detalhada do seu negócio." />
+      <PageHeader title="Relatórios" description="Análise detalhada do seu negócio. Exporte em CSV, Excel ou PDF." />
       <Tabs defaultValue="finance">
         <TabsList>
           <TabsTrigger value="finance">Financeiro</TabsTrigger>
@@ -59,13 +49,28 @@ function Reports() {
 }
 
 function ReportTable({ title, rows, cols, format: fmt }: { title: string; rows: any[]; cols: string[]; format?: Record<string, (v: any) => string> }) {
+  const projected = rows.map(r => {
+    const out: Record<string, any> = {};
+    for (const c of cols) out[c] = fmt?.[c] ? fmt[c](r[c]) : r[c] ?? "";
+    return out;
+  });
+  const filename = title.toLowerCase().replace(/\s+/g, "-");
+
   return (
     <Card className="mt-4">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-2">
         <CardTitle>{title}</CardTitle>
-        <Button size="sm" variant="outline" className="gap-1" onClick={() => exportCSV(rows, `${title.toLowerCase()}.csv`)}>
-          <Download className="size-4" /> Exportar CSV
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" variant="outline" className="gap-1" disabled={!rows.length} onClick={() => exportCSV(projected, filename)}>
+            <Download className="size-4" /> CSV
+          </Button>
+          <Button size="sm" variant="outline" className="gap-1" disabled={!rows.length} onClick={() => exportXLSX(projected, filename, title)}>
+            <FileSpreadsheet className="size-4" /> Excel
+          </Button>
+          <Button size="sm" variant="outline" className="gap-1" disabled={!rows.length} onClick={() => exportPDF(`Relatório — ${title}`, projected, filename, cols.map(c => ({ header: c, key: c })))}>
+            <FileText className="size-4" /> PDF
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
