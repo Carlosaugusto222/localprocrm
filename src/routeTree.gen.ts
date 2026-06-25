@@ -14,19 +14,25 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as AuthenticatedWhatsappRouteImport } from './routes/_authenticated/whatsapp'
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedOsRouteImport } from './routes/_authenticated/os'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedHojeRouteImport } from './routes/_authenticated/hoje'
 import { Route as AuthenticatedGuiaRouteImport } from './routes/_authenticated/guia'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
+import { Route as AuthenticatedEquipeRouteImport } from './routes/_authenticated/equipe'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCrmRouteImport } from './routes/_authenticated/crm'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
+import { Route as AuthenticatedCaixaRouteImport } from './routes/_authenticated/caixa'
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
+import { Route as AuthenticatedOsIdRouteImport } from './routes/_authenticated/os.$id'
 import { Route as AuthenticatedCrmIdRouteImport } from './routes/_authenticated/crm.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -53,6 +59,11 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AgendarSlugRoute = AgendarSlugRouteImport.update({
+  id: '/agendar/$slug',
+  path: '/agendar/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWhatsappRoute = AuthenticatedWhatsappRouteImport.update({
   id: '/whatsapp',
   path: '/whatsapp',
@@ -71,6 +82,16 @@ const AuthenticatedSuperAdminRoute = AuthenticatedSuperAdminRouteImport.update({
 const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOsRoute = AuthenticatedOsRouteImport.update({
+  id: '/os',
+  path: '/os',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
@@ -98,6 +119,11 @@ const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
   path: '/financeiro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEquipeRoute = AuthenticatedEquipeRouteImport.update({
+  id: '/equipe',
+  path: '/equipe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -114,10 +140,20 @@ const AuthenticatedConfiguracoesRoute =
     path: '/configuracoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCaixaRoute = AuthenticatedCaixaRouteImport.update({
+  id: '/caixa',
+  path: '/caixa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAgendaRoute = AuthenticatedAgendaRouteImport.update({
   id: '/agenda',
   path: '/agenda',
   getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOsIdRoute = AuthenticatedOsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedOsRoute,
 } as any)
 const AuthenticatedCrmIdRoute = AuthenticatedCrmIdRouteImport.update({
   id: '/$id',
@@ -130,40 +166,52 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/caixa': typeof AuthenticatedCaixaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/equipe': typeof AuthenticatedEquipeRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/guia': typeof AuthenticatedGuiaRoute
   '/hoje': typeof AuthenticatedHojeRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/os': typeof AuthenticatedOsRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
   '/crm/$id': typeof AuthenticatedCrmIdRoute
+  '/os/$id': typeof AuthenticatedOsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/agenda': typeof AuthenticatedAgendaRoute
+  '/caixa': typeof AuthenticatedCaixaRoute
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/equipe': typeof AuthenticatedEquipeRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/guia': typeof AuthenticatedGuiaRoute
   '/hoje': typeof AuthenticatedHojeRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/os': typeof AuthenticatedOsRouteWithChildren
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
   '/crm/$id': typeof AuthenticatedCrmIdRoute
+  '/os/$id': typeof AuthenticatedOsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -172,20 +220,26 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
+  '/_authenticated/caixa': typeof AuthenticatedCaixaRoute
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/crm': typeof AuthenticatedCrmRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/equipe': typeof AuthenticatedEquipeRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
   '/_authenticated/guia': typeof AuthenticatedGuiaRoute
   '/_authenticated/hoje': typeof AuthenticatedHojeRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/os': typeof AuthenticatedOsRouteWithChildren
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/vendas': typeof AuthenticatedVendasRoute
   '/_authenticated/whatsapp': typeof AuthenticatedWhatsappRoute
+  '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/crm/$id': typeof AuthenticatedCrmIdRoute
+  '/_authenticated/os/$id': typeof AuthenticatedOsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -194,40 +248,52 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/agenda'
+    | '/caixa'
     | '/configuracoes'
     | '/crm'
     | '/dashboard'
+    | '/equipe'
     | '/financeiro'
     | '/funil'
     | '/guia'
     | '/hoje'
     | '/ia'
+    | '/onboarding'
+    | '/os'
     | '/relatorios'
     | '/super-admin'
     | '/vendas'
     | '/whatsapp'
+    | '/agendar/$slug'
     | '/api/chat'
     | '/crm/$id'
+    | '/os/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
     | '/agenda'
+    | '/caixa'
     | '/configuracoes'
     | '/crm'
     | '/dashboard'
+    | '/equipe'
     | '/financeiro'
     | '/funil'
     | '/guia'
     | '/hoje'
     | '/ia'
+    | '/onboarding'
+    | '/os'
     | '/relatorios'
     | '/super-admin'
     | '/vendas'
     | '/whatsapp'
+    | '/agendar/$slug'
     | '/api/chat'
     | '/crm/$id'
+    | '/os/$id'
   id:
     | '__root__'
     | '/'
@@ -235,20 +301,26 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/agenda'
+    | '/_authenticated/caixa'
     | '/_authenticated/configuracoes'
     | '/_authenticated/crm'
     | '/_authenticated/dashboard'
+    | '/_authenticated/equipe'
     | '/_authenticated/financeiro'
     | '/_authenticated/funil'
     | '/_authenticated/guia'
     | '/_authenticated/hoje'
     | '/_authenticated/ia'
+    | '/_authenticated/onboarding'
+    | '/_authenticated/os'
     | '/_authenticated/relatorios'
     | '/_authenticated/super-admin'
     | '/_authenticated/vendas'
     | '/_authenticated/whatsapp'
+    | '/agendar/$slug'
     | '/api/chat'
     | '/_authenticated/crm/$id'
+    | '/_authenticated/os/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -256,6 +328,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  AgendarSlugRoute: typeof AgendarSlugRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
@@ -296,6 +369,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/agendar/$slug': {
+      id: '/agendar/$slug'
+      path: '/agendar/$slug'
+      fullPath: '/agendar/$slug'
+      preLoaderRoute: typeof AgendarSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/whatsapp': {
       id: '/_authenticated/whatsapp'
       path: '/whatsapp'
@@ -322,6 +402,20 @@ declare module '@tanstack/react-router' {
       path: '/relatorios'
       fullPath: '/relatorios'
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/os': {
+      id: '/_authenticated/os'
+      path: '/os'
+      fullPath: '/os'
+      preLoaderRoute: typeof AuthenticatedOsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ia': {
@@ -359,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceiroRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/equipe': {
+      id: '/_authenticated/equipe'
+      path: '/equipe'
+      fullPath: '/equipe'
+      preLoaderRoute: typeof AuthenticatedEquipeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard': {
       id: '/_authenticated/dashboard'
       path: '/dashboard'
@@ -380,12 +481,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedConfiguracoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/caixa': {
+      id: '/_authenticated/caixa'
+      path: '/caixa'
+      fullPath: '/caixa'
+      preLoaderRoute: typeof AuthenticatedCaixaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/agenda': {
       id: '/_authenticated/agenda'
       path: '/agenda'
       fullPath: '/agenda'
       preLoaderRoute: typeof AuthenticatedAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/os/$id': {
+      id: '/_authenticated/os/$id'
+      path: '/$id'
+      fullPath: '/os/$id'
+      preLoaderRoute: typeof AuthenticatedOsIdRouteImport
+      parentRoute: typeof AuthenticatedOsRoute
     }
     '/_authenticated/crm/$id': {
       id: '/_authenticated/crm/$id'
@@ -408,16 +523,32 @@ const AuthenticatedCrmRouteChildren: AuthenticatedCrmRouteChildren = {
 const AuthenticatedCrmRouteWithChildren =
   AuthenticatedCrmRoute._addFileChildren(AuthenticatedCrmRouteChildren)
 
+interface AuthenticatedOsRouteChildren {
+  AuthenticatedOsIdRoute: typeof AuthenticatedOsIdRoute
+}
+
+const AuthenticatedOsRouteChildren: AuthenticatedOsRouteChildren = {
+  AuthenticatedOsIdRoute: AuthenticatedOsIdRoute,
+}
+
+const AuthenticatedOsRouteWithChildren = AuthenticatedOsRoute._addFileChildren(
+  AuthenticatedOsRouteChildren,
+)
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAgendaRoute: typeof AuthenticatedAgendaRoute
+  AuthenticatedCaixaRoute: typeof AuthenticatedCaixaRoute
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedCrmRoute: typeof AuthenticatedCrmRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEquipeRoute: typeof AuthenticatedEquipeRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
   AuthenticatedGuiaRoute: typeof AuthenticatedGuiaRoute
   AuthenticatedHojeRoute: typeof AuthenticatedHojeRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedOsRoute: typeof AuthenticatedOsRouteWithChildren
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
@@ -426,14 +557,18 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAgendaRoute: AuthenticatedAgendaRoute,
+  AuthenticatedCaixaRoute: AuthenticatedCaixaRoute,
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedCrmRoute: AuthenticatedCrmRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEquipeRoute: AuthenticatedEquipeRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
   AuthenticatedGuiaRoute: AuthenticatedGuiaRoute,
   AuthenticatedHojeRoute: AuthenticatedHojeRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedOsRoute: AuthenticatedOsRouteWithChildren,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedVendasRoute: AuthenticatedVendasRoute,
@@ -448,6 +583,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  AgendarSlugRoute: AgendarSlugRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
