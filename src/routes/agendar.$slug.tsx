@@ -45,14 +45,14 @@ function PublicBooking() {
       const start = new Date(`${date}T${time}:00`);
       const end = new Date(start.getTime() + (selected.duration_minutes ?? 60) * 60000);
       const { data: customer } = await supabase.from("customers").insert({
-        organization_id: org.id, name: contact.name, phone: contact.phone, source: "public_booking",
+        organization_id: org.id, name: contact.name, phone: contact.phone,
       }).select().single();
       await supabase.from("appointments").insert({
         organization_id: org.id, customer_id: customer?.id,
         title: selected.name, product_id: selected.id,
         starts_at: start.toISOString(), ends_at: end.toISOString(),
         duration_minutes: selected.duration_minutes ?? 60,
-        status: "scheduled", notes: contact.notes, source: "public_booking",
+        status: "scheduled", notes: contact.notes,
       });
       await supabase.from("notifications").insert({
         organization_id: org.id, type: "new_booking",

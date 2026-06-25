@@ -117,8 +117,8 @@ function OpenCard({ onOpen }: { onOpen: (v: number) => void }) {
 }
 
 function OpenSessionView({ session, movements, onClose }: { session: any; movements: any[]; onClose: (v: number, n: string) => void }) {
-  const income = movements.filter(m => m.type === "income").reduce((a, b) => a + Number(b.amount), 0);
-  const expense = movements.filter(m => m.type === "expense").reduce((a, b) => a + Number(b.amount), 0);
+  const income = movements.filter(m => m.kind === "income").reduce((a, b) => a + Number(b.amount), 0);
+  const expense = movements.filter(m => m.kind === "expense").reduce((a, b) => a + Number(b.amount), 0);
   const expected = Number(session.opening_amount) + income - expense;
   const [closing, setClosing] = useState(String(expected));
   const [notes, setNotes] = useState("");
@@ -146,7 +146,7 @@ function OpenSessionView({ session, movements, onClose }: { session: any; moveme
           <ul className="text-sm divide-y divide-border max-h-64 overflow-y-auto">
             {movements.map((m: any) => (
               <li key={m.id} className="py-2 flex items-center gap-2">
-                <span className={`size-2 rounded-full ${m.type === "income" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                <span className={`size-2 rounded-full ${m.kind === "income" ? "bg-emerald-500" : "bg-rose-500"}`} />
                 <span className="flex-1 truncate">{m.description ?? "—"}</span>
                 <span className="tabular-nums">{fmt(Number(m.amount))}</span>
               </li>
