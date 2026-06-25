@@ -19,6 +19,7 @@ import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedHojeRouteImport } from './routes/_authenticated/hoje'
 import { Route as AuthenticatedGuiaRouteImport } from './routes/_authenticated/guia'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
@@ -77,6 +78,11 @@ const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   path: '/ia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHojeRoute = AuthenticatedHojeRouteImport.update({
+  id: '/hoje',
+  path: '/hoje',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedGuiaRoute = AuthenticatedGuiaRouteImport.update({
   id: '/guia',
   path: '/guia',
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/guia': typeof AuthenticatedGuiaRoute
+  '/hoje': typeof AuthenticatedHojeRoute
   '/ia': typeof AuthenticatedIaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
@@ -149,6 +156,7 @@ export interface FileRoutesByTo {
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/guia': typeof AuthenticatedGuiaRoute
+  '/hoje': typeof AuthenticatedHojeRoute
   '/ia': typeof AuthenticatedIaRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
   '/_authenticated/guia': typeof AuthenticatedGuiaRoute
+  '/_authenticated/hoje': typeof AuthenticatedHojeRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/funil'
     | '/guia'
+    | '/hoje'
     | '/ia'
     | '/relatorios'
     | '/super-admin'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/financeiro'
     | '/funil'
     | '/guia'
+    | '/hoje'
     | '/ia'
     | '/relatorios'
     | '/super-admin'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/_authenticated/financeiro'
     | '/_authenticated/funil'
     | '/_authenticated/guia'
+    | '/_authenticated/hoje'
     | '/_authenticated/ia'
     | '/_authenticated/relatorios'
     | '/_authenticated/super-admin'
@@ -319,6 +331,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/hoje': {
+      id: '/_authenticated/hoje'
+      path: '/hoje'
+      fullPath: '/hoje'
+      preLoaderRoute: typeof AuthenticatedHojeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/guia': {
       id: '/_authenticated/guia'
       path: '/guia'
@@ -397,6 +416,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
   AuthenticatedGuiaRoute: typeof AuthenticatedGuiaRoute
+  AuthenticatedHojeRoute: typeof AuthenticatedHojeRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
@@ -412,6 +432,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
   AuthenticatedGuiaRoute: AuthenticatedGuiaRoute,
+  AuthenticatedHojeRoute: AuthenticatedHojeRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
