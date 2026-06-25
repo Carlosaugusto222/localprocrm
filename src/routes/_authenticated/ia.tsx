@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone } from "lucide-react";
+import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone, Tag } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { startOfMonth, subMonths, endOfMonth } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   head: () => ({ meta: [{ title: "Assistente IA — LocalPro CRM" }] }),
