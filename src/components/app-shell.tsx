@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserMenu } from "@/components/user-menu";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -15,6 +16,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SidebarTrigger />
             <OrgSwitcher />
             <div className="flex-1" />
+            <NotificationsBell />
             <ThemeToggle />
             <UserMenu />
           </header>

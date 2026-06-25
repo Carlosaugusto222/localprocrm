@@ -1,92 +1,87 @@
-# LocalPro CRM — Plano de Construção
+# Fase 3 — LocalPro CRM Profissional e Adaptável
 
-SaaS white-label multi-tenant para negócios locais. O escopo é grande; vou entregar em fases para que você veja valor a cada etapa e possa ajustar o rumo antes de investir em módulos pesados.
+Objetivo: transformar o sistema em uma plataforma de gestão completa, pronta para qualquer segmento, com tudo que falta para um SaaS sério.
 
-## Antes de começar — 3 decisões rápidas
+## 1. Onboarding inteligente por segmento
+- Wizard em 4 passos no primeiro login: dados da empresa, segmento, módulos ativos, importar catálogo sugerido (serviços/produtos pré-prontos por segmento).
+- 7 templates: Barbearia, Salão, Clínica, Oficina, Restaurante, Academia, Imobiliária + Genérico.
+- Cria automaticamente: catálogo inicial, tags padrão de cliente, status do funil customizados.
 
-1. **Backend**: vou ativar o **Lovable Cloud** (Postgres + Auth + Storage + Server Functions). Necessário para multi-tenant, RLS e papéis. OK?
-2. **Idioma da UI**: Português (BR) como padrão. OK?
-3. **Pagamentos de assinatura (Básico/Pro/Premium)**: deixo a estrutura de planos pronta no banco, mas **não** integro cobrança real agora (Stripe/Paddle entra numa fase posterior, requer Pro plan). Os planos funcionam como feature-flags por enquanto. OK?
+## 2. Ordens de Serviço (módulo novo — `/os`)
+- Essencial para oficinas, clínicas, assistências, prestadores.
+- Numeração sequencial por empresa, status (Aberta, Em execução, Aguardando peça, Concluída, Entregue, Cancelada).
+- Vincula cliente + técnico responsável + itens (peças/serviços) + checklist + fotos antes/depois (upload no Storage).
+- Geração automática de venda + transação ao concluir.
 
-## Fase 1 — Fundação (esta entrega)
+## 3. Catálogo profissional
+- Estoque: quantidade atual, mínimo, alerta de baixo estoque.
+- Categorias, SKU, código de barras, custo vs preço (margem calculada).
+- Movimento de estoque automático em vendas + OS.
 
-Objetivo: app navegável, bonito, com auth, multi-tenant e o esqueleto de todos os módulos.
+## 4. Caixa diário e formas de pagamento
+- Abertura/fechamento de caixa com saldo inicial e contagem final.
+- Formas de pagamento: dinheiro, pix, débito, crédito (com parcelas), boleto, transferência.
+- Conciliação por forma de pagamento no fechamento.
+- Centros de custo e categorias de despesa.
 
-**Design system**
-- Tokens em `src/styles.css` (oklch), dark/light mode, inspiração Stripe/Linear/Notion
-- Tipografia premium (não-default), animações sutis, layout responsivo
-- Sidebar colapsável + topbar com troca de tema e seletor de empresa
+## 5. Comissões de funcionários
+- Tabela de comissão por funcionário/serviço (% ou valor fixo).
+- Relatório de comissões a pagar por período.
+- Atribuir profissional responsável em agendamento, OS e venda.
 
-**Banco (Lovable Cloud)**
-- `organizations` (tenant): nome, slug, plano, módulos ativos (jsonb), segmento
-- `profiles`: dados do usuário
-- `organization_members`: vínculo user↔org com papel (`owner`, `staff`)
-- `user_roles` (app-wide): `super_admin` separado, via security-definer `has_role()`
-- `customers`, `appointments`, `products`, `sales`, `sale_items`, `transactions` (receitas/despesas), `tags`, `customer_tags`
-- RLS em tudo, isolada por `organization_id` via função `is_org_member(org_id)` security-definer
-- GRANTs explícitos em todas as tabelas públicas
-- Trigger de criação automática de profile + organização no signup
+## 6. Agenda profissional
+- Horários de funcionamento por dia da semana + bloqueios (feriados, almoço).
+- Múltiplos profissionais com agenda independente, visão por profissional.
+- Conflito de horário bloqueado, duração padrão por serviço.
+- Lembretes automáticos (estrutura) 24h e 1h antes.
 
-**Auth**
-- Email/senha + Google (via broker Lovable)
-- Recuperação de senha com rota `/reset-password`
-- Verificação de email habilitada
-- Layout `_authenticated` gerenciado redireciona não-logados para `/auth`
+## 7. Notificações in-app
+- Sino no topbar com central de notificações: novos agendamentos, baixo estoque, OS aguardando, contas a vencer, aniversários de clientes.
+- Tabela `notifications` com lida/não lida e link de ação.
 
-**Rotas (TanStack)**
-```
-/                       landing pública
-/auth                   login + cadastro + recuperar
-/reset-password         redefinir senha
-/_authenticated/
-  dashboard             cards + gráficos (recharts)
-  crm                   lista de clientes, busca, tags, status
-  crm/$id               detalhe + histórico + funil
-  agenda                calendário dia/semana/mês (drag&drop)
-  financeiro            receitas, despesas, fluxo de caixa
-  vendas                produtos/serviços, pedidos, orçamentos
-  whatsapp              placeholder "Em breve" + estrutura de templates
-  ia                    chat com Lovable AI (Gemini Flash)
-  relatorios            filtros + export CSV (PDF/XLSX em fase 2)
-  configuracoes         empresa, módulos ativos, equipe, plano
-/super-admin            métricas globais (gated por role)
-```
+## 8. Portal do Cliente (link público)
+- Página pública `/agendar/{slug-empresa}` para cliente agendar sozinho escolhendo serviço + profissional + horário.
+- Sem login, cria cliente automaticamente, gera agendamento pendente de confirmação.
 
-**Módulos modulares**
-- Tabela `organizations.enabled_modules jsonb` controla o que aparece na sidebar
-- Hook `useEnabledModules()` lê do tenant atual; rotas escondidas se desativadas
-- Pré-configurações por segmento (barbearia, clínica, oficina, etc.) ao criar empresa
+## 9. Documentos e contratos
+- Geração de PDF profissional para: orçamento, OS, recibo, contrato simples.
+- Cabeçalho com logo da empresa + dados fiscais.
 
-**Funcionalidade real nesta fase**
-- CRM: CRUD completo de clientes com tags, status, busca
-- Agenda: calendário funcional (visualizações + criar/editar/arrastar)
-- Financeiro: CRUD de transações + gráfico de fluxo de caixa
-- Vendas: CRUD de produtos/serviços + criar pedido simples
-- Dashboard: métricas reais agregadas do tenant
-- IA: chat funcional usando Lovable AI
-- Relatórios: tabelas filtráveis + export CSV
-- Configurações: trocar plano, ativar/desativar módulos, convidar membro (gera link)
+## 10. Configurações da empresa expandidas
+- Upload de logo (Storage), endereço completo, CNPJ, telefone, horário de atendimento.
+- Configuração fiscal básica (regime tributário).
+- Convidar funcionários por email com papel (owner/staff) e módulos permitidos.
 
-## Fase 2 — Refinamentos (próxima conversa)
+## 11. Auditoria e segurança
+- Tabela `audit_log` registrando ações sensíveis (exclusões, alterações financeiras, mudanças de plano).
+- Política de retenção (super admin vê tudo, owner vê só da empresa).
 
-- Funil de vendas Kanban com drag&drop
-- Export PDF/XLSX (jsPDF + xlsx)
-- Templates de WhatsApp + integração real (quando você tiver provedor)
-- IA com ações: gerar campanha, resumir atendimento, criar relatório em linguagem natural
-- Super Admin: dashboard global de todos os tenants
-- Cobrança real (Stripe/Paddle) atrelada aos planos
-- Notificações in-app + email (confirmações, lembretes)
+## 12. Aniversariantes e fidelização
+- Widget de aniversariantes do mês no Hoje.
+- Programa de fidelidade simples: pontos por venda, regaste em desconto.
+
+## 13. Dashboard refinado
+- Comparativo com período anterior (% crescimento).
+- Top 5 clientes, top 5 serviços, ocupação da agenda.
+- Filtro de período (hoje/semana/mês/ano).
+
+## 14. IA com contexto real
+- Assistente passa a ter acesso ao contexto da empresa (segmento, métricas) para respostas específicas.
+- Nova ação: "Sugerir promoção para hoje" baseada em ocupação da agenda.
 
 ## Detalhes técnicos
+- Novas tabelas: `service_orders`, `service_order_items`, `stock_movements`, `cash_sessions`, `payment_methods`, `commissions`, `notifications`, `business_hours`, `loyalty_points`, `audit_log`, `invitations`.
+- Bucket Storage `org-assets` (logos, fotos OS) com RLS por organização.
+- Todas as tabelas com GRANTs + RLS via `is_org_member`.
+- Novas rotas: `/onboarding`, `/os`, `/os/$id`, `/caixa`, `/equipe`, `/agendar/$slug` (pública).
+- Sidebar reorganizada com novos itens em Dia a dia/Gestão.
 
-- Stack: TanStack Start + React 19 + TS strict + Tailwind v4 + shadcn/ui + Lovable Cloud (Supabase) + TanStack Query + recharts + date-fns + react-day-picker + Lovable AI Gateway (Gemini 3 Flash)
-- Multi-tenant por **RLS + organization_id**, não por schema (mais simples, escalável até dezenas de milhares de tenants)
-- Papéis: `super_admin` em `user_roles` (global), `owner`/`staff` em `organization_members` (por tenant)
-- Server functions com `requireSupabaseAuth` para tudo que muta dados
-- IA via `createServerFn` chamando AI Gateway server-side (chave nunca no client)
+## O que NÃO entra nessa fase (deixar pra depois se quiser)
+- Pagamento real Stripe/Paddle (só estrutura de planos).
+- WhatsApp real (Twilio/Meta) — fica como estrutura.
+- App mobile nativo.
+- NF-e/NFC-e fiscal real (depende de integração externa).
 
-## Tamanho da entrega da Fase 1
+Vou implementar em ordem de impacto: onboarding → OS → estoque → caixa+pagamentos → comissões → agenda pro → notificações → portal cliente → docs PDF → config expandida → auditoria → fidelização → dashboard → IA contextual.
 
-Será grande (~40-50 arquivos novos). Vou priorizar **profundidade no design e no CRM/Agenda/Dashboard** (o que você mais vai mostrar) e deixar Financeiro/Vendas/IA funcionais mas mais enxutos, prontos para evoluir.
-
-Confirma os 3 pontos no topo e mando ver?
+Confirma que posso seguir com tudo isso de uma vez? É grande mas vai ficar redondo.
