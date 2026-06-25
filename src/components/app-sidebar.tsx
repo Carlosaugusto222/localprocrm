@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
-  MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen,
+  MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -10,17 +10,25 @@ import {
 import { useEnabledModules } from "@/hooks/use-current-org";
 import { useIsSuperAdmin } from "@/hooks/use-is-super-admin";
 
-const items = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, module: "dashboard" },
-  { title: "Clientes (CRM)", url: "/crm", icon: Users, module: "crm" },
-  { title: "Funil de Vendas", url: "/funil", icon: Kanban, module: "crm" },
+type Item = { title: string; url: string; icon: typeof Sun; module?: string };
+
+// Daily operational tools — what the user touches every day
+const diaADia: Item[] = [
+  { title: "Hoje", url: "/hoje", icon: Sun },
   { title: "Agenda", url: "/agenda", icon: Calendar, module: "appointments" },
-  { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
   { title: "Vendas", url: "/vendas", icon: ShoppingBag, module: "sales" },
+  { title: "Clientes", url: "/crm", icon: Users, module: "crm" },
+  { title: "Funil", url: "/funil", icon: Kanban, module: "crm" },
   { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
-  { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
+];
+
+// Management — strategic / periodic
+const gestao: Item[] = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
-] as const;
+  { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
+];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -29,10 +37,24 @@ export function AppSidebar() {
   const isEnabled = useEnabledModules();
   const isSuperAdmin = useIsSuperAdmin();
 
+  const renderItems = (list: Item[]) =>
+    list
+      .filter(i => !i.module || isEnabled(i.module))
+      .map(item => (
+        <SidebarMenuItem key={item.url}>
+          <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url + "/")}>
+            <Link to={item.url} className="flex items-center gap-2">
+              <item.icon className="size-4" />
+              <span>{item.title}</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ));
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link to="/dashboard" className="flex items-center gap-2 px-2 py-1.5">
+        <Link to="/hoje" className="flex items-center gap-2 px-2 py-1.5">
           <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-chart-4 grid place-items-center text-primary-foreground shadow-sm">
             <Zap className="size-4" />
           </div>
@@ -46,22 +68,19 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Operação</SidebarGroupLabel>
+          <SidebarGroupLabel>Dia a dia</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {items.filter(i => i.module === "dashboard" || isEnabled(i.module)).map(item => (
-                <SidebarMenuItem key={item.url}>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.url)}>
-                    <Link to={item.url} className="flex items-center gap-2">
-                      <item.icon className="size-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+            <SidebarMenu>{renderItems(diaADia)}</SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Gestão</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>{renderItems(gestao)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         <SidebarGroup>
           <SidebarGroupLabel>Conta</SidebarGroupLabel>
           <SidebarGroupContent>
