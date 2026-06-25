@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt } from "lucide-react";
 import { PageContainer } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { generateBusinessPDF } from "@/lib/exporters";
 
 export const Route = createFileRoute("/_authenticated/os/$id")({
   component: OSDetail,
