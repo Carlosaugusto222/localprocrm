@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { Plus, Package, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Plus, Package, Trash2, Pencil } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -124,17 +124,31 @@ function ProductDialog({ orgId, onClose }: { orgId?: string; onClose: () => void
 function SalesList({ orgId }: { orgId?: string }) {
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const { data = [] } = useQuery({
     enabled: !!orgId,
     queryKey: ["sales", orgId],
     queryFn: async () => (await supabase.from("sales").select("*, customers(name)").eq("organization_id", orgId!).order("created_at", { ascending: false })).data ?? [],
   });
+  const del = useMutation({
+    mutationFn: async (id: string) => {
+      await supabase.from("sale_items").delete().eq("sale_id", id);
+      const { error } = await supabase.from("sales").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sales"] }); toast.success("Venda excluída"); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const handleOpen = (v: boolean) => { setOpen(v); if (!v) setEditingId(null); };
+  const openEdit = (id: string) => { setEditingId(id); setOpen(true); };
+
   return (
     <div className="mt-4">
       <div className="flex justify-end mb-3">
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild><Button className="gap-1"><Plus className="size-4" /> Nova venda</Button></DialogTrigger>
-          <SaleDialog orgId={orgId} onClose={() => setOpen(false)} />
+        <Dialog open={open} onOpenChange={handleOpen}>
+          <DialogTrigger asChild><Button className="gap-1" onClick={() => setEditingId(null)}><Plus className="size-4" /> Nova venda</Button></DialogTrigger>
+          <SaleDialog orgId={orgId} saleId={editingId} onClose={() => handleOpen(false)} />
         </Dialog>
       </div>
       <div className="grid gap-2">
@@ -146,6 +160,8 @@ function SalesList({ orgId }: { orgId?: string }) {
             </div>
             <Badge variant="outline">{s.status}</Badge>
             <div className="font-display font-bold">{brl(Number(s.total))}</div>
+            <Button variant="ghost" size="icon" onClick={() => openEdit(s.id)}><Pencil className="size-4" /></Button>
+            <Button variant="ghost" size="icon" onClick={() => { if (confirm("Excluir esta venda?")) del.mutate(s.id); }}><Trash2 className="size-4" /></Button>
           </Card>
         ))}
         {data.length === 0 && <p className="text-sm text-muted-foreground py-8 text-center">Nenhuma venda registrada.</p>}
@@ -154,10 +170,11 @@ function SalesList({ orgId }: { orgId?: string }) {
   );
 }
 
-type SaleItem = { product_id: string; description: string; quantity: number; unit_price: number };
+type SaleItem = { product_id: string | null; description: string; quantity: number; unit_price: number };
 
-function SaleDialog({ orgId, onClose }: { orgId?: string; onClose: () => void }) {
+function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: string | null; onClose: () => void }) {
   const qc = useQueryClient();
+  const isEdit = !!saleId;
   const [form, setForm] = useState({ customer_id: "", notes: "", status: "order" as "quote" | "order" | "paid" | "cancelled" });
   const [items, setItems] = useState<SaleItem[]>([]);
   const { data: customers = [] } = useQuery({
@@ -171,6 +188,30 @@ function SaleDialog({ orgId, onClose }: { orgId?: string; onClose: () => void })
     queryFn: async () => (await supabase.from("products").select("id,name,price,kind").eq("organization_id", orgId!).order("name")).data ?? [],
   });
 
+  const { data: existing } = useQuery({
+    enabled: !!saleId,
+    queryKey: ["sale-edit", saleId],
+    queryFn: async () => {
+      const { data: sale } = await supabase.from("sales").select("*").eq("id", saleId!).single();
+      const { data: its } = await supabase.from("sale_items").select("*").eq("sale_id", saleId!);
+      return { sale, items: its ?? [] };
+    },
+  });
+
+  useEffect(() => {
+    if (existing?.sale) {
+      setForm({
+        customer_id: existing.sale.customer_id ?? "",
+        notes: existing.sale.notes ?? "",
+        status: existing.sale.status,
+      });
+      setItems((existing.items as any[]).map(it => ({
+        product_id: it.product_id, description: it.description,
+        quantity: Number(it.quantity), unit_price: Number(it.unit_price),
+      })));
+    }
+  }, [existing]);
+
   const total = items.reduce((s, it) => s + Number(it.quantity || 0) * Number(it.unit_price || 0), 0);
 
   const addProduct = (productId: string) => {
@@ -183,31 +224,46 @@ function SaleDialog({ orgId, onClose }: { orgId?: string; onClose: () => void })
   };
   const removeItem = (idx: number) => setItems(prev => prev.filter((_, i) => i !== idx));
 
-  const create = useMutation({
+  const save = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error("Sem empresa");
       if (items.length === 0) throw new Error("Adicione ao menos um item");
-      const { data: sale, error } = await supabase.from("sales").insert({
-        organization_id: orgId, customer_id: form.customer_id || null,
-        total, notes: form.notes || null, status: form.status,
-      }).select("id").single();
-      if (error) throw error;
+      let id = saleId;
+      if (isEdit) {
+        const { error } = await supabase.from("sales").update({
+          customer_id: form.customer_id || null, total, notes: form.notes || null, status: form.status,
+        }).eq("id", saleId!);
+        if (error) throw error;
+        await supabase.from("sale_items").delete().eq("sale_id", saleId!);
+      } else {
+        const { data: sale, error } = await supabase.from("sales").insert({
+          organization_id: orgId, customer_id: form.customer_id || null,
+          total, notes: form.notes || null, status: form.status,
+        }).select("id").single();
+        if (error) throw error;
+        id = sale.id;
+      }
       const payload = items.map(it => ({
-        sale_id: sale.id, organization_id: orgId, product_id: it.product_id || null,
+        sale_id: id!, organization_id: orgId, product_id: it.product_id || null,
         description: it.description, quantity: Number(it.quantity),
         unit_price: Number(it.unit_price), subtotal: Number(it.quantity) * Number(it.unit_price),
       }));
       const { error: itemsErr } = await supabase.from("sale_items").insert(payload);
       if (itemsErr) throw itemsErr;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["sales"] }); toast.success("Venda registrada"); onClose(); },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sales"] });
+      qc.invalidateQueries({ queryKey: ["sale-edit", saleId] });
+      toast.success(isEdit ? "Venda atualizada" : "Venda registrada");
+      onClose();
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
   return (
     <DialogContent className="max-w-2xl">
-      <DialogHeader><DialogTitle>Nova venda</DialogTitle></DialogHeader>
-      <form onSubmit={(e) => { e.preventDefault(); create.mutate(); }} className="space-y-3">
+      <DialogHeader><DialogTitle>{isEdit ? "Editar venda" : "Nova venda"}</DialogTitle></DialogHeader>
+      <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5"><Label>Cliente</Label>
             <Select value={form.customer_id || "_none"} onValueChange={v => setForm({ ...form, customer_id: v === "_none" ? "" : v })}>
@@ -283,7 +339,7 @@ function SaleDialog({ orgId, onClose }: { orgId?: string; onClose: () => void })
         <div className="space-y-1.5"><Label>Observações</Label><Textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={2} /></div>
         <DialogFooter>
           <Button type="button" variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button type="submit" disabled={create.isPending}>Salvar</Button>
+          <Button type="submit" disabled={save.isPending}>Salvar</Button>
         </DialogFooter>
       </form>
     </DialogContent>
