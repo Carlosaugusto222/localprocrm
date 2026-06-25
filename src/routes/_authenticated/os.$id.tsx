@@ -131,11 +131,23 @@ function OSDetail() {
             {os.customer?.name ?? "Sem cliente"} · Aberta em {new Date(os.opened_at).toLocaleDateString("pt-BR")}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Select value={os.status} onValueChange={v => updateOS.mutate({ status: v })}>
             <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
             <SelectContent>{STATUS.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
           </Select>
+          <Button variant="outline" size="sm" className="gap-1"
+            onClick={() => generateBusinessPDF({
+              kind: "quote", number: os.number, org: org ?? {}, customer: os.customer,
+              title: os.title, items: items.map((it: any) => ({ description: it.description, quantity: Number(it.quantity), unit_price: Number(it.unit_price), total: Number(it.total) })),
+              notes: os.description, total: Number(os.total ?? 0),
+            })}><FileText className="size-4" /> Orçamento</Button>
+          <Button variant="outline" size="sm" className="gap-1"
+            onClick={() => generateBusinessPDF({
+              kind: "receipt", number: os.number, org: org ?? {}, customer: os.customer,
+              title: os.title, items: items.map((it: any) => ({ description: it.description, quantity: Number(it.quantity), unit_price: Number(it.unit_price), total: Number(it.total) })),
+              notes: os.description, total: Number(os.total ?? 0),
+            })}><Receipt className="size-4" /> Recibo</Button>
           {os.status !== "done" && os.status !== "delivered" && (
             <Button onClick={() => closeOS.mutate()} disabled={closeOS.isPending}>Concluir e faturar</Button>
           )}
