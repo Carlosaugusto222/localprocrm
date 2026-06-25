@@ -197,6 +197,16 @@ async function buildActionPrompt(key: string, orgId: string, orgName: string): P
     return `Escreva 3 variações de mensagem de boas-vindas via WhatsApp para um novo cliente de ${orgName}. Tom: acolhedor, profissional, brasileiro. Inclua placeholder {{nome}} e {{empresa}}. Máximo 4 linhas cada.`;
   }
 
+  if (key === "promotion") {
+    const [prods, inactive] = await Promise.all([
+      supabase.from("products").select("name,price,kind,category,stock_qty,stock_min,track_stock").eq("organization_id", orgId).eq("active", true).limit(50),
+      supabase.from("customers").select("id", { count: "exact", head: true }).eq("organization_id", orgId).eq("status", "inactive"),
+    ]);
+    const cat = (prods.data ?? []) as any[];
+    const overstock = cat.filter(p => p.track_stock && Number(p.stock_qty) > Number(p.stock_min) * 2).map(p => p.name);
+    return `Use o contexto da empresa (já enviado) e os dados abaixo para sugerir UMA promoção do mês alinhada ao segmento.\n\nCatálogo (até 50): ${JSON.stringify(cat.slice(0, 20).map(p => ({ nome: p.name, tipo: p.kind, preco: Number(p.price), cat: p.category })))}\nProdutos com estoque alto (priorizar girar): ${JSON.stringify(overstock)}\nClientes inativos: ${inactive.count ?? 0}\n\nEntregue em markdown:\n1) Nome da promoção (chamativo)\n2) Mecânica (combo, desconto %, brinde, etc — escolha a melhor)\n3) Produtos/serviços incluídos (do catálogo acima)\n4) Preço promocional sugerido e margem estimada\n5) Mensagem WhatsApp pronta para disparo (máx 4 linhas, com {{nome}})\n6) Período sugerido e meta de vendas`;
+  }
+
   if (key === "report") {
     const since = new Date(); since.setDate(since.getDate() - 30);
     const sinceISO = since.toISOString();
