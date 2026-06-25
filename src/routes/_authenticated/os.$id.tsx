@@ -89,20 +89,22 @@ function OSDetail() {
 
       if (Number(os.total) > 0) {
         const { data: sale } = await supabase.from("sales").insert({
-          organization_id: org.id, customer_id: os.customer_id, total: os.total,
+          organization_id: org.id, customer_id: os.customer_id, total: Number(os.total),
           status: "paid", notes: `OS #${os.number} - ${os.title}`,
         }).select().single();
 
         if (sale) {
           await supabase.from("sale_items").insert(
-            items.map(it => ({
-              sale_id: sale.id, product_id: it.product_id, description: it.description,
-              quantity: it.quantity, unit_price: it.unit_price,
+            items.map((it: any) => ({
+              sale_id: sale.id, organization_id: org.id,
+              product_id: it.product_id, description: it.description,
+              quantity: Number(it.quantity), unit_price: Number(it.unit_price),
+              subtotal: Number(it.quantity) * Number(it.unit_price),
             }))
           );
           await supabase.from("transactions").insert({
-            organization_id: org.id, type: "income", amount: os.total,
-            description: `OS #${os.number}`, occurred_at: new Date().toISOString(),
+            organization_id: org.id, kind: "income", amount: Number(os.total),
+            description: `OS #${os.number}`, paid_at: new Date().toISOString(),
           });
         }
       }
@@ -113,7 +115,8 @@ function OSDetail() {
 
   if (!os) return <PageContainer><p>Carregando...</p></PageContainer>;
 
-  const checklist: { text: string; done: boolean }[] = Array.isArray(os.checklist) ? os.checklist : [];
+  const checklist: { text: string; done: boolean }[] = (Array.isArray(os.checklist) ? os.checklist : []) as any;
+
 
   return (
     <PageContainer>
