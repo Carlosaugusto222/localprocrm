@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
-  MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck,
+  MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -66,6 +66,14 @@ export function AppSidebar() {
           <SidebarGroupLabel>Conta</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={pathname.startsWith("/guia")}>
+                  <Link to="/guia" className="flex items-center gap-2">
+                    <BookOpen className="size-4" />
+                    <span>Guia de Uso</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/configuracoes")}>
                   <Link to="/configuracoes" className="flex items-center gap-2">
