@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
-  Wrench, Banknote, UserCog,
+  Wrench, Banknote, UserCog, ScanLine,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -16,6 +16,7 @@ type Item = { title: string; url: string; icon: typeof Sun; module?: string };
 const diaADia: Item[] = [
   { title: "Hoje", url: "/hoje", icon: Sun },
   { title: "Agenda", url: "/agenda", icon: Calendar, module: "appointments" },
+  { title: "PDV — Balcão", url: "/pdv", icon: ScanLine, module: "sales" },
   { title: "Vendas", url: "/vendas", icon: ShoppingBag, module: "sales" },
   { title: "Ordens de Serviço", url: "/os", icon: Wrench, module: "service_orders" },
   { title: "Caixa", url: "/caixa", icon: Banknote, module: "cash" },
