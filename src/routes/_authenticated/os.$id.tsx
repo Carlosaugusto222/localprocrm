@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt, MessageCircle } from "lucide-react";
 import { PageContainer } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -148,6 +148,24 @@ function OSDetail() {
               title: os.title, items: items.map((it: any) => ({ description: it.description, quantity: Number(it.quantity), unit_price: Number(it.unit_price), total: Number(it.total) })),
               notes: os.description, total: Number(os.total ?? 0),
             })}><Receipt className="size-4" /> Recibo</Button>
+          <Button variant="outline" size="sm" className="gap-1" disabled={!os.customer?.phone}
+            onClick={() => {
+              const phone = String(os.customer?.phone ?? "").replace(/\D/g, "");
+              const statusLbl = STATUS.find(s => s.id === os.status)?.label ?? os.status;
+              const itemsTxt = items.map((it: any) => `• ${it.description} (${it.quantity}x ${fmtMoney(Number(it.unit_price))})`).join("\n");
+              const msg = [
+                `Olá ${os.customer?.name ?? ""}! 👋`,
+                ``,
+                `Atualização da sua OS *#${os.number} — ${os.title}*`,
+                `Status: *${statusLbl}*`,
+                ``,
+                itemsTxt && `Itens:\n${itemsTxt}`,
+                ``,
+                `Total: *${fmtMoney(Number(os.total ?? 0))}*`,
+                org?.name && `\n— ${org.name}`,
+              ].filter(Boolean).join("\n");
+              window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
+            }}><MessageCircle className="size-4" /> WhatsApp</Button>
           {os.status !== "done" && os.status !== "delivered" && (
             <Button onClick={() => closeOS.mutate()} disabled={closeOS.isPending}>Concluir e faturar</Button>
           )}
