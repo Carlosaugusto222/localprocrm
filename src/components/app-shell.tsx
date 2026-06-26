@@ -12,7 +12,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-14 flex items-center gap-2 border-b bg-background/80 backdrop-blur px-3 sticky top-0 z-30">
+          <header className="h-14 flex items-center gap-2 border-b border-border/60 surface-glass px-3 sticky top-0 z-30">
             <SidebarTrigger />
             <OrgSwitcher />
             <div className="flex-1" />
