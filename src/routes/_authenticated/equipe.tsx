@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { UserPlus, Mail, Copy, Trash2 } from "lucide-react";
+import { UserPlus, Mail, Trash2 } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -97,23 +97,18 @@ function Team() {
       {invites.length > 0 && (
         <>
           <h2 className="text-base font-semibold mb-2">Convites pendentes</h2>
+          <p className="text-xs text-muted-foreground mb-2">Por segurança, o link só é exibido no momento da criação. Se precisar reenviar, cancele e crie um novo convite.</p>
           <div className="grid gap-2">
-            {invites.map((i: any) => {
-              const url = `${typeof window !== "undefined" ? window.location.origin : ""}/auth?invite=${i.token}`;
-              return (
-                <Card key={i.id} className="p-3 flex items-center gap-3 flex-wrap">
-                  <Mail className="size-4 text-muted-foreground" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{i.email}</div>
-                    <div className="text-xs text-muted-foreground">Expira em {new Date(i.expires_at).toLocaleDateString("pt-BR")}</div>
-                  </div>
-                  <Button size="sm" variant="outline" className="gap-1" onClick={() => { navigator.clipboard.writeText(url); toast.success("Link copiado"); }}>
-                    <Copy className="size-3" />Copiar link
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => cancelInvite.mutate(i.id)}><Trash2 className="size-4" /></Button>
-                </Card>
-              );
-            })}
+            {invites.map((i: any) => (
+              <Card key={i.id} className="p-3 flex items-center gap-3 flex-wrap">
+                <Mail className="size-4 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm">{i.email}</div>
+                  <div className="text-xs text-muted-foreground">Expira em {new Date(i.expires_at).toLocaleDateString("pt-BR")}</div>
+                </div>
+                <Button size="icon" variant="ghost" onClick={() => cancelInvite.mutate(i.id)}><Trash2 className="size-4" /></Button>
+              </Card>
+            ))}
           </div>
         </>
       )}
@@ -129,13 +124,19 @@ function InviteDialog({ orgId, onClose }: { orgId?: string; onClose: () => void 
   const create = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error("Sem empresa");
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase.from("invitations").insert({
-        organization_id: orgId, email, role, invited_by: user!.id,
+      const { data, error } = await supabase.rpc("create_invitation", {
+        _org_id: orgId, _email: email, _role: role,
       });
       if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      const token = row?.token as string | undefined;
+      if (token && typeof window !== "undefined") {
+        const url = `${window.location.origin}/auth?invite=${token}`;
+        await navigator.clipboard.writeText(url).catch(() => {});
+        toast.success("Link copiado — envie ao funcionário agora. Não será exibido novamente.", { duration: 8000 });
+      }
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["invites"] }); toast.success("Convite criado — copie o link e envie"); onClose(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["invites"] }); onClose(); },
     onError: (e: any) => toast.error(e.message),
   });
 

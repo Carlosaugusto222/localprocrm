@@ -298,7 +298,7 @@ export type Database = {
           invited_by: string | null
           organization_id: string
           role: string
-          token: string
+          token_hash: string
         }
         Insert: {
           accepted_at?: string | null
@@ -310,7 +310,7 @@ export type Database = {
           invited_by?: string | null
           organization_id: string
           role?: string
-          token?: string
+          token_hash: string
         }
         Update: {
           accepted_at?: string | null
@@ -322,7 +322,7 @@ export type Database = {
           invited_by?: string | null
           organization_id?: string
           role?: string
-          token?: string
+          token_hash?: string
         }
         Relationships: [
           {
@@ -1071,6 +1071,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: { Args: { _token: string }; Returns: string }
+      create_invitation: {
+        Args: {
+          _allowed_modules?: string[]
+          _email: string
+          _org_id: string
+          _role?: string
+        }
+        Returns: {
+          id: string
+          token: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
