@@ -14,7 +14,7 @@ import { useIsSuperAdmin } from "@/hooks/use-is-super-admin";
 type Item = { title: string; url: string; icon: typeof Sun; module?: string };
 
 const diaADia: Item[] = [
-  { title: "EmpreHub", url: "/emprehub", icon: Home },
+  { title: "Início", url: "/inicio", icon: Home },
   { title: "Planejamento", url: "/planejamento", icon: CalendarDays },
   { title: "Hoje", url: "/hoje", icon: Sun },
   { title: "Agenda", url: "/agenda", icon: Calendar, module: "appointments" },
@@ -59,7 +59,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link to="/emprehub" className="flex items-center gap-2 px-2 py-1.5">
+        <Link to="/inicio" className="flex items-center gap-2 px-2 py-1.5">
           <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-chart-4 grid place-items-center text-primary-foreground shadow-sm">
             <Zap className="size-4" />
           </div>

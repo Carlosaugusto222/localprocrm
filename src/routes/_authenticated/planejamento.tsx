@@ -21,7 +21,7 @@ import {
 import { ptBR } from "date-fns/locale";
 
 export const Route = createFileRoute("/_authenticated/planejamento")({
-  head: () => ({ meta: [{ title: "Planejamento — EmpreHub" }] }),
+  head: () => ({ meta: [{ title: "Planejamento — LocalPro CRM" }] }),
   component: Planejamento,
 });
 
