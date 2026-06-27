@@ -136,7 +136,7 @@ function InviteDialog({ orgId, onClose }: { orgId?: string; onClose: () => void 
         toast.success("Link copiado — envie ao funcionário agora. Não será exibido novamente.", { duration: 8000 });
       }
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["invites"] }); toast.success("Convite criado — copie o link e envie"); onClose(); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["invites"] }); onClose(); },
     onError: (e: any) => toast.error(e.message),
   });
 
