@@ -124,11 +124,17 @@ function InviteDialog({ orgId, onClose }: { orgId?: string; onClose: () => void 
   const create = useMutation({
     mutationFn: async () => {
       if (!orgId) throw new Error("Sem empresa");
-      const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase.from("invitations").insert({
-        organization_id: orgId, email, role, invited_by: user!.id,
+      const { data, error } = await supabase.rpc("create_invitation", {
+        _org_id: orgId, _email: email, _role: role,
       });
       if (error) throw error;
+      const row = Array.isArray(data) ? data[0] : data;
+      const token = row?.token as string | undefined;
+      if (token && typeof window !== "undefined") {
+        const url = `${window.location.origin}/auth?invite=${token}`;
+        await navigator.clipboard.writeText(url).catch(() => {});
+        toast.success("Link copiado — envie ao funcionário agora. Não será exibido novamente.", { duration: 8000 });
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["invites"] }); toast.success("Convite criado — copie o link e envie"); onClose(); },
     onError: (e: any) => toast.error(e.message),
