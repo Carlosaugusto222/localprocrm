@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
-  Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays, Bot,
+  Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays, Bot, KeyRound,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
