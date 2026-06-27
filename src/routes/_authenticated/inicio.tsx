@@ -10,8 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { startOfMonth } from "date-fns";
 
 export const Route = createFileRoute("/_authenticated/inicio")({
-  head: () => ({ meta: [{ title: "EmpreHub — Centro do seu negócio" }] }),
-  component: EmpreHub,
+  head: () => ({ meta: [{ title: "Início — Centro do seu negócio" }] }),
+  component: Inicio,
 });
 
 function greeting() {
@@ -21,7 +21,7 @@ function greeting() {
   return "Boa noite";
 }
 
-function EmpreHub() {
+function Inicio() {
   const { user } = useAuth();
   const { org } = useCurrentOrg();
   const firstName = (user?.user_metadata?.full_name || user?.email?.split("@")[0] || "").split(" ")[0];
