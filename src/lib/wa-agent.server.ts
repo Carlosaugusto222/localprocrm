@@ -39,7 +39,7 @@ export async function sendWhatsAppText(opts: {
 async function loadAgentContext(organizationId: string) {
   const sb = supabaseAdmin;
   const [org, prods, hours] = await Promise.all([
-    sb.from("organizations").select("name,segment,timezone").eq("id", organizationId).maybeSingle(),
+    sb.from("organizations").select("name,segment").eq("id", organizationId).maybeSingle(),
     sb.from("products").select("name,kind,price,duration_minutes").eq("organization_id", organizationId).limit(40),
     sb.from("business_hours").select("weekday,open_time,close_time,closed").eq("organization_id", organizationId),
   ]);
