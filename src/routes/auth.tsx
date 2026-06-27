@@ -13,9 +13,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — LocalPro CRM" },
-      { name: "description", content: "Entre na sua conta LocalPro CRM." },
+      { title: "Entrar ou criar conta — LocalPro CRM" },
+      { name: "description", content: "Acesse sua conta LocalPro CRM ou crie uma gratuitamente para começar a gerir seu negócio." },
+      { name: "robots", content: "noindex, follow" },
+      { property: "og:title", content: "Entrar — LocalPro CRM" },
+      { property: "og:url", content: "https://localprocrm.lovable.app/auth" },
     ],
+    links: [{ rel: "canonical", href: "https://localprocrm.lovable.app/auth" }],
   }),
   component: AuthPage,
 });

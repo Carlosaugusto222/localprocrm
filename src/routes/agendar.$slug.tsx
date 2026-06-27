@@ -11,7 +11,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/agendar/$slug")({
-  head: ({ params }) => ({ meta: [{ title: `Agendar online — ${params.slug}` }] }),
+  head: ({ params }) => ({
+    meta: [
+      { title: `Agendar online — ${params.slug}` },
+      { name: "description", content: `Reserve um horário online com ${params.slug}. Rápido, sem cadastro e com confirmação imediata.` },
+      { name: "robots", content: "noindex, follow" },
+    ],
+  }),
   component: PublicBooking,
 });
 

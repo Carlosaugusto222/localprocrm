@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+Disallow: /inicio
+Disallow: /hoje
+Disallow: /crm
+Disallow: /agenda
+Disallow: /pdv
+Disallow: /os
+Disallow: /vendas
+Disallow: /financeiro
+Disallow: /caixa
+Disallow: /dashboard
+Disallow: /relatorios
+Disallow: /configuracoes
+Disallow: /equipe
+Disallow: /ia
+Disallow: /whatsapp
+Disallow: /planejamento
+Disallow: /funil
+Disallow: /guia
+Disallow: /super-admin
+Disallow: /onboarding
+Disallow: /reset-password
+
+Sitemap: https://localprocrm.lovable.app/sitemap.xml
