@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
-  Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays,
+  Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays, Bot, KeyRound,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -24,7 +24,8 @@ const diaADia: Item[] = [
   { title: "Caixa", url: "/caixa", icon: Banknote, module: "cash" },
   { title: "Clientes", url: "/crm", icon: Users, module: "crm" },
   { title: "Funil", url: "/funil", icon: Kanban, module: "crm" },
-  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
+  { title: "WhatsApp Templates", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
+  { title: "WhatsApp Atendente", url: "/wa-inbox", icon: Bot, module: "whatsapp" },
 ];
 
 const gestao: Item[] = [
@@ -33,6 +34,7 @@ const gestao: Item[] = [
   { title: "Equipe", url: "/equipe", icon: UserCog, module: "team" },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
   { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
+  { title: "WhatsApp — Config", url: "/wa-config", icon: KeyRound, module: "whatsapp" },
 ];
 
 export function AppSidebar() {

@@ -21,6 +21,8 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as AuthenticatedWhatsappRouteImport } from './routes/_authenticated/whatsapp'
+import { Route as AuthenticatedWaInboxRouteImport } from './routes/_authenticated/wa-inbox'
+import { Route as AuthenticatedWaConfigRouteImport } from './routes/_authenticated/wa-config'
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
@@ -42,6 +44,7 @@ import { Route as AuthenticatedCaixaRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedOsIdRouteImport } from './routes/_authenticated/os.$id'
 import { Route as AuthenticatedCrmIdRouteImport } from './routes/_authenticated/crm.$id'
+import { Route as ApiPublicWaWebhookRouteImport } from './routes/api/public/wa.webhook'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -100,6 +103,16 @@ const AgendarSlugRoute = AgendarSlugRouteImport.update({
 const AuthenticatedWhatsappRoute = AuthenticatedWhatsappRouteImport.update({
   id: '/whatsapp',
   path: '/whatsapp',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWaInboxRoute = AuthenticatedWaInboxRouteImport.update({
+  id: '/wa-inbox',
+  path: '/wa-inbox',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWaConfigRoute = AuthenticatedWaConfigRouteImport.update({
+  id: '/wa-config',
+  path: '/wa-config',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedVendasRoute = AuthenticatedVendasRouteImport.update({
@@ -209,6 +222,11 @@ const AuthenticatedCrmIdRoute = AuthenticatedCrmIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCrmRoute,
 } as any)
+const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
+  id: '/api/public/wa/webhook',
+  path: '/api/public/wa/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -238,11 +256,14 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
+  '/wa-config': typeof AuthenticatedWaConfigRoute
+  '/wa-inbox': typeof AuthenticatedWaInboxRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
   '/crm/$id': typeof AuthenticatedCrmIdRoute
   '/os/$id': typeof AuthenticatedOsIdRoute
+  '/api/public/wa/webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -272,11 +293,14 @@ export interface FileRoutesByTo {
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
+  '/wa-config': typeof AuthenticatedWaConfigRoute
+  '/wa-inbox': typeof AuthenticatedWaInboxRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
   '/crm/$id': typeof AuthenticatedCrmIdRoute
   '/os/$id': typeof AuthenticatedOsIdRoute
+  '/api/public/wa/webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -308,11 +332,14 @@ export interface FileRoutesById {
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/vendas': typeof AuthenticatedVendasRoute
+  '/_authenticated/wa-config': typeof AuthenticatedWaConfigRoute
+  '/_authenticated/wa-inbox': typeof AuthenticatedWaInboxRoute
   '/_authenticated/whatsapp': typeof AuthenticatedWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/crm/$id': typeof AuthenticatedCrmIdRoute
   '/_authenticated/os/$id': typeof AuthenticatedOsIdRoute
+  '/api/public/wa/webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -344,11 +371,14 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/super-admin'
     | '/vendas'
+    | '/wa-config'
+    | '/wa-inbox'
     | '/whatsapp'
     | '/agendar/$slug'
     | '/api/chat'
     | '/crm/$id'
     | '/os/$id'
+    | '/api/public/wa/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -378,11 +408,14 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/super-admin'
     | '/vendas'
+    | '/wa-config'
+    | '/wa-inbox'
     | '/whatsapp'
     | '/agendar/$slug'
     | '/api/chat'
     | '/crm/$id'
     | '/os/$id'
+    | '/api/public/wa/webhook'
   id:
     | '__root__'
     | '/'
@@ -413,11 +446,14 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios'
     | '/_authenticated/super-admin'
     | '/_authenticated/vendas'
+    | '/_authenticated/wa-config'
+    | '/_authenticated/wa-inbox'
     | '/_authenticated/whatsapp'
     | '/agendar/$slug'
     | '/api/chat'
     | '/_authenticated/crm/$id'
     | '/_authenticated/os/$id'
+    | '/api/public/wa/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -432,6 +468,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -518,6 +555,20 @@ declare module '@tanstack/react-router' {
       path: '/whatsapp'
       fullPath: '/whatsapp'
       preLoaderRoute: typeof AuthenticatedWhatsappRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wa-inbox': {
+      id: '/_authenticated/wa-inbox'
+      path: '/wa-inbox'
+      fullPath: '/wa-inbox'
+      preLoaderRoute: typeof AuthenticatedWaInboxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wa-config': {
+      id: '/_authenticated/wa-config'
+      path: '/wa-config'
+      fullPath: '/wa-config'
+      preLoaderRoute: typeof AuthenticatedWaConfigRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/vendas': {
@@ -667,6 +718,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCrmIdRouteImport
       parentRoute: typeof AuthenticatedCrmRoute
     }
+    '/api/public/wa/webhook': {
+      id: '/api/public/wa/webhook'
+      path: '/api/public/wa/webhook'
+      fullPath: '/api/public/wa/webhook'
+      preLoaderRoute: typeof ApiPublicWaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -713,6 +771,8 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
+  AuthenticatedWaConfigRoute: typeof AuthenticatedWaConfigRoute
+  AuthenticatedWaInboxRoute: typeof AuthenticatedWaInboxRoute
   AuthenticatedWhatsappRoute: typeof AuthenticatedWhatsappRoute
 }
 
@@ -736,6 +796,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedVendasRoute: AuthenticatedVendasRoute,
+  AuthenticatedWaConfigRoute: AuthenticatedWaConfigRoute,
+  AuthenticatedWaInboxRoute: AuthenticatedWaInboxRoute,
   AuthenticatedWhatsappRoute: AuthenticatedWhatsappRoute,
 }
 
@@ -754,17 +816,8 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AgendarSlugRoute: AgendarSlugRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
