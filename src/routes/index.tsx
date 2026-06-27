@@ -4,13 +4,54 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 
+const URL = "https://localprocrm.lovable.app";
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
+
+const FAQ = [
+  { q: "O LocalPro CRM serve para qual tipo de negócio?", a: "Para qualquer negócio local: barbearias, salões, clínicas, oficinas, restaurantes, assistência técnica, hotéis, imobiliárias e mais. O sistema se adapta ao seu segmento no onboarding." },
+  { q: "Posso testar grátis?", a: "Sim. Você cria sua conta e começa a usar imediatamente, sem cartão de crédito." },
+  { q: "O sistema funciona no celular?", a: "Sim. A plataforma é 100% responsiva e funciona em qualquer dispositivo." },
+  { q: "Tem PDV e controle de caixa?", a: "Sim. Inclui terminal PDV, leitor de código de barras, formas de pagamento múltiplas, cupom não fiscal e controle diário de caixa." },
+  { q: "Posso enviar mensagens pelo WhatsApp?", a: "Sim. Há templates prontos para confirmação, lembrete, cobrança, boas-vindas, promoções e avaliações, com envio em um clique." },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "LocalPro CRM — Gestão completa para o seu negócio local" },
-      { name: "description", content: "CRM, agenda, financeiro, vendas e IA. Tudo o que o seu negócio precisa em uma única plataforma modular." },
-      { property: "og:title", content: "LocalPro CRM" },
-      { property: "og:description", content: "Gestão modular para barbearias, clínicas, oficinas, restaurantes e qualquer negócio local." },
+      { title: "LocalPro CRM — Gestão completa para negócios locais" },
+      { name: "description", content: "CRM, agenda, PDV, ordens de serviço, financeiro e IA em uma única plataforma modular. Comece grátis." },
+      { property: "og:title", content: "LocalPro CRM — Gestão completa para negócios locais" },
+      { property: "og:description", content: "CRM, agenda, PDV, OS, financeiro e IA em uma única plataforma modular. Comece grátis." },
+      { property: "og:url", content: URL },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:title", content: "LocalPro CRM — Gestão completa para negócios locais" },
+      { name: "twitter:description", content: "Plataforma modular: CRM, agenda, PDV, OS, financeiro e IA." },
+      { name: "twitter:image", content: OG_IMAGE },
+    ],
+    links: [{ rel: "canonical", href: URL }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          name: "LocalPro CRM",
+          applicationCategory: "BusinessApplication",
+          operatingSystem: "Web",
+          description: "Plataforma modular de gestão para negócios locais com CRM, agenda, PDV, OS, financeiro e IA.",
+          offers: { "@type": "Offer", price: "49", priceCurrency: "BRL" },
+          aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "120" },
+        }),
+      },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: FAQ.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+        }),
+      },
     ],
   }),
   beforeLoad: async () => {
