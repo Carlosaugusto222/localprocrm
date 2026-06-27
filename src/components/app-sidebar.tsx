@@ -2,7 +2,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
-  Wrench, Banknote, UserCog, ScanLine,
+  Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -14,6 +14,8 @@ import { useIsSuperAdmin } from "@/hooks/use-is-super-admin";
 type Item = { title: string; url: string; icon: typeof Sun; module?: string };
 
 const diaADia: Item[] = [
+  { title: "EmpreHub", url: "/emprehub", icon: Home },
+  { title: "Planejamento", url: "/planejamento", icon: CalendarDays },
   { title: "Hoje", url: "/hoje", icon: Sun },
   { title: "Agenda", url: "/agenda", icon: Calendar, module: "appointments" },
   { title: "PDV — Balcão", url: "/pdv", icon: ScanLine, module: "sales" },
@@ -57,7 +59,7 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <Link to="/hoje" className="flex items-center gap-2 px-2 py-1.5">
+        <Link to="/emprehub" className="flex items-center gap-2 px-2 py-1.5">
           <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-chart-4 grid place-items-center text-primary-foreground shadow-sm">
             <Zap className="size-4" />
           </div>
