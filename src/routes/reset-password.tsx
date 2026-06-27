@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Redefinir senha — LocalPro CRM" }] }),
+  head: () => ({ meta: [{ title: "Redefinir senha — LocalPro CRM" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ResetPassword,
 });
 
