@@ -19,6 +19,7 @@ import { Route as AuthenticatedWhatsappRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
 import { Route as AuthenticatedRelatoriosRouteImport } from './routes/_authenticated/relatorios'
+import { Route as AuthenticatedPlanejamentoRouteImport } from './routes/_authenticated/planejamento'
 import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
 import { Route as AuthenticatedOsRouteImport } from './routes/_authenticated/os'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
@@ -28,6 +29,7 @@ import { Route as AuthenticatedGuiaRouteImport } from './routes/_authenticated/g
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedEquipeRouteImport } from './routes/_authenticated/equipe'
+import { Route as AuthenticatedEmprehubRouteImport } from './routes/_authenticated/emprehub'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCrmRouteImport } from './routes/_authenticated/crm'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
@@ -85,6 +87,12 @@ const AuthenticatedRelatoriosRoute = AuthenticatedRelatoriosRouteImport.update({
   path: '/relatorios',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlanejamentoRoute =
+  AuthenticatedPlanejamentoRouteImport.update({
+    id: '/planejamento',
+    path: '/planejamento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPdvRoute = AuthenticatedPdvRouteImport.update({
   id: '/pdv',
   path: '/pdv',
@@ -128,6 +136,11 @@ const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
 const AuthenticatedEquipeRoute = AuthenticatedEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEmprehubRoute = AuthenticatedEmprehubRouteImport.update({
+  id: '/emprehub',
+  path: '/emprehub',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -176,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/emprehub': typeof AuthenticatedEmprehubRoute
   '/equipe': typeof AuthenticatedEquipeRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
@@ -185,6 +199,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/os': typeof AuthenticatedOsRouteWithChildren
   '/pdv': typeof AuthenticatedPdvRoute
+  '/planejamento': typeof AuthenticatedPlanejamentoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
@@ -203,6 +218,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/emprehub': typeof AuthenticatedEmprehubRoute
   '/equipe': typeof AuthenticatedEquipeRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
@@ -212,6 +228,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/os': typeof AuthenticatedOsRouteWithChildren
   '/pdv': typeof AuthenticatedPdvRoute
+  '/planejamento': typeof AuthenticatedPlanejamentoRoute
   '/relatorios': typeof AuthenticatedRelatoriosRoute
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
@@ -232,6 +249,7 @@ export interface FileRoutesById {
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/crm': typeof AuthenticatedCrmRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/emprehub': typeof AuthenticatedEmprehubRoute
   '/_authenticated/equipe': typeof AuthenticatedEquipeRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
@@ -241,6 +259,7 @@ export interface FileRoutesById {
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/os': typeof AuthenticatedOsRouteWithChildren
   '/_authenticated/pdv': typeof AuthenticatedPdvRoute
+  '/_authenticated/planejamento': typeof AuthenticatedPlanejamentoRoute
   '/_authenticated/relatorios': typeof AuthenticatedRelatoriosRoute
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/vendas': typeof AuthenticatedVendasRoute
@@ -261,6 +280,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/crm'
     | '/dashboard'
+    | '/emprehub'
     | '/equipe'
     | '/financeiro'
     | '/funil'
@@ -270,6 +290,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/os'
     | '/pdv'
+    | '/planejamento'
     | '/relatorios'
     | '/super-admin'
     | '/vendas'
@@ -288,6 +309,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/crm'
     | '/dashboard'
+    | '/emprehub'
     | '/equipe'
     | '/financeiro'
     | '/funil'
@@ -297,6 +319,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/os'
     | '/pdv'
+    | '/planejamento'
     | '/relatorios'
     | '/super-admin'
     | '/vendas'
@@ -316,6 +339,7 @@ export interface FileRouteTypes {
     | '/_authenticated/configuracoes'
     | '/_authenticated/crm'
     | '/_authenticated/dashboard'
+    | '/_authenticated/emprehub'
     | '/_authenticated/equipe'
     | '/_authenticated/financeiro'
     | '/_authenticated/funil'
@@ -325,6 +349,7 @@ export interface FileRouteTypes {
     | '/_authenticated/onboarding'
     | '/_authenticated/os'
     | '/_authenticated/pdv'
+    | '/_authenticated/planejamento'
     | '/_authenticated/relatorios'
     | '/_authenticated/super-admin'
     | '/_authenticated/vendas'
@@ -416,6 +441,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/planejamento': {
+      id: '/_authenticated/planejamento'
+      path: '/planejamento'
+      fullPath: '/planejamento'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/pdv': {
       id: '/_authenticated/pdv'
       path: '/pdv'
@@ -477,6 +509,13 @@ declare module '@tanstack/react-router' {
       path: '/equipe'
       fullPath: '/equipe'
       preLoaderRoute: typeof AuthenticatedEquipeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/emprehub': {
+      id: '/_authenticated/emprehub'
+      path: '/emprehub'
+      fullPath: '/emprehub'
+      preLoaderRoute: typeof AuthenticatedEmprehubRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -560,6 +599,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedCrmRoute: typeof AuthenticatedCrmRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEmprehubRoute: typeof AuthenticatedEmprehubRoute
   AuthenticatedEquipeRoute: typeof AuthenticatedEquipeRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
@@ -569,6 +609,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOsRoute: typeof AuthenticatedOsRouteWithChildren
   AuthenticatedPdvRoute: typeof AuthenticatedPdvRoute
+  AuthenticatedPlanejamentoRoute: typeof AuthenticatedPlanejamentoRoute
   AuthenticatedRelatoriosRoute: typeof AuthenticatedRelatoriosRoute
   AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
@@ -581,6 +622,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedCrmRoute: AuthenticatedCrmRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEmprehubRoute: AuthenticatedEmprehubRoute,
   AuthenticatedEquipeRoute: AuthenticatedEquipeRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
@@ -590,6 +632,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOsRoute: AuthenticatedOsRouteWithChildren,
   AuthenticatedPdvRoute: AuthenticatedPdvRoute,
+  AuthenticatedPlanejamentoRoute: AuthenticatedPlanejamentoRoute,
   AuthenticatedRelatoriosRoute: AuthenticatedRelatoriosRoute,
   AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedVendasRoute: AuthenticatedVendasRoute,
