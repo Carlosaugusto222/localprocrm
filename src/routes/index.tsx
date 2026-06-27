@@ -102,8 +102,9 @@ function Landing() {
         </div>
       </header>
 
+      <main>
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative overflow-hidden" aria-label="Apresentação">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--color-accent),transparent_70%)]" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
           <Badge variant="outline" className="mb-6 gap-1.5 py-1.5 px-3">
