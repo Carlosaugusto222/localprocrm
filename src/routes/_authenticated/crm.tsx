@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Search, Phone, Mail as MailIcon, Tag, Trash2 } from "lucide-react";
+import { Plus, Search, Phone, Mail as MailIcon, Tag, Trash2, MessageCircle } from "lucide-react";
+import { openWhatsApp } from "@/lib/whatsapp";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,6 +107,12 @@ function CRM() {
                     {c.email && <span className="flex items-center gap-1"><MailIcon className="size-3" />{c.email}</span>}
                   </div>
                 </div>
+                {(c.whatsapp || c.phone) && (
+                  <Button variant="ghost" size="icon" title="Abrir WhatsApp"
+                    onClick={() => openWhatsApp(c.whatsapp || c.phone, `Olá ${c.name}! 👋`)}>
+                    <MessageCircle className="size-4 text-emerald-600 dark:text-emerald-400" />
+                  </Button>
+                )}
                 <Button variant="ghost" size="icon" onClick={() => { if (confirm("Remover cliente?")) del.mutate(c.id); }}>
                   <Trash2 className="size-4 text-destructive" />
                 </Button>
