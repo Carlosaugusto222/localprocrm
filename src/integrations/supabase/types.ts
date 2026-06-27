@@ -1066,6 +1066,192 @@ export type Database = {
         }
         Relationships: []
       }
+      wa_channels: {
+        Row: {
+          access_token: string
+          app_secret: string
+          auto_reply: boolean
+          created_at: string
+          display_phone_number: string | null
+          enabled: boolean
+          escalation_keywords: string[]
+          id: string
+          organization_id: string
+          phone_number_id: string
+          system_prompt: string | null
+          updated_at: string
+          verify_token: string
+          waba_id: string | null
+        }
+        Insert: {
+          access_token: string
+          app_secret: string
+          auto_reply?: boolean
+          created_at?: string
+          display_phone_number?: string | null
+          enabled?: boolean
+          escalation_keywords?: string[]
+          id?: string
+          organization_id: string
+          phone_number_id: string
+          system_prompt?: string | null
+          updated_at?: string
+          verify_token: string
+          waba_id?: string | null
+        }
+        Update: {
+          access_token?: string
+          app_secret?: string
+          auto_reply?: boolean
+          created_at?: string
+          display_phone_number?: string | null
+          enabled?: boolean
+          escalation_keywords?: string[]
+          id?: string
+          organization_id?: string
+          phone_number_id?: string
+          system_prompt?: string | null
+          updated_at?: string
+          verify_token?: string
+          waba_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_channels_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wa_conversations: {
+        Row: {
+          assigned_to: string | null
+          channel_id: string
+          created_at: string
+          customer_id: string | null
+          id: string
+          last_message_at: string
+          organization_id: string
+          status: string
+          unread_count: number
+          updated_at: string
+          wa_name: string | null
+          wa_phone: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          channel_id: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_message_at?: string
+          organization_id: string
+          status?: string
+          unread_count?: number
+          updated_at?: string
+          wa_name?: string | null
+          wa_phone: string
+        }
+        Update: {
+          assigned_to?: string | null
+          channel_id?: string
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          last_message_at?: string
+          organization_id?: string
+          status?: string
+          unread_count?: number
+          updated_at?: string
+          wa_name?: string | null
+          wa_phone?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_conversations_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "wa_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wa_conversations_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wa_conversations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      wa_messages: {
+        Row: {
+          ai_used: boolean
+          conversation_id: string
+          created_at: string
+          direction: string
+          error: string | null
+          id: string
+          media_url: string | null
+          organization_id: string
+          sent_by: string | null
+          text: string | null
+          type: string
+          wa_message_id: string | null
+        }
+        Insert: {
+          ai_used?: boolean
+          conversation_id: string
+          created_at?: string
+          direction: string
+          error?: string | null
+          id?: string
+          media_url?: string | null
+          organization_id: string
+          sent_by?: string | null
+          text?: string | null
+          type?: string
+          wa_message_id?: string | null
+        }
+        Update: {
+          ai_used?: boolean
+          conversation_id?: string
+          created_at?: string
+          direction?: string
+          error?: string | null
+          id?: string
+          media_url?: string | null
+          organization_id?: string
+          sent_by?: string | null
+          text?: string | null
+          type?: string
+          wa_message_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wa_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "wa_conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wa_messages_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

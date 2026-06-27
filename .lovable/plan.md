@@ -1,153 +1,81 @@
-## Plano de SEO Técnico — LocalPro CRM
+# Atendente WhatsApp com IA — Meta Cloud API + Lovable AI
 
-Objetivo: maximizar indexação no Google das páginas públicas (landing, auth, agendamento público) e proteger as rotas autenticadas de serem indexadas.
+Você escolheu WhatsApp oficial (Meta) e Lovable AI Gateway, e não tem n8n. **Boa notícia:** para o seu caso, n8n é dispensável — o LocalPro já tem servidor (TanStack), banco (Supabase) e gateway de IA. Vou implementar o atendente direto no sistema, mais rápido, mais barato e sem mais uma ferramenta pra manter.
 
-Domínio canônico: `https://localprocrm.lovable.app`
+> Se mais tarde quiser n8n para orquestrar fluxos visuais (ex.: integrar com Google Calendar, planilhas, e-mail marketing), a gente pluga depois — a arquitetura abaixo já expõe endpoints reutilizáveis.
 
----
+## O que o atendente vai fazer
 
-### 1. Arquitetura de rotas públicas (criar landing dedicada)
+- Recebe mensagens do cliente no WhatsApp Business oficial.
+- Identifica o cliente pelo número (cria no CRM se for novo).
+- Responde com IA (Gemini via Lovable AI Gateway) usando contexto da empresa: serviços, preços, horários, agenda.
+- Agenda horários consultando `business_hours` + `appointments` e cria o registro.
+- Escala pra humano quando detecta intenção complexa (reclamação, valor alto, palavra-chave configurável).
+- Guarda toda conversa em `wa_messages` pra você ver o histórico no painel.
 
-Hoje `/` apenas redireciona para `/inicio` (rota autenticada) → Google vê uma página vazia. Vou:
+## Arquitetura (sem n8n)
 
-- Transformar `src/routes/index.tsx` em uma **landing page real** com hero, módulos, benefícios, FAQ e CTA para `/auth`. Se houver sessão ativa, redireciona para `/inicio` no client.
-- Adicionar rotas públicas SEO-friendly:
-  - `/` — Home (landing)
-  - `/recursos` — Recursos/módulos (CRM, Agenda, PDV, OS, IA, WhatsApp)
-  - `/segmentos` — Segmentos atendidos (Barbearia, Clínica, Oficina, Assistência Técnica…)
-  - `/precos` — Planos
-  - `/contato` — Contato
-- `/auth`, `/reset-password` e `/agendar/$slug` já são públicas — adicionar metadados próprios.
-
----
-
-### 2. Meta tags por rota (head() do TanStack)
-
-Cada rota pública recebe `head()` com:
-
-- `<title>` único (<60 chars) com palavra-chave + marca
-- `meta description` único (<160 chars)
-- `og:title`, `og:description`, `og:url`, `og:type`, `og:image`, `og:site_name`
-- `twitter:card=summary_large_image`, `twitter:title`, `twitter:description`, `twitter:image`
-- `<link rel="canonical">` self-referente (apenas nas folhas)
-- Idioma `pt-BR` (já no `__root.tsx`)
-
-No `__root.tsx`: remover título/descrição genéricos das páginas (manter apenas defaults sitewide: viewport, charset, og:site_name, og:type=website) e remover o `og:image` global para não sobrescrever os das folhas.
-
-**Rotas autenticadas (`/_authenticated/*`)**: adicionar `<meta name="robots" content="noindex, nofollow">` no layout `_authenticated/route.tsx` — dashboards e dados de cliente não devem ser indexados.
-
----
-
-### 3. Hierarquia de headings
-
-- Um único `<h1>` por página, com a keyword principal.
-- `<h2>` para seções principais, `<h3>` para subtítulos.
-- Auditar `PageHeader` para garantir que renderize `<h1>` apenas em páginas públicas; nas internas, usar `<h2>` ou aria-labels.
-- HTML semântico: `<header>`, `<main>`, `<section>`, `<nav>`, `<footer>` na landing.
-
----
-
-### 4. Sitemap dinâmico
-
-Criar `src/routes/sitemap[.]xml.ts` como server route gerando XML com:
-
-- `/`, `/recursos`, `/segmentos`, `/precos`, `/contato`, `/auth`
-- Exclui rotas autenticadas e `/agendar/$slug` (geradas por tenant, podem entrar opcionalmente via loader futuro)
-- `lastmod`, `changefreq`, `priority` adequados
-
----
-
-### 5. robots.txt
-
-Criar `public/robots.txt`:
-
-```
-User-agent: *
-Allow: /
-Disallow: /inicio
-Disallow: /hoje
-Disallow: /crm
-Disallow: /agenda
-Disallow: /pdv
-Disallow: /os
-Disallow: /vendas
-Disallow: /financeiro
-Disallow: /caixa
-Disallow: /dashboard
-Disallow: /relatorios
-Disallow: /configuracoes
-Disallow: /equipe
-Disallow: /ia
-Disallow: /whatsapp
-Disallow: /planejamento
-Disallow: /funil
-Disallow: /guia
-Disallow: /super-admin
-Disallow: /onboarding
-
-Sitemap: https://localprocrm.lovable.app/sitemap.xml
+```text
+Cliente WhatsApp
+      │
+      ▼
+Meta WhatsApp Cloud API ──webhook──▶ /api/public/wa/webhook  (TanStack server route)
+                                          │
+                                          ├─▶ Supabase (customers, wa_messages, appointments)
+                                          ├─▶ Lovable AI Gateway (Gemini + tool calling)
+                                          └─▶ Meta Graph API (envia resposta)
 ```
 
----
+## Implementação
 
-### 6. Dados estruturados (JSON-LD)
+### 1. Banco (migração)
+- `wa_channels` — credenciais por organização: `phone_number_id`, `waba_id`, `access_token` (criptografado), `verify_token`, `app_secret`, `enabled`, `auto_reply`, `escalation_keywords[]`.
+- `wa_conversations` — uma por cliente: `customer_id`, `last_message_at`, `status` (bot/human/closed), `assigned_to`.
+- `wa_messages` — `conversation_id`, `direction` (in/out), `wa_message_id`, `type`, `text`, `media_url`, `ai_used`, `created_at`.
+- RLS por organização + GRANTs padrão.
 
-Via `scripts` no `head()`:
+### 2. Webhook público (`src/routes/api/public/wa/webhook.ts`)
+- `GET` — verificação do Meta (`hub.challenge`).
+- `POST` — valida assinatura `X-Hub-Signature-256` (HMAC-SHA256 com `app_secret`), encontra a org pelo `phone_number_id`, grava a mensagem, dispara o agente.
+- Resposta 200 imediata; processamento async.
 
-- `__root.tsx`: `Organization` + `WebSite` (com `SearchAction` apontando para `/recursos?q=`)
-- `/` (landing): `SoftwareApplication` (categoria BusinessApplication, sistema operacional Web, oferta)
-- `/precos`: `Product` + `Offer` para cada plano
-- `/contato`: `LocalBusiness`/`ContactPage`
-- `/recursos` ou FAQ na home: `FAQPage`
+### 3. Agente IA (`src/lib/wa-agent.server.ts`)
+- Carrega contexto: org, serviços/produtos, `business_hours`, próximos horários livres, últimos 10 turnos da conversa.
+- Chama Gemini com **tool calling**:
+  - `listar_servicos()` 
+  - `consultar_horarios_disponiveis(data)`
+  - `agendar(servico_id, data, hora, nome)`
+  - `obter_endereco_horario_funcionamento()`
+  - `escalar_humano(motivo)`
+- Envia resposta via Graph API (`/messages`).
 
----
+### 4. Painel de configuração (`/whatsapp/config`)
+- Formulário pra colar `Phone Number ID`, `WABA ID`, `Access Token`, `App Secret`.
+- Mostra a URL do webhook + Verify Token pra colar no painel Meta.
+- Toggle: auto-resposta ligada/desligada, horário de atendimento, palavras de escalação.
+- Botão "Enviar mensagem de teste".
 
-### 7. Performance e Core Web Vitals (sinais de ranking)
+### 5. Caixa de entrada (`/whatsapp/inbox`)
+- Lista conversas (não lidas em destaque), filtro bot/humano.
+- Painel de chat: histórico + caixa pra responder manualmente (assume controle → vira `human`, IA pausa).
+- Botão "devolver pra IA".
 
-- Preconnect já existe para Google Fonts (manter).
-- Adicionar `display=swap` nas fontes (já presente).
-- Garantir `loading="lazy"` e `width`/`height` em imagens da landing.
-- `alt` descritivo em todas as imagens.
-- Imagens em formato moderno quando possível.
+## O que VOCÊ precisa fazer no Meta (uma vez, ~15 min)
 
----
+1. Criar app em https://developers.facebook.com → produto **WhatsApp**.
+2. Pegar `Phone Number ID`, `WhatsApp Business Account ID`, gerar `Access Token permanente` (System User) e copiar o `App Secret`.
+3. No painel, configurar webhook apontando para `https://localprocrm.lovable.app/api/public/wa/webhook` + colar o Verify Token que eu vou gerar.
+4. Inscrever nos eventos `messages`.
 
-### 8. Configurações auxiliares
+Eu te guio passo a passo no painel `/whatsapp/config` depois que estiver pronto.
 
-- `lang="pt-BR"` já está correto no `__root.tsx`.
-- Adicionar `<meta name="theme-color">` para mobile.
-- Adicionar `<link rel="manifest">` opcional (PWA leve, melhora sinais mobile).
-- `og:image` 1200×630 dedicada por rota principal (usar a já existente da Lovable preview por enquanto; gerar nova só se aprovado).
+## Custos
+- **Lovable AI Gateway**: cobrança por requisição (Gemini Flash é o mais barato — uso normal de atendimento fica em centavos por conversa).
+- **Meta WhatsApp**: 1000 conversas iniciadas por usuário/mês grátis; depois, tarifa por categoria (utilidade, marketing, serviço). Conversas iniciadas pelo cliente em janela de 24h são grátis.
 
----
+## Fora do escopo desta entrega
+- Disparo em massa / campanhas com templates aprovados (fica pra Fase 2).
+- Mídia (áudio/imagem) — só texto neste primeiro corte.
+- Multi-atendente com roteamento por fila (fica pra Fase 2).
 
-### Arquivos que vão ser criados/editados
-
-**Criar:**
-- `src/routes/recursos.tsx`
-- `src/routes/segmentos.tsx`
-- `src/routes/precos.tsx`
-- `src/routes/contato.tsx`
-- `src/routes/sitemap[.]xml.ts`
-- `public/robots.txt`
-- `src/components/site-header.tsx` (nav pública)
-- `src/components/site-footer.tsx`
-
-**Editar:**
-- `src/routes/index.tsx` — virar landing real com JSON-LD
-- `src/routes/__root.tsx` — limpar meta genéricos, adicionar JSON-LD Organization/WebSite, theme-color
-- `src/routes/_authenticated/route.tsx` — `noindex,nofollow`
-- `src/routes/auth.tsx`, `src/routes/reset-password.tsx`, `src/routes/agendar.$slug.tsx` — head() apropriado
-
-**Zero impacto** em CRM, PDV, OS, Vendas, IA, autenticação ou banco de dados.
-
----
-
-### Saída esperada
-
-- Google consegue indexar 5–6 páginas públicas com títulos/descrições únicos.
-- Rotas com dados de cliente ficam fora do índice.
-- Rich snippets candidatos: Organization, SoftwareApplication, FAQ, Pricing.
-- Sitemap descoberto via `/sitemap.xml` e robots.txt.
-
-Posso prosseguir com a implementação?
+Posso implementar?
