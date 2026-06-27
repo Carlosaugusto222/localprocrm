@@ -24,7 +24,8 @@ const diaADia: Item[] = [
   { title: "Caixa", url: "/caixa", icon: Banknote, module: "cash" },
   { title: "Clientes", url: "/crm", icon: Users, module: "crm" },
   { title: "Funil", url: "/funil", icon: Kanban, module: "crm" },
-  { title: "WhatsApp", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
+  { title: "WhatsApp Templates", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
+  { title: "WhatsApp Atendente", url: "/wa-inbox", icon: Bot, module: "whatsapp" },
 ];
 
 const gestao: Item[] = [

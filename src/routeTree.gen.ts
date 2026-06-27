@@ -21,6 +21,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AgendarSlugRouteImport } from './routes/agendar.$slug'
 import { Route as AuthenticatedWhatsappRouteImport } from './routes/_authenticated/whatsapp'
+import { Route as AuthenticatedWaInboxRouteImport } from './routes/_authenticated/wa-inbox'
 import { Route as AuthenticatedWaConfigRouteImport } from './routes/_authenticated/wa-config'
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated/vendas'
 import { Route as AuthenticatedSuperAdminRouteImport } from './routes/_authenticated/super-admin'
@@ -102,6 +103,11 @@ const AgendarSlugRoute = AgendarSlugRouteImport.update({
 const AuthenticatedWhatsappRoute = AuthenticatedWhatsappRouteImport.update({
   id: '/whatsapp',
   path: '/whatsapp',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedWaInboxRoute = AuthenticatedWaInboxRouteImport.update({
+  id: '/wa-inbox',
+  path: '/wa-inbox',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedWaConfigRoute = AuthenticatedWaConfigRouteImport.update({
@@ -251,6 +257,7 @@ export interface FileRoutesByFullPath {
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/wa-config': typeof AuthenticatedWaConfigRoute
+  '/wa-inbox': typeof AuthenticatedWaInboxRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
@@ -287,6 +294,7 @@ export interface FileRoutesByTo {
   '/super-admin': typeof AuthenticatedSuperAdminRoute
   '/vendas': typeof AuthenticatedVendasRoute
   '/wa-config': typeof AuthenticatedWaConfigRoute
+  '/wa-inbox': typeof AuthenticatedWaInboxRoute
   '/whatsapp': typeof AuthenticatedWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
@@ -325,6 +333,7 @@ export interface FileRoutesById {
   '/_authenticated/super-admin': typeof AuthenticatedSuperAdminRoute
   '/_authenticated/vendas': typeof AuthenticatedVendasRoute
   '/_authenticated/wa-config': typeof AuthenticatedWaConfigRoute
+  '/_authenticated/wa-inbox': typeof AuthenticatedWaInboxRoute
   '/_authenticated/whatsapp': typeof AuthenticatedWhatsappRoute
   '/agendar/$slug': typeof AgendarSlugRoute
   '/api/chat': typeof ApiChatRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/vendas'
     | '/wa-config'
+    | '/wa-inbox'
     | '/whatsapp'
     | '/agendar/$slug'
     | '/api/chat'
@@ -399,6 +409,7 @@ export interface FileRouteTypes {
     | '/super-admin'
     | '/vendas'
     | '/wa-config'
+    | '/wa-inbox'
     | '/whatsapp'
     | '/agendar/$slug'
     | '/api/chat'
@@ -436,6 +447,7 @@ export interface FileRouteTypes {
     | '/_authenticated/super-admin'
     | '/_authenticated/vendas'
     | '/_authenticated/wa-config'
+    | '/_authenticated/wa-inbox'
     | '/_authenticated/whatsapp'
     | '/agendar/$slug'
     | '/api/chat'
@@ -543,6 +555,13 @@ declare module '@tanstack/react-router' {
       path: '/whatsapp'
       fullPath: '/whatsapp'
       preLoaderRoute: typeof AuthenticatedWhatsappRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/wa-inbox': {
+      id: '/_authenticated/wa-inbox'
+      path: '/wa-inbox'
+      fullPath: '/wa-inbox'
+      preLoaderRoute: typeof AuthenticatedWaInboxRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/wa-config': {
@@ -753,6 +772,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedSuperAdminRoute: typeof AuthenticatedSuperAdminRoute
   AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
   AuthenticatedWaConfigRoute: typeof AuthenticatedWaConfigRoute
+  AuthenticatedWaInboxRoute: typeof AuthenticatedWaInboxRoute
   AuthenticatedWhatsappRoute: typeof AuthenticatedWhatsappRoute
 }
 
@@ -777,6 +797,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSuperAdminRoute: AuthenticatedSuperAdminRoute,
   AuthenticatedVendasRoute: AuthenticatedVendasRoute,
   AuthenticatedWaConfigRoute: AuthenticatedWaConfigRoute,
+  AuthenticatedWaInboxRoute: AuthenticatedWaInboxRoute,
   AuthenticatedWhatsappRoute: AuthenticatedWhatsappRoute,
 }
 
