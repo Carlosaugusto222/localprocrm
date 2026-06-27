@@ -89,10 +89,11 @@ function Landing() {
             </div>
             <span className="font-display font-bold text-lg">LocalPro <span className="text-muted-foreground">CRM</span></span>
           </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
-            <a href="#modulos" className="hover:text-foreground">Módulos</a>
-            <a href="#planos" className="hover:text-foreground">Planos</a>
-            <a href="#segmentos" className="hover:text-foreground">Para quem</a>
+          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground" aria-label="Principal">
+            <Link to="/recursos" className="hover:text-foreground">Recursos</Link>
+            <Link to="/segmentos" className="hover:text-foreground">Segmentos</Link>
+            <Link to="/precos" className="hover:text-foreground">Planos</Link>
+            <Link to="/contato" className="hover:text-foreground">Contato</Link>
           </nav>
           <div className="flex items-center gap-2">
             <Link to="/auth"><Button variant="ghost" size="sm">Entrar</Button></Link>
