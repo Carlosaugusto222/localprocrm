@@ -185,6 +185,24 @@ function Landing() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" className="py-20 border-t bg-muted/30" aria-label="Perguntas frequentes">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl sm:text-4xl font-display font-bold">Perguntas frequentes</h2>
+          </div>
+          <dl className="space-y-4">
+            {FAQ.map(f => (
+              <div key={f.q} className="rounded-2xl border bg-card p-5">
+                <dt className="font-display font-semibold">{f.q}</dt>
+                <dd className="text-sm text-muted-foreground mt-1">{f.a}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+      </main>
+
       <footer className="border-t py-10 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} LocalPro CRM. Plataforma modular para negócios locais.
       </footer>
