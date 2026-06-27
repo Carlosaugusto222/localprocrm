@@ -35,8 +35,8 @@ export const saveWaChannel = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { data: existing } = await context.supabase
       .from("wa_channels").select("id").eq("organization_id", data.organizationId).maybeSingle();
-    const payload = { ...data, organization_id: data.organizationId };
-    delete (payload as any).organizationId;
+    const { organizationId, ...rest } = data;
+    const payload = { ...rest, organization_id: organizationId };
     if (existing) {
       const { error } = await context.supabase.from("wa_channels").update(payload).eq("id", existing.id);
       if (error) throw new Error(error.message);
