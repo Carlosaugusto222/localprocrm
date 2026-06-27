@@ -23,13 +23,13 @@ import { Route as AuthenticatedPlanejamentoRouteImport } from './routes/_authent
 import { Route as AuthenticatedPdvRouteImport } from './routes/_authenticated/pdv'
 import { Route as AuthenticatedOsRouteImport } from './routes/_authenticated/os'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedInicioRouteImport } from './routes/_authenticated/inicio'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedHojeRouteImport } from './routes/_authenticated/hoje'
 import { Route as AuthenticatedGuiaRouteImport } from './routes/_authenticated/guia'
 import { Route as AuthenticatedFunilRouteImport } from './routes/_authenticated/funil'
 import { Route as AuthenticatedFinanceiroRouteImport } from './routes/_authenticated/financeiro'
 import { Route as AuthenticatedEquipeRouteImport } from './routes/_authenticated/equipe'
-import { Route as AuthenticatedEmprehubRouteImport } from './routes/_authenticated/emprehub'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCrmRouteImport } from './routes/_authenticated/crm'
 import { Route as AuthenticatedConfiguracoesRouteImport } from './routes/_authenticated/configuracoes'
@@ -108,6 +108,11 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInicioRoute = AuthenticatedInicioRouteImport.update({
+  id: '/inicio',
+  path: '/inicio',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   id: '/ia',
   path: '/ia',
@@ -136,11 +141,6 @@ const AuthenticatedFinanceiroRoute = AuthenticatedFinanceiroRouteImport.update({
 const AuthenticatedEquipeRoute = AuthenticatedEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const AuthenticatedEmprehubRoute = AuthenticatedEmprehubRouteImport.update({
-  id: '/emprehub',
-  path: '/emprehub',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
@@ -189,13 +189,13 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/emprehub': typeof AuthenticatedEmprehubRoute
   '/equipe': typeof AuthenticatedEquipeRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/guia': typeof AuthenticatedGuiaRoute
   '/hoje': typeof AuthenticatedHojeRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/os': typeof AuthenticatedOsRouteWithChildren
   '/pdv': typeof AuthenticatedPdvRoute
@@ -218,13 +218,13 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/crm': typeof AuthenticatedCrmRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/emprehub': typeof AuthenticatedEmprehubRoute
   '/equipe': typeof AuthenticatedEquipeRoute
   '/financeiro': typeof AuthenticatedFinanceiroRoute
   '/funil': typeof AuthenticatedFunilRoute
   '/guia': typeof AuthenticatedGuiaRoute
   '/hoje': typeof AuthenticatedHojeRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/inicio': typeof AuthenticatedInicioRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/os': typeof AuthenticatedOsRouteWithChildren
   '/pdv': typeof AuthenticatedPdvRoute
@@ -249,13 +249,13 @@ export interface FileRoutesById {
   '/_authenticated/configuracoes': typeof AuthenticatedConfiguracoesRoute
   '/_authenticated/crm': typeof AuthenticatedCrmRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/emprehub': typeof AuthenticatedEmprehubRoute
   '/_authenticated/equipe': typeof AuthenticatedEquipeRoute
   '/_authenticated/financeiro': typeof AuthenticatedFinanceiroRoute
   '/_authenticated/funil': typeof AuthenticatedFunilRoute
   '/_authenticated/guia': typeof AuthenticatedGuiaRoute
   '/_authenticated/hoje': typeof AuthenticatedHojeRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/inicio': typeof AuthenticatedInicioRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/os': typeof AuthenticatedOsRouteWithChildren
   '/_authenticated/pdv': typeof AuthenticatedPdvRoute
@@ -280,13 +280,13 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/crm'
     | '/dashboard'
-    | '/emprehub'
     | '/equipe'
     | '/financeiro'
     | '/funil'
     | '/guia'
     | '/hoje'
     | '/ia'
+    | '/inicio'
     | '/onboarding'
     | '/os'
     | '/pdv'
@@ -309,13 +309,13 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/crm'
     | '/dashboard'
-    | '/emprehub'
     | '/equipe'
     | '/financeiro'
     | '/funil'
     | '/guia'
     | '/hoje'
     | '/ia'
+    | '/inicio'
     | '/onboarding'
     | '/os'
     | '/pdv'
@@ -339,13 +339,13 @@ export interface FileRouteTypes {
     | '/_authenticated/configuracoes'
     | '/_authenticated/crm'
     | '/_authenticated/dashboard'
-    | '/_authenticated/emprehub'
     | '/_authenticated/equipe'
     | '/_authenticated/financeiro'
     | '/_authenticated/funil'
     | '/_authenticated/guia'
     | '/_authenticated/hoje'
     | '/_authenticated/ia'
+    | '/_authenticated/inicio'
     | '/_authenticated/onboarding'
     | '/_authenticated/os'
     | '/_authenticated/pdv'
@@ -469,6 +469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/inicio': {
+      id: '/_authenticated/inicio'
+      path: '/inicio'
+      fullPath: '/inicio'
+      preLoaderRoute: typeof AuthenticatedInicioRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ia': {
       id: '/_authenticated/ia'
       path: '/ia'
@@ -509,13 +516,6 @@ declare module '@tanstack/react-router' {
       path: '/equipe'
       fullPath: '/equipe'
       preLoaderRoute: typeof AuthenticatedEquipeRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/emprehub': {
-      id: '/_authenticated/emprehub'
-      path: '/emprehub'
-      fullPath: '/emprehub'
-      preLoaderRoute: typeof AuthenticatedEmprehubRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -599,13 +599,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConfiguracoesRoute: typeof AuthenticatedConfiguracoesRoute
   AuthenticatedCrmRoute: typeof AuthenticatedCrmRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedEmprehubRoute: typeof AuthenticatedEmprehubRoute
   AuthenticatedEquipeRoute: typeof AuthenticatedEquipeRoute
   AuthenticatedFinanceiroRoute: typeof AuthenticatedFinanceiroRoute
   AuthenticatedFunilRoute: typeof AuthenticatedFunilRoute
   AuthenticatedGuiaRoute: typeof AuthenticatedGuiaRoute
   AuthenticatedHojeRoute: typeof AuthenticatedHojeRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedInicioRoute: typeof AuthenticatedInicioRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedOsRoute: typeof AuthenticatedOsRouteWithChildren
   AuthenticatedPdvRoute: typeof AuthenticatedPdvRoute
@@ -622,13 +622,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConfiguracoesRoute: AuthenticatedConfiguracoesRoute,
   AuthenticatedCrmRoute: AuthenticatedCrmRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedEmprehubRoute: AuthenticatedEmprehubRoute,
   AuthenticatedEquipeRoute: AuthenticatedEquipeRoute,
   AuthenticatedFinanceiroRoute: AuthenticatedFinanceiroRoute,
   AuthenticatedFunilRoute: AuthenticatedFunilRoute,
   AuthenticatedGuiaRoute: AuthenticatedGuiaRoute,
   AuthenticatedHojeRoute: AuthenticatedHojeRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedInicioRoute: AuthenticatedInicioRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedOsRoute: AuthenticatedOsRouteWithChildren,
   AuthenticatedPdvRoute: AuthenticatedPdvRoute,

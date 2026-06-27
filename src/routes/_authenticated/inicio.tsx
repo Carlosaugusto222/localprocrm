@@ -9,7 +9,7 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfMonth } from "date-fns";
 
-export const Route = createFileRoute("/_authenticated/emprehub")({
+export const Route = createFileRoute("/_authenticated/inicio")({
   head: () => ({ meta: [{ title: "EmpreHub — Centro do seu negócio" }] }),
   component: EmpreHub,
 });
@@ -28,7 +28,7 @@ function EmpreHub() {
 
   const { data: stats } = useQuery({
     enabled: !!org?.id,
-    queryKey: ["emprehub-stats", org?.id],
+    queryKey: ["inicio-stats", org?.id],
     queryFn: async () => {
       const orgId = org!.id;
       const monthStart = startOfMonth(new Date()).toISOString();
@@ -67,7 +67,7 @@ function EmpreHub() {
     <PageContainer>
       <div className="text-center mb-10 sm:mb-14 mt-4 sm:mt-8">
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-muted-foreground mb-3">
-          <span className="size-1.5 rounded-full bg-primary animate-pulse" /> EmpreHub
+          <span className="size-1.5 rounded-full bg-primary animate-pulse" /> Início
         </div>
         <h1 className="text-4xl sm:text-5xl font-display font-semibold tracking-tight">
           {greeting()}{firstName ? `, ${firstName}` : ""}.
