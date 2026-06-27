@@ -97,23 +97,18 @@ function Team() {
       {invites.length > 0 && (
         <>
           <h2 className="text-base font-semibold mb-2">Convites pendentes</h2>
+          <p className="text-xs text-muted-foreground mb-2">Por segurança, o link só é exibido no momento da criação. Se precisar reenviar, cancele e crie um novo convite.</p>
           <div className="grid gap-2">
-            {invites.map((i: any) => {
-              const url = `${typeof window !== "undefined" ? window.location.origin : ""}/auth?invite=${i.token}`;
-              return (
-                <Card key={i.id} className="p-3 flex items-center gap-3 flex-wrap">
-                  <Mail className="size-4 text-muted-foreground" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{i.email}</div>
-                    <div className="text-xs text-muted-foreground">Expira em {new Date(i.expires_at).toLocaleDateString("pt-BR")}</div>
-                  </div>
-                  <Button size="sm" variant="outline" className="gap-1" onClick={() => { navigator.clipboard.writeText(url); toast.success("Link copiado"); }}>
-                    <Copy className="size-3" />Copiar link
-                  </Button>
-                  <Button size="icon" variant="ghost" onClick={() => cancelInvite.mutate(i.id)}><Trash2 className="size-4" /></Button>
-                </Card>
-              );
-            })}
+            {invites.map((i: any) => (
+              <Card key={i.id} className="p-3 flex items-center gap-3 flex-wrap">
+                <Mail className="size-4 text-muted-foreground" />
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-sm">{i.email}</div>
+                  <div className="text-xs text-muted-foreground">Expira em {new Date(i.expires_at).toLocaleDateString("pt-BR")}</div>
+                </div>
+                <Button size="icon" variant="ghost" onClick={() => cancelInvite.mutate(i.id)}><Trash2 className="size-4" /></Button>
+              </Card>
+            ))}
           </div>
         </>
       )}
