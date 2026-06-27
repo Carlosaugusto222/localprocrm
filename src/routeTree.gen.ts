@@ -10,7 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SegmentosRouteImport } from './routes/segmentos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RecursosRouteImport } from './routes/recursos'
+import { Route as PrecosRouteImport } from './routes/precos'
+import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
@@ -44,9 +48,29 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SegmentosRoute = SegmentosRouteImport.update({
+  id: '/segmentos',
+  path: '/segmentos',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecursosRoute = RecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrecosRoute = PrecosRouteImport.update({
+  id: '/precos',
+  path: '/precos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContatoRoute = ContatoRouteImport.update({
+  id: '/contato',
+  path: '/contato',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -189,7 +213,11 @@ const AuthenticatedCrmIdRoute = AuthenticatedCrmIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
+  '/precos': typeof PrecosRoute
+  '/recursos': typeof RecursosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/segmentos': typeof SegmentosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/caixa': typeof AuthenticatedCaixaRoute
@@ -219,7 +247,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
+  '/precos': typeof PrecosRoute
+  '/recursos': typeof RecursosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/segmentos': typeof SegmentosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/agenda': typeof AuthenticatedAgendaRoute
   '/caixa': typeof AuthenticatedCaixaRoute
@@ -251,7 +283,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/contato': typeof ContatoRoute
+  '/precos': typeof PrecosRoute
+  '/recursos': typeof RecursosRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/segmentos': typeof SegmentosRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/agenda': typeof AuthenticatedAgendaRoute
   '/_authenticated/caixa': typeof AuthenticatedCaixaRoute
@@ -283,7 +319,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/contato'
+    | '/precos'
+    | '/recursos'
     | '/reset-password'
+    | '/segmentos'
     | '/sitemap.xml'
     | '/agenda'
     | '/caixa'
@@ -313,7 +353,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/contato'
+    | '/precos'
+    | '/recursos'
     | '/reset-password'
+    | '/segmentos'
     | '/sitemap.xml'
     | '/agenda'
     | '/caixa'
@@ -344,7 +388,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/contato'
+    | '/precos'
+    | '/recursos'
     | '/reset-password'
+    | '/segmentos'
     | '/sitemap.xml'
     | '/_authenticated/agenda'
     | '/_authenticated/caixa'
@@ -376,7 +424,11 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ContatoRoute: typeof ContatoRoute
+  PrecosRoute: typeof PrecosRoute
+  RecursosRoute: typeof RecursosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SegmentosRoute: typeof SegmentosRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -391,11 +443,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/segmentos': {
+      id: '/segmentos'
+      path: '/segmentos'
+      fullPath: '/segmentos'
+      preLoaderRoute: typeof SegmentosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recursos': {
+      id: '/recursos'
+      path: '/recursos'
+      fullPath: '/recursos'
+      preLoaderRoute: typeof RecursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/precos': {
+      id: '/precos'
+      path: '/precos'
+      fullPath: '/precos'
+      preLoaderRoute: typeof PrecosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contato': {
+      id: '/contato'
+      path: '/contato'
+      fullPath: '/contato'
+      preLoaderRoute: typeof ContatoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -666,7 +746,11 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ContatoRoute: ContatoRoute,
+  PrecosRoute: PrecosRoute,
+  RecursosRoute: RecursosRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SegmentosRoute: SegmentosRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AgendarSlugRoute: AgendarSlugRoute,
   ApiChatRoute: ApiChatRoute,
