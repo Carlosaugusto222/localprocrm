@@ -42,6 +42,7 @@ import { Route as AuthenticatedCaixaRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAgendaRouteImport } from './routes/_authenticated/agenda'
 import { Route as AuthenticatedOsIdRouteImport } from './routes/_authenticated/os.$id'
 import { Route as AuthenticatedCrmIdRouteImport } from './routes/_authenticated/crm.$id'
+import { Route as ApiPublicWaWebhookRouteImport } from './routes/api/public/wa.webhook'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -209,6 +210,11 @@ const AuthenticatedCrmIdRoute = AuthenticatedCrmIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCrmRoute,
 } as any)
+const ApiPublicWaWebhookRoute = ApiPublicWaWebhookRouteImport.update({
+  id: '/api/public/wa/webhook',
+  path: '/api/public/wa/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/crm/$id': typeof AuthenticatedCrmIdRoute
   '/os/$id': typeof AuthenticatedOsIdRoute
+  '/api/public/wa/webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -277,6 +284,7 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/crm/$id': typeof AuthenticatedCrmIdRoute
   '/os/$id': typeof AuthenticatedOsIdRoute
+  '/api/public/wa/webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -313,6 +321,7 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/_authenticated/crm/$id': typeof AuthenticatedCrmIdRoute
   '/_authenticated/os/$id': typeof AuthenticatedOsIdRoute
+  '/api/public/wa/webhook': typeof ApiPublicWaWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -349,6 +358,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/crm/$id'
     | '/os/$id'
+    | '/api/public/wa/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -383,6 +393,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/crm/$id'
     | '/os/$id'
+    | '/api/public/wa/webhook'
   id:
     | '__root__'
     | '/'
@@ -418,6 +429,7 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/_authenticated/crm/$id'
     | '/_authenticated/os/$id'
+    | '/api/public/wa/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -432,6 +444,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   AgendarSlugRoute: typeof AgendarSlugRoute
   ApiChatRoute: typeof ApiChatRoute
+  ApiPublicWaWebhookRoute: typeof ApiPublicWaWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -667,6 +680,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCrmIdRouteImport
       parentRoute: typeof AuthenticatedCrmRoute
     }
+    '/api/public/wa/webhook': {
+      id: '/api/public/wa/webhook'
+      path: '/api/public/wa/webhook'
+      fullPath: '/api/public/wa/webhook'
+      preLoaderRoute: typeof ApiPublicWaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -754,6 +774,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   AgendarSlugRoute: AgendarSlugRoute,
   ApiChatRoute: ApiChatRoute,
+  ApiPublicWaWebhookRoute: ApiPublicWaWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
