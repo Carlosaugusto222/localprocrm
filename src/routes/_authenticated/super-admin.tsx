@@ -1,13 +1,16 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { Building2, Users, TrendingUp, Crown, ShieldAlert } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Building2, Users, TrendingUp, Crown, ShieldAlert, Trash2, Edit2 } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/super-admin")({
   head: () => ({ meta: [{ title: "Super Admin — LocalPro CRM" }] }),
@@ -42,6 +45,7 @@ const PLAN_TONE: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 function SuperAdmin() {
+  const qc = useQueryClient();
   const { data: orgs = [], isLoading: lo } = useQuery({
     queryKey: ["sa-orgs"],
     queryFn: async () => {
@@ -52,6 +56,33 @@ function SuperAdmin() {
       if (error) throw error;
       return (data ?? []) as OrgRow[];
     },
+  });
+
+  const updatePlan = useMutation({
+    mutationFn: async ({ id, plan }: { id: string; plan: string }) => {
+      const { error } = await supabase
+        .from("organizations")
+        .update({ plan: plan as any })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sa-orgs"] });
+      toast.success("Plano atualizado com sucesso");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const deleteOrg = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("organizations").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sa-orgs"] });
+      toast.success("Empresa excluída permanentemente");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   const { data: counts } = useQuery({
@@ -122,10 +153,10 @@ function SuperAdmin() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Slug</TableHead>
                   <TableHead>Segmento</TableHead>
                   <TableHead>Plano</TableHead>
                   <TableHead>Criada em</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -141,14 +172,42 @@ function SuperAdmin() {
                 )}
                 {orgs.map(o => (
                   <TableRow key={o.id}>
-                    <TableCell className="font-medium">{o.name}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{o.slug}</TableCell>
-                    <TableCell>{o.segment ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      <div>{o.name}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono">{o.slug}</div>
+                    </TableCell>
+                    <TableCell className="text-sm">{o.segment ?? "—"}</TableCell>
                     <TableCell>
-                      <Badge variant={PLAN_TONE[o.plan] ?? "outline"} className="capitalize">{o.plan}</Badge>
+                      <Select
+                        defaultValue={o.plan}
+                        onValueChange={(plan) => updatePlan.mutate({ id: o.id, plan })}
+                      >
+                        <SelectTrigger className="h-8 w-28 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="basic">Básico</SelectItem>
+                          <SelectItem value="pro">Profissional</SelectItem>
+                          <SelectItem value="premium">Premium</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {format(new Date(o.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          if (confirm(`TEM CERTEZA? Isso excluirá permanentemente a empresa "${o.name}" e TODOS os seus dados (clientes, vendas, agenda). Esta ação não pode ser desfeita.`)) {
+                            deleteOrg.mutate(o.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
