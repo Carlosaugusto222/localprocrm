@@ -13,6 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { logAudit } from "@/lib/audit";
+import { useAuth } from "@/hooks/use-auth";
 import { generateBusinessPDF } from "@/lib/exporters";
 
 export const Route = createFileRoute("/_authenticated/os/$id")({
@@ -33,6 +35,7 @@ const fmtMoney = (n: number) => Number(n).toLocaleString("pt-BR", { style: "curr
 function OSDetail() {
   const { id } = Route.useParams();
   const { org } = useCurrentOrg();
+  const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
 
@@ -56,6 +59,17 @@ function OSDetail() {
     mutationFn: async (patch: any) => {
       const { error } = await supabase.from("service_orders").update(patch).eq("id", id);
       if (error) throw error;
+      
+      if (user && org?.id) {
+        await logAudit({
+          orgId: org.id,
+          userId: user.id,
+          action: "update_os",
+          entity: "service_orders",
+          entityId: id,
+          payload: patch
+        });
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["os", id] }); toast.success("Atualizado"); },
   });
