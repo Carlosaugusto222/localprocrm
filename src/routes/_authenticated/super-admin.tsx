@@ -172,14 +172,42 @@ function SuperAdmin() {
                 )}
                 {orgs.map(o => (
                   <TableRow key={o.id}>
-                    <TableCell className="font-medium">{o.name}</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{o.slug}</TableCell>
-                    <TableCell>{o.segment ?? "—"}</TableCell>
+                    <TableCell className="font-medium">
+                      <div>{o.name}</div>
+                      <div className="text-[10px] text-muted-foreground font-mono">{o.slug}</div>
+                    </TableCell>
+                    <TableCell className="text-sm">{o.segment ?? "—"}</TableCell>
                     <TableCell>
-                      <Badge variant={PLAN_TONE[o.plan] ?? "outline"} className="capitalize">{o.plan}</Badge>
+                      <Select
+                        defaultValue={o.plan}
+                        onValueChange={(plan) => updatePlan.mutate({ id: o.id, plan })}
+                      >
+                        <SelectTrigger className="h-8 w-28 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="basic">Básico</SelectItem>
+                          <SelectItem value="pro">Profissional</SelectItem>
+                          <SelectItem value="premium">Premium</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </TableCell>
                     <TableCell className="text-muted-foreground text-sm">
                       {format(new Date(o.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => {
+                          if (confirm(`TEM CERTEZA? Isso excluirá permanentemente a empresa "${o.name}" e TODOS os seus dados (clientes, vendas, agenda). Esta ação não pode ser desfeita.`)) {
+                            deleteOrg.mutate(o.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
