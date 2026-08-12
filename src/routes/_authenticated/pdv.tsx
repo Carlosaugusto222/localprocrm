@@ -131,7 +131,7 @@ function PDVPage() {
   }, [cart.length, checkoutOpen]);
 
   const finalize = useMutation({
-    mutationFn: async (opts: { print: boolean }) => {
+    mutationFn: async (opts: { action: "print" | "download" | "none" }) => {
       if (!orgId || cart.length === 0) throw new Error("Carrinho vazio");
 
       const { data: sale, error } = await supabase.from("sales").insert({
@@ -166,7 +166,7 @@ function PDVPage() {
         paid_at: new Date().toISOString(),
       });
 
-      if (opts.print) {
+      if (opts.action !== "none") {
         const customer = customers.find((c: any) => c.id === customerId) ?? null;
         generateBusinessPDF({
           kind: "receipt", number: sale.id.slice(0, 8).toUpperCase(),
@@ -175,6 +175,7 @@ function PDVPage() {
           items: cart.map(c => ({ description: c.description, quantity: c.quantity, unit_price: c.unit_price, total: c.quantity * c.unit_price })),
           notes: `Pagamento: ${PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label}${discountNum > 0 ? ` · Desconto: ${fmt(discountNum)}` : ""}`,
           total,
+          action: opts.action,
         });
       }
       return sale;
@@ -530,15 +531,33 @@ function PDVPage() {
               </div>
             )}
 
-            <DialogFooter className="gap-2 sm:gap-2">
-              <Button variant="outline" disabled={finalize.isPending}
-                onClick={() => finalize.mutate({ print: false })} className="flex-1">
-                Confirmar
+            <DialogFooter className="gap-2 sm:gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                disabled={finalize.isPending}
+                onClick={() => finalize.mutate({ action: "none" })} 
+                className="flex-1"
+              >
+                Apenas Salvar
               </Button>
-              <Button disabled={finalize.isPending}
-                onClick={() => finalize.mutate({ print: true })} className="flex-1 gap-1.5">
-                <Receipt className="size-4" />Confirmar + Cupom
-              </Button>
+              <div className="flex flex-1 gap-2">
+                <Button 
+                  disabled={finalize.isPending}
+                  onClick={() => finalize.mutate({ action: "print" })} 
+                  className="flex-1 gap-1.5"
+                >
+                  <Receipt className="size-4" /> Imprimir
+                </Button>
+                <Button 
+                  variant="secondary"
+                  disabled={finalize.isPending}
+                  onClick={() => finalize.mutate({ action: "download" })} 
+                  className="px-3"
+                  title="Baixar PDF"
+                >
+                  <FileText className="size-4" />
+                </Button>
+              </div>
             </DialogFooter>
           </DialogContent>
         </Dialog>
