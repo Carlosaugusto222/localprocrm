@@ -153,10 +153,10 @@ function SuperAdmin() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Nome</TableHead>
-                  <TableHead>Slug</TableHead>
                   <TableHead>Segmento</TableHead>
                   <TableHead>Plano</TableHead>
                   <TableHead>Criada em</TableHead>
+                  <TableHead className="text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
