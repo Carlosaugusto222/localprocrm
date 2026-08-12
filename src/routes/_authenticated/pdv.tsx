@@ -17,6 +17,8 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { generateBusinessPDF } from "@/lib/exporters";
 import { PAYMENT_METHODS } from "@/lib/modules";
+import { logAudit } from "@/lib/audit";
+import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +45,7 @@ const PAYMENT_ICONS: Record<string, any> = {
 
 function PDVPage() {
   const { org } = useCurrentOrg();
+  const { user } = useAuth();
   const orgId = org?.id;
   const qc = useQueryClient();
   const searchRef = useRef<HTMLInputElement>(null);
@@ -165,6 +168,17 @@ function PDVPage() {
         cash_session_id: openSession?.id ?? null,
         paid_at: new Date().toISOString(),
       });
+      
+      if (user) {
+        await logAudit({
+          orgId: orgId,
+          userId: user.id,
+          action: "create_sale",
+          entity: "sales",
+          entityId: sale.id,
+          payload: { total, discount: discountNum, paymentMethod, cart_count: cart.length }
+        });
+      }
 
       if (opts.action !== "none") {
         const customer = customers.find((c: any) => c.id === customerId) ?? null;

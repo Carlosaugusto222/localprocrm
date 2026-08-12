@@ -13,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/use-auth";
+import { logAudit } from "@/lib/audit";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
@@ -101,6 +103,7 @@ function ProductsList({ orgId }: { orgId?: string }) {
 }
 
 function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: any; onClose: () => void }) {
+  const { user } = useAuth();
   const qc = useQueryClient();
   const isEdit = !!editing;
   const [form, setForm] = useState({
@@ -137,6 +140,26 @@ function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: 
         ? await supabase.from("products").update(payload).eq("id", editing.id)
         : await supabase.from("products").insert(payload);
       if (error) throw error;
+      
+      if (user && orgId) {
+        const changes: any = {};
+        if (isEdit) {
+          if (Number(form.price) !== Number(editing.price)) changes.price = { old: editing.price, new: Number(form.price) };
+          if (Number(form.cost) !== Number(editing.cost)) changes.cost = { old: editing.cost, new: Number(form.cost) };
+          if (form.track_stock && Number(form.stock_qty) !== Number(editing.stock_qty)) changes.stock = { old: editing.stock_qty, new: Number(form.stock_qty) };
+        }
+        
+        if (!isEdit || Object.keys(changes).length > 0) {
+          await logAudit({
+            orgId,
+            userId: user.id,
+            action: isEdit ? "update_product" : "create_product",
+            entity: "products",
+            entityId: isEdit ? editing.id : undefined,
+            payload: isEdit ? { changes } : { name: form.name, price: Number(form.price) }
+          });
+        }
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["products"] }); toast.success(isEdit ? "Atualizado" : "Salvo"); onClose(); },
     onError: (e: any) => toast.error(e.message),
@@ -242,6 +265,7 @@ function SalesList({ orgId }: { orgId?: string }) {
 type SaleItem = { product_id: string | null; description: string; quantity: number; unit_price: number };
 
 function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: string | null; onClose: () => void }) {
+  const { user } = useAuth();
   const qc = useQueryClient();
   const isEdit = !!saleId;
   const [form, setForm] = useState({ customer_id: "", notes: "", status: "order" as "quote" | "order" | "paid" | "cancelled" });
@@ -303,6 +327,23 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
           customer_id: form.customer_id || null, total, notes: form.notes || null, status: form.status,
         }).eq("id", saleId!);
         if (error) throw error;
+        
+        if (user && orgId && existing?.sale) {
+          const changes: any = {};
+          if (form.status !== existing.sale.status) changes.status = { old: existing.sale.status, new: form.status };
+          if (total !== Number(existing.sale.total)) changes.total = { old: existing.sale.total, new: total };
+          
+          if (Object.keys(changes).length > 0) {
+            await logAudit({
+              orgId,
+              userId: user.id,
+              action: "update_sale",
+              entity: "sales",
+              entityId: saleId!,
+              payload: { changes }
+            });
+          }
+        }
         await supabase.from("sale_items").delete().eq("sale_id", saleId!);
       } else {
         const { data: sale, error } = await supabase.from("sales").insert({
@@ -311,6 +352,17 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
         }).select("id").single();
         if (error) throw error;
         id = sale.id;
+        
+        if (user && orgId) {
+          await logAudit({
+            orgId,
+            userId: user.id,
+            action: "create_sale",
+            entity: "sales",
+            entityId: id,
+            payload: { total, status: form.status }
+          });
+        }
       }
       const payload = items.map(it => ({
         sale_id: id!, organization_id: orgId, product_id: it.product_id || null,
