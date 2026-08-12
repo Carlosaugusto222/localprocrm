@@ -328,7 +328,7 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
         }).eq("id", saleId!);
         if (error) throw error;
         
-        if (user && orgId) {
+        if (user && orgId && existing?.sale) {
           const changes: any = {};
           if (form.status !== existing.sale.status) changes.status = { old: existing.sale.status, new: form.status };
           if (total !== Number(existing.sale.total)) changes.total = { old: existing.sale.total, new: total };
