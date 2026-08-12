@@ -45,6 +45,7 @@ const PLAN_TONE: Record<string, "default" | "secondary" | "outline"> = {
 };
 
 function SuperAdmin() {
+  const qc = useQueryClient();
   const { data: orgs = [], isLoading: lo } = useQuery({
     queryKey: ["sa-orgs"],
     queryFn: async () => {
@@ -55,6 +56,33 @@ function SuperAdmin() {
       if (error) throw error;
       return (data ?? []) as OrgRow[];
     },
+  });
+
+  const updatePlan = useMutation({
+    mutationFn: async ({ id, plan }: { id: string; plan: string }) => {
+      const { error } = await supabase
+        .from("organizations")
+        .update({ plan: plan as any })
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sa-orgs"] });
+      toast.success("Plano atualizado com sucesso");
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const deleteOrg = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("organizations").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sa-orgs"] });
+      toast.success("Empresa excluída permanentemente");
+    },
+    onError: (e: any) => toast.error(e.message),
   });
 
   const { data: counts } = useQuery({
