@@ -70,10 +70,12 @@ export function generateBusinessPDF(opts: {
   notes?: string | null;
   total: number;
   date?: Date;
+  action?: "download" | "print" | "none";
 }) {
   const doc = new jsPDF();
   const W = doc.internal.pageSize.getWidth();
   const date = opts.date ?? new Date();
+  const action = opts.action ?? "download";
 
   // Header
   doc.setFillColor(20, 20, 24);
@@ -150,7 +152,14 @@ export function generateBusinessPDF(opts: {
     doc.text("Assinatura", W / 2, sigY + 5, { align: "center" });
   }
 
-  doc.save(`${opts.kind}-${opts.number}.pdf`);
+  if (action === "print") {
+    doc.autoPrint();
+    window.open(doc.output("bloburl"), "_blank");
+  } else if (action === "download") {
+    doc.save(`${opts.kind}-${opts.number}.pdf`);
+  }
+
+  return doc;
 }
 
 function triggerDownload(blob: Blob, name: string) {

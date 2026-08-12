@@ -131,7 +131,7 @@ function PDVPage() {
   }, [cart.length, checkoutOpen]);
 
   const finalize = useMutation({
-    mutationFn: async (opts: { print: boolean }) => {
+    mutationFn: async (opts: { action: "print" | "download" | "none" }) => {
       if (!orgId || cart.length === 0) throw new Error("Carrinho vazio");
 
       const { data: sale, error } = await supabase.from("sales").insert({
@@ -166,7 +166,7 @@ function PDVPage() {
         paid_at: new Date().toISOString(),
       });
 
-      if (opts.print) {
+      if (opts.action !== "none") {
         const customer = customers.find((c: any) => c.id === customerId) ?? null;
         generateBusinessPDF({
           kind: "receipt", number: sale.id.slice(0, 8).toUpperCase(),
@@ -175,6 +175,7 @@ function PDVPage() {
           items: cart.map(c => ({ description: c.description, quantity: c.quantity, unit_price: c.unit_price, total: c.quantity * c.unit_price })),
           notes: `Pagamento: ${PAYMENT_METHODS.find(m => m.id === paymentMethod)?.label}${discountNum > 0 ? ` · Desconto: ${fmt(discountNum)}` : ""}`,
           total,
+          action: opts.action,
         });
       }
       return sale;
