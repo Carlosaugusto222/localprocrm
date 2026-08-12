@@ -90,17 +90,6 @@ function OSDetail() {
           action: "update_os_items",
           entity: "service_orders",
           entityId: id,
-          payload: { action: "remove_item", item_id: itemId, new_total: total }
-        });
-      }
-      
-      if (user && org?.id) {
-        await logAudit({
-          orgId: org.id,
-          userId: user.id,
-          action: "update_os_items",
-          entity: "service_orders",
-          entityId: id,
           payload: { action: "add_item", item, new_total: total }
         });
       }
@@ -114,6 +103,17 @@ function OSDetail() {
       const { data: its } = await supabase.from("service_order_items").select("total").eq("service_order_id", id);
       const total = (its ?? []).reduce((a, b) => a + Number(b.total ?? 0), 0);
       await supabase.from("service_orders").update({ total }).eq("id", id);
+      
+      if (user && org?.id) {
+        await logAudit({
+          orgId: org.id,
+          userId: user.id,
+          action: "update_os_items",
+          entity: "service_orders",
+          entityId: id,
+          payload: { action: "remove_item", item_id: itemId, new_total: total }
+        });
+      }
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["os-items", id] }); qc.invalidateQueries({ queryKey: ["os", id] }); },
   });
