@@ -79,7 +79,7 @@ const plans = [
 
 function Landing() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background selection:bg-primary/20">
       {/* Header */}
       <header className="sticky top-0 z-30 surface-glass">
         <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
@@ -125,10 +125,10 @@ function Landing() {
       </section>
 
       {/* Módulos */}
-      <section id="modulos" className="py-20 border-t">
+      <section id="modulos" className="py-20 border-t" aria-labelledby="modulos-title">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold">Tudo em um só lugar</h2>
+            <h2 id="modulos-title" className="text-3xl sm:text-4xl font-display font-bold">Tudo em um só lugar</h2>
             <p className="mt-3 text-muted-foreground">Módulos que crescem com o seu negócio.</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -146,9 +146,9 @@ function Landing() {
       </section>
 
       {/* Segmentos */}
-      <section id="segmentos" className="py-20 border-t bg-muted/30">
+      <section id="segmentos" className="py-20 border-t bg-muted/30" aria-labelledby="segmentos-title">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl font-display font-bold">Feito para qualquer segmento</h2>
+          <h2 id="segmentos-title" className="text-3xl sm:text-4xl font-display font-bold">Feito para qualquer segmento</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-2">
             {["Barbearias","Salões","Clínicas","Consultórios","Oficinas","Restaurantes","Pousadas","Hotéis","Imobiliárias","Advocacia","Energia Solar","Academias","Prestadores"].map(s => (
               <Badge key={s} variant="secondary" className="text-sm px-3 py-1.5">{s}</Badge>
@@ -158,10 +158,10 @@ function Landing() {
       </section>
 
       {/* Planos */}
-      <section id="planos" className="py-20 border-t">
+      <section id="planos" className="py-20 border-t" aria-labelledby="planos-title">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold">Planos transparentes</h2>
+            <h2 id="planos-title" className="text-3xl sm:text-4xl font-display font-bold">Planos transparentes</h2>
             <p className="mt-3 text-muted-foreground">Comece grátis. Faça upgrade quando precisar.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
@@ -186,10 +186,10 @@ function Landing() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-20 border-t bg-muted/30" aria-label="Perguntas frequentes">
+      <section id="faq" className="py-20 border-t bg-muted/30" aria-labelledby="faq-title">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold">Perguntas frequentes</h2>
+            <h2 id="faq-title" className="text-3xl sm:text-4xl font-display font-bold">Perguntas frequentes</h2>
           </div>
           <dl className="space-y-4">
             {FAQ.map(f => (
