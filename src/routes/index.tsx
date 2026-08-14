@@ -29,7 +29,12 @@ export const Route = createFileRoute("/")({
       { name: "twitter:description", content: "Plataforma modular: CRM, agenda, PDV, OS, financeiro e IA." },
       { name: "twitter:image", content: OG_IMAGE },
     ],
-    links: [{ rel: "canonical", href: URL }],
+    links: [
+      { rel: "canonical", href: URL },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
+    ],
+
     scripts: [
       {
         type: "application/ld+json",
