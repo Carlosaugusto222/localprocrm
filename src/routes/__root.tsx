@@ -8,12 +8,15 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+// @ts-expect-error - virtual module from vite-plugin-pwa
+import { registerSW } from 'virtual:pwa-register';
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+
 
 function NotFoundComponent() {
   return (
