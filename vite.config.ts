@@ -9,6 +9,10 @@ export default defineConfig({
     plugins: [
       VitePWA({
         registerType: 'autoUpdate',
+        devOptions: {
+          enabled: true,
+          type: 'module',
+        },
         includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
         manifest: {
           name: 'LocalPro CRM',
@@ -18,7 +22,7 @@ export default defineConfig({
           background_color: '#0f172a',
           display: 'standalone',
           orientation: 'portrait',
-          start_url: '/inicio',
+          start_url: '/',
           icons: [
             {
               src: 'pwa-192x192.png',
@@ -63,21 +67,6 @@ export default defineConfig({
                 expiration: {
                   maxEntries: 10,
                   maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
-              },
-            },
-            {
-              urlPattern: ({ url }) => url.pathname.startsWith('/api/'),
-              handler: 'NetworkFirst',
-              options: {
-                cacheName: 'api-cache',
-                networkTimeoutSeconds: 10,
-                expiration: {
-                  maxEntries: 50,
-                  maxAgeSeconds: 60 * 60 * 24,
                 },
                 cacheableResponse: {
                   statuses: [0, 200],
