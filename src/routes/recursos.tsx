@@ -4,18 +4,38 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
 const URL = "https://localprocrm.lovable.app/recursos";
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
 
 export const Route = createFileRoute("/recursos")({
   head: () => ({
     meta: [
       { title: "Recursos do LocalPro CRM — CRM, Agenda, PDV, OS, IA" },
       { name: "description", content: "Conheça todos os módulos: CRM, agenda com drag & drop, PDV/frente de loja, ordens de serviço, financeiro, vendas, IA e WhatsApp." },
-      { property: "og:title", content: "Recursos — LocalPro CRM" },
+      { property: "og:title", content: "Recursos do LocalPro CRM — CRM, Agenda, PDV, OS, IA" },
       { property: "og:description", content: "Módulos completos para gerir clientes, vendas, agenda, OS, caixa e marketing com IA." },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:title", content: "Recursos do LocalPro CRM — CRM, Agenda, PDV, OS, IA" },
+      { name: "twitter:description", content: "Módulos completos para gerir clientes, vendas, agenda, OS, caixa e marketing com IA." },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Recursos LocalPro CRM",
+        description: "Lista de módulos e funcionalidades disponíveis.",
+        itemListElement: features.map((f, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: f.title,
+          description: f.desc,
+        })),
+      }),
+    }],
   }),
   component: ResourcesPage,
 });

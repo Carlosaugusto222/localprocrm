@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
 const URL = "https://localprocrm.lovable.app/precos";
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
 
 const plans = [
   { name: "Básico", price: "49", desc: "Para começar com o essencial.", features: ["CRM completo", "Clientes ilimitados", "Tags e funil", "Suporte por e-mail"], cta: "Começar grátis" },
@@ -17,10 +18,14 @@ export const Route = createFileRoute("/precos")({
     meta: [
       { title: "Planos e preços — LocalPro CRM a partir de R$ 49/mês" },
       { name: "description", content: "Planos transparentes a partir de R$ 49/mês. CRM, agenda, financeiro, OS, PDV e IA. Comece grátis e faça upgrade quando precisar." },
-      { property: "og:title", content: "Planos e preços — LocalPro CRM" },
+      { property: "og:title", content: "Planos e preços — LocalPro CRM a partir de R$ 49/mês" },
       { property: "og:description", content: "Planos a partir de R$ 49/mês. Comece grátis." },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:title", content: "Planos e preços — LocalPro CRM a partir de R$ 49/mês" },
+      { name: "twitter:description", content: "Planos a partir de R$ 49/mês. Comece grátis." },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [{
