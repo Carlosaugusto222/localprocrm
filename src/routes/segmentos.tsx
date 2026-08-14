@@ -3,18 +3,38 @@ import { Button } from "@/components/ui/button";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
 const URL = "https://localprocrm.lovable.app/segmentos";
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
 
 export const Route = createFileRoute("/segmentos")({
   head: () => ({
     meta: [
       { title: "Segmentos atendidos — LocalPro CRM" },
       { name: "description", content: "Sistema de gestão para barbearias, salões, clínicas, oficinas, restaurantes, assistência técnica, hotéis, imobiliárias e mais." },
-      { property: "og:title", content: "Segmentos — LocalPro CRM" },
+      { property: "og:title", content: "Segmentos atendidos — LocalPro CRM" },
       { property: "og:description", content: "Adaptável a qualquer negócio local: barbearia, clínica, oficina, restaurante, assistência técnica e muito mais." },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:title", content: "Segmentos atendidos — LocalPro CRM" },
+      { name: "twitter:description", content: "Adaptável a qualquer negócio local: barbearia, clínica, oficina, restaurante, assistência técnica e muito mais." },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: URL }],
+    scripts: [{
+      type: "application/ld+json",
+      children: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Segmentos Atendidos pelo LocalPro CRM",
+        description: "Lista de tipos de negócios que podem usar a plataforma.",
+        itemListElement: segments.map((s, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          name: s.name,
+          description: s.desc,
+        })),
+      }),
+    }],
   }),
   component: SegmentsPage,
 });
