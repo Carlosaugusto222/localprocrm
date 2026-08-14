@@ -186,10 +186,10 @@ function Landing() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-20 border-t bg-muted/30" aria-label="Perguntas frequentes">
+      <section id="faq" className="py-20 border-t bg-muted/30" aria-labelledby="faq-title">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold">Perguntas frequentes</h2>
+            <h2 id="faq-title" className="text-3xl sm:text-4xl font-display font-bold">Perguntas frequentes</h2>
           </div>
           <dl className="space-y-4">
             {FAQ.map(f => (
