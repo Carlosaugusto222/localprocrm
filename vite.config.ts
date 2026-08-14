@@ -1,81 +1,69 @@
+// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually
+// or the app will break with duplicate plugins:
+//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),
+//     componentTagger (dev-only), VITE_* env injection, @ path alias, React/TanStack dedupe,
+//     error logger plugins, and sandbox detection (port/host/strictPort).
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
-import { VitePWA } from 'vite-plugin-pwa';
+import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   tanstackStart: {
+    // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
+    // nitro/vite builds from this
     server: { entry: "server" },
   },
   vite: {
     plugins: [
       VitePWA({
-        registerType: 'autoUpdate',
-        devOptions: {
-          enabled: true,
-          type: 'module',
-        },
-        includeAssets: ['favicon.ico', 'robots.txt', 'apple-touch-icon.png'],
-        manifest: {
-          name: 'LocalPro CRM',
-          short_name: 'LocalPro',
-          description: 'Gestão completa para negócios locais com CRM, agenda e PDV.',
-          theme_color: '#0f172a',
-          background_color: '#0f172a',
-          display: 'standalone',
-          orientation: 'portrait',
-          start_url: '/',
-          icons: [
-            {
-              src: 'pwa-192x192.png',
-              sizes: '192x192',
-              type: 'image/png'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png'
-            },
-            {
-              src: 'pwa-512x512.png',
-              sizes: '512x512',
-              type: 'image/png',
-              purpose: 'any maskable'
-            }
-          ]
-        },
+        strategies: "generateSW",
+        registerType: "autoUpdate",
+        injectRegister: null,
+        filename: "sw.js",
+        manifest: false,
+        manifestFilename: "manifest.webmanifest",
+        devOptions: { enabled: false },
         workbox: {
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+          globPatterns: ["**/*.{js,css,woff2}"],
+          navigateFallback: undefined,
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
           runtimeCaching: [
             {
-              urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-              handler: 'CacheFirst',
+              // HTML navigations: always try the network first.
+              urlPattern: ({ request, url }) =>
+                request.mode === "navigate" && !url.pathname.startsWith("/~oauth"),
+              handler: "NetworkFirst",
               options: {
-                cacheName: 'google-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheName: "html-navigations",
+                networkTimeoutSeconds: 5,
+                expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 },
+                cacheableResponse: { statuses: [0, 200] },
               },
             },
             {
-              urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-              handler: 'CacheFirst',
+              // Same-origin hashed build assets.
+              urlPattern: ({ url, sameOrigin }) =>
+                sameOrigin && /\.(?:js|css|woff2|png|svg|ico|webp|jpg|jpeg)$/.test(url.pathname),
+              handler: "CacheFirst",
               options: {
-                cacheName: 'gstatic-fonts-cache',
-                expiration: {
-                  maxEntries: 10,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                },
-                cacheableResponse: {
-                  statuses: [0, 200],
-                },
+                cacheName: "static-assets",
+                expiration: { maxEntries: 120, maxAgeSeconds: 60 * 60 * 24 * 30 },
+                cacheableResponse: { statuses: [0, 200] },
               },
-            }
-          ]
-        }
-      })
-    ]
-  }
+            },
+            {
+              urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/i,
+              handler: "CacheFirst",
+              options: {
+                cacheName: "google-fonts",
+                expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+          ],
+        },
+      }),
+    ],
+  },
 });
