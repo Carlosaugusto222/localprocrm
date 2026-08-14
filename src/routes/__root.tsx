@@ -129,15 +129,9 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
-    // Register PWA Service Worker
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      registerSW({
-        immediate: true,
-        onRegisteredSW(swUrl: string, r: ServiceWorkerRegistration | undefined) {
-          console.log(`Service Worker at: ${swUrl}`);
-        },
-      });
-    }
+    setupPWA();
+
+
 
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
