@@ -12,7 +12,7 @@ export function SiteHeader() {
           </div>
           <span className="font-display font-bold text-lg">LocalPro <span className="text-muted-foreground">CRM</span></span>
         </Link>
-        <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground">
+        <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground" aria-label="Navegação principal">
           <Link to="/recursos" className="hover:text-foreground">Recursos</Link>
           <Link to="/segmentos" className="hover:text-foreground">Segmentos</Link>
           <Link to="/precos" className="hover:text-foreground">Planos</Link>
