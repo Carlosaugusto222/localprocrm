@@ -3,6 +3,7 @@ import { Mail, MessageSquare } from "lucide-react";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
 const URL = "https://localprocrm.lovable.app/contato";
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
 
 export const Route = createFileRoute("/contato")({
   head: () => ({
@@ -13,6 +14,10 @@ export const Route = createFileRoute("/contato")({
       { property: "og:description", content: "Fale com a nossa equipe e descubra como o LocalPro pode transformar o seu negócio." },
       { property: "og:url", content: URL },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:title", content: "Contato — LocalPro CRM" },
+      { name: "twitter:description", content: "Fale com a nossa equipe e descubra como o LocalPro pode transformar o seu negócio." },
+      { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [{ rel: "canonical", href: URL }],
     scripts: [{
