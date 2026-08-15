@@ -65,7 +65,7 @@ function AI() {
     },
   });
 
-  const { messages, input, handleInputChange, handleSubmit, setInput, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setInput, status, append } = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
   });
@@ -74,18 +74,15 @@ function AI() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
+  const isLoading = status === "submitted" || status === "streaming";
+
   const runAction = async (key: string) => {
     if (!org || isLoading) return;
     setBusyAction(key);
     try {
       const prompt = await buildActionPrompt(key, org.id, org.name);
       if (!prompt) return;
-      setInput(prompt);
-      // Wait a tick for state to update
-      setTimeout(() => {
-        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
-        handleSubmit(fakeEvent);
-      }, 50);
+      append({ role: 'user', content: prompt });
     } catch (e: any) {
       toast.error(e.message ?? "Falha ao preparar contexto");
     } finally {
@@ -137,8 +134,7 @@ function AI() {
               <div className="grid sm:grid-cols-2 gap-2 mt-6 w-full">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => {
-                    setInput(s);
-                    setTimeout(() => handleSubmit({ preventDefault: () => {} } as any), 50);
+                    append({ role: 'user', content: s });
                   }} className="text-left text-sm p-3 rounded-lg border hover:border-primary/40 hover:bg-accent transition-colors">
                     {s}
                   </button>

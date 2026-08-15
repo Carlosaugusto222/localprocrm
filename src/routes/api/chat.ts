@@ -14,7 +14,7 @@ export const Route = createFileRoute("/api/chat")({
         const tenantBlock = tenant ? `\n\nContexto da empresa do usuário (use para personalizar TODAS as respostas):\n${JSON.stringify(tenant, null, 2)}` : "";
         
         try {
-          const result = await streamText({
+          const result = streamText({
             model: aiGateway("gpt-4o-mini"),
             system: baseSystem + tenantBlock,
             messages: messages,
