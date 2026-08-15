@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useChat } from "@ai-sdk/react";
-import type { Message } from "ai";
+import type { UIMessage } from "ai";
 import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone, Tag } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,7 @@ function AI() {
   const { org } = useCurrentOrg();
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [localInput, setLocalInput] = useState("");
 
   const { data: tenantCtx } = useQuery({
     enabled: !!org?.id,
@@ -66,10 +67,10 @@ function AI() {
     },
   });
 
-  const { messages, input, handleInputChange, handleSubmit, setInput, append, status } = useChat({
+  const { messages, sendMessage, status } = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
-  });
+  } as any);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -77,13 +78,20 @@ function AI() {
 
   const isLoading = status === "submitted" || status === "streaming";
 
+  const onSend = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!localInput.trim() || isLoading) return;
+    sendMessage(localInput);
+    setLocalInput("");
+  };
+
   const runAction = async (key: string) => {
     if (!org || isLoading) return;
     setBusyAction(key);
     try {
       const prompt = await buildActionPrompt(key, org.id, org.name);
       if (!prompt) return;
-      append({ role: 'user', content: prompt });
+      sendMessage(prompt);
     } catch (e: any) {
       toast.error(e.message ?? "Falha ao preparar contexto");
     } finally {
@@ -135,7 +143,7 @@ function AI() {
               <div className="grid sm:grid-cols-2 gap-2 mt-6 w-full">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => {
-                    append({ role: 'user', content: s });
+                    sendMessage(s);
                   }} className="text-left text-sm p-3 rounded-lg border hover:border-primary/40 hover:bg-accent transition-colors">
                     {s}
                   </button>
@@ -143,7 +151,7 @@ function AI() {
               </div>
             </div>
           ) : (
-            messages.map((m: Message) => (
+            messages.map((m: UIMessage) => (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted shadow-sm border border-border/50"}`}>
                   {m.content}
@@ -153,9 +161,9 @@ function AI() {
           )}
           {isLoading && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Pensando...</div>}
         </div>
-        <form onSubmit={handleSubmit} className="border-t p-3 flex gap-2 bg-card/50">
-          <Input value={input} onChange={handleInputChange} placeholder="Pergunte algo..." disabled={isLoading} />
-          <Button type="submit" disabled={isLoading || !input.trim()}><Send className="size-4" /></Button>
+        <form onSubmit={onSend} className="border-t p-3 flex gap-2 bg-card/50">
+          <Input value={localInput} onChange={(e) => setLocalInput(e.target.value)} placeholder="Pergunte algo..." disabled={isLoading} />
+          <Button type="submit" disabled={isLoading || !localInput.trim()}><Send className="size-4" /></Button>
         </form>
       </Card>
     </PageContainer>
