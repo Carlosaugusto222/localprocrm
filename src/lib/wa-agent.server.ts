@@ -46,7 +46,7 @@ Regras:
 
   try {
     const { text: aiResponse } = await generateText({
-      model: aiGateway('gemini-1.5-flash'),
+      model: aiGateway('gpt-4o-mini'),
       system: systemPrompt,
       prompt: customerText,
     });
