@@ -75,7 +75,7 @@ function WhatsAppInbox() {
   const { data: conversations = [], isLoading: loadingConvs } = useQuery({
     enabled: !!org,
     queryKey: ["wa-conversations", org?.id],
-    queryFn: () => listConversationsFn({ organizationId: org!.id })
+    queryFn: () => listConversationsFn({ data: { organizationId: org!.id } })
   });
 
   const { data: messages = [], isLoading: loadingMsgs } = useQuery({
