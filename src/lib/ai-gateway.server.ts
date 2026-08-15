@@ -1,9 +1,6 @@
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { createOpenAI } from '@ai-sdk/openai';
 
-export function createLovableAiGatewayProvider(apiKey: string) {
-  return createOpenAICompatible({
-    name: "lovable-ai-gateway",
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    headers: { "Lovable-API-Key": apiKey },
-  });
-}
+export const aiGateway = createOpenAI({
+  baseURL: 'https://gateway.lovable.ai/v1',
+  apiKey: process.env['LOVABLE_AI_GATEWAY_KEY'] || '',
+});

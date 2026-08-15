@@ -81,7 +81,7 @@ function WhatsAppInbox() {
   const { data: messages = [], isLoading: loadingMsgs } = useQuery({
     enabled: !!selectedConvId,
     queryKey: ["wa-messages", selectedConvId],
-    queryFn: () => listMessagesFn({ conversationId: selectedConvId! })
+    queryFn: () => listMessagesFn({ data: { conversationId: selectedConvId! } })
   });
 
   const selectedConv = conversations.find(c => c.id === selectedConvId);
@@ -96,9 +96,11 @@ function WhatsAppInbox() {
     mutationFn: async (text: string) => {
       if (!org || !selectedConvId) return;
       await sendReplyFn({
-        organizationId: org.id,
-        conversationId: selectedConvId,
-        text
+        data: {
+          organizationId: org.id,
+          conversationId: selectedConvId,
+          text
+        }
       });
     },
     onSuccess: () => {
@@ -113,7 +115,7 @@ function WhatsAppInbox() {
     mutationFn: async () => {
       if (!selectedConvId || !selectedConv) return;
       const nextStatus = selectedConv.status === "bot" ? "human" : "bot";
-      await setStatusFn({ conversationId: selectedConvId, status: nextStatus });
+      await setStatusFn({ data: { conversationId: selectedConvId, status: nextStatus } });
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["wa-conversations", org?.id] });
@@ -295,11 +297,11 @@ function WhatsAppConfig() {
   const { data: channel, refetch, isLoading } = useQuery({
     enabled: !!org,
     queryKey: ["wa-channel", org?.id],
-    queryFn: () => getChannelFn({ organizationId: org!.id })
+    queryFn: () => getChannelFn({ data: { organizationId: org!.id } })
   });
 
   const saveMutation = useMutation({
-    mutationFn: (values: any) => saveChannelFn({ ...values, organizationId: org!.id }),
+    mutationFn: (values: any) => saveChannelFn({ data: { ...values, organizationId: org!.id } }),
     onSuccess: () => {
       toast.success("Configuração salva com sucesso!");
       refetch();

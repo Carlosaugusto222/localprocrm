@@ -1,11 +1,4 @@
 import { supabaseAdmin } from '@/integrations/supabase/client.server';
-import { generateText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
-
-const aiGateway = createOpenAI({
-  baseURL: 'https://gateway.lovable.ai/v1',
-  apiKey: process.env['LOVABLE_AI_GATEWAY_KEY'] || '',
-});
 
 export async function runWhatsAppAgent({
   organizationId,
@@ -45,6 +38,9 @@ Regras:
 5. Se detectar palavras como "problema", "reclamação" ou "urgente", avise que um humano irá assumir.`;
 
   try {
+    const { aiGateway } = await import('@/lib/ai-gateway.server');
+    const { generateText } = await import('ai');
+
     const { text: aiResponse } = await generateText({
       model: aiGateway('gpt-4o-mini'),
       system: systemPrompt,
