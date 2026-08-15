@@ -17,6 +17,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { OfflineBanner } from "@/components/offline-banner";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { CloudOff } from "lucide-react";
 
 
 function NotFoundComponent() {
