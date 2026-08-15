@@ -4,23 +4,23 @@ import { createOpenAI } from '@ai-sdk/openai-compatible';
 
 const aiGateway = createOpenAI({
   baseURL: 'https://gateway.lovable.ai/v1',
-  apiKey: process.env.LOVABLE_AI_GATEWAY_KEY, // We'll need to ensure this is available
+  apiKey: process.env['LOVABLE_AI_GATEWAY_KEY'] || '',
 });
 
 export async function handleWhatsAppMessage(channel: any, value: any) {
   const message = value.messages[0];
   const contact = value.contacts[0];
-  const waContactId = message.from; // Phone number string
+  const waPhone = message.from; 
   const text = message.text?.body;
 
   if (!text) return;
 
-  // 1. Find or create customer
+  // 1. Find or create conversation
   let { data: conversation } = await supabaseAdmin
     .from('wa_conversations')
     .select('*, customer:customers(*)')
     .eq('organization_id', channel.organization_id)
-    .eq('wa_contact_id', waContactId)
+    .eq('wa_phone', waPhone)
     .maybeSingle();
 
   if (!conversation) {
@@ -29,7 +29,7 @@ export async function handleWhatsAppMessage(channel: any, value: any) {
       .from('customers')
       .select('*')
       .eq('organization_id', channel.organization_id)
-      .eq('phone', waContactId)
+      .eq('phone', waPhone)
       .maybeSingle();
 
     if (!customer) {
@@ -37,8 +37,8 @@ export async function handleWhatsAppMessage(channel: any, value: any) {
         .from('customers')
         .insert({
           organization_id: channel.organization_id,
-          name: contact.profile.name || 'Cliente WhatsApp',
-          phone: waContactId,
+          name: contact?.profile?.name || 'Cliente WhatsApp',
+          phone: waPhone,
           pipeline_stage: 'new'
         })
         .select()
@@ -52,20 +52,24 @@ export async function handleWhatsAppMessage(channel: any, value: any) {
       .from('wa_conversations')
       .insert({
         organization_id: channel.organization_id,
-        customer_id: customer.id,
-        wa_contact_id: waContactId,
-        status: 'bot'
+        customer_id: customer?.id,
+        wa_phone: waPhone,
+        wa_name: contact?.profile?.name || null,
+        status: 'bot',
+        channel_id: channel.id
       })
       .select()
       .single();
     
     if (convErr) throw convErr;
-    conversation = newConv;
+    // Fetch again to get relations if needed, but we have enough here
+    conversation = { ...newConv, customer };
   }
 
   // 2. Log incoming message
   await supabaseAdmin.from('wa_messages').insert({
-    conversation_id: conversation.id,
+    organization_id: channel.organization_id,
+    conversation_id: conversation!.id,
     direction: 'in',
     wa_message_id: message.id,
     text: text
@@ -74,22 +78,23 @@ export async function handleWhatsAppMessage(channel: any, value: any) {
   // Update last_message_at
   await supabaseAdmin.from('wa_conversations')
     .update({ last_message_at: new Date().toISOString() })
-    .eq('id', conversation.id);
+    .eq('id', conversation!.id);
 
   // 3. AI Reply if enabled and in bot mode
-  if (channel.auto_reply && conversation.status === 'bot') {
+  if (channel.auto_reply && conversation!.status === 'bot') {
     await sendAIReply(channel, conversation, text);
   }
 }
 
 async function sendAIReply(channel: any, conversation: any, userText: string) {
-  // Fetch context: Org info, services
   const { data: org } = await supabaseAdmin.from('organizations').select('*').eq('id', channel.organization_id).single();
-  const { data: services } = await supabaseAdmin.from('products').select('*').eq('organization_id', channel.organization_id).eq('type', 'service');
+  const { data: services } = await supabaseAdmin.from('products').select('*').eq('organization_id', channel.organization_id).eq('kind', 'service');
   
+  if (!org) return;
+
   const systemPrompt = `Você é o atendente virtual da empresa ${org.name}.
 Seu objetivo é ser prestativo, educado e ajudar o cliente a agendar serviços ou tirar dúvidas.
-Informações da empresa: ${org.description || 'Não informada'}.
+Informações da empresa: ${org.address || 'Não informado'}.
 Serviços disponíveis: ${services?.map(s => `${s.name} (R$ ${s.price})`).join(', ') || 'Consultar preços'}.
 
 Regras:
@@ -116,17 +121,18 @@ Regras:
       body: JSON.stringify({
         messaging_product: 'whatsapp',
         recipient_type: 'individual',
-        to: conversation.wa_contact_id,
+        to: conversation.wa_phone,
         type: 'text',
         text: { body: aiResponse }
       }),
     });
 
-    const metaResult = await response.json();
+    const metaResult: any = await response.json();
 
     if (metaResult.messages?.[0]) {
       // Log outgoing message
       await supabaseAdmin.from('wa_messages').insert({
+        organization_id: channel.organization_id,
         conversation_id: conversation.id,
         direction: 'out',
         wa_message_id: metaResult.messages[0].id,
