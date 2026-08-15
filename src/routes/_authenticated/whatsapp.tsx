@@ -306,23 +306,23 @@ function WhatsAppConfig() {
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Phone Number ID</label>
-                <Input name="phone_number_id" defaultValue={channel?.phone_number_id} placeholder="Ex: 105672839485" required />
+                <Input name="phone_number_id" defaultValue={channel?.phone_number_id || ""} placeholder="Ex: 105672839485" required />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">WhatsApp Business Account ID</label>
-                <Input name="waba_id" defaultValue={channel?.waba_id} placeholder="Ex: 928374650192" required />
+                <Input name="waba_id" defaultValue={channel?.waba_id || ""} placeholder="Ex: 928374650192" required />
               </div>
             </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium">Access Token Permanente (System User)</label>
-              <Input name="access_token" type="password" defaultValue={channel?.access_token} placeholder="EAABw..." required />
+              <Input name="access_token" type="password" defaultValue={channel?.access_token || ""} placeholder="EAABw..." required />
               <p className="text-[10px] text-muted-foreground italic">Use um token de longa duração gerado no painel do desenvolvedor Meta.</p>
             </div>
 
             <div className="space-y-2">
               <label className="text-sm font-medium">App Secret</label>
-              <Input name="app_secret" type="password" defaultValue={channel?.app_secret} placeholder="Chave secreta do app" required />
+              <Input name="app_secret" type="password" defaultValue={channel?.app_secret || ""} placeholder="Chave secreta do app" required />
             </div>
 
             <div className="flex items-center gap-4 pt-2">
