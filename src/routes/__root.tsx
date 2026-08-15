@@ -16,6 +16,9 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { OfflineBanner } from "@/components/offline-banner";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import { CloudOff } from "lucide-react";
 
 
 function NotFoundComponent() {
@@ -43,14 +46,22 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const online = useOnlineStatus();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold">Algo deu errado</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+        {!online && <CloudOff className="mx-auto mb-3 h-10 w-10 text-amber-500" />}
+        <h1 className="text-xl font-semibold">
+          {online ? "Algo deu errado" : "Você está sem conexão"}
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {online
+            ? error.message
+            : "Não foi possível carregar esta página offline. Reconecte-se e tente novamente."}
+        </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => { router.invalidate(); reset(); }}
@@ -147,6 +158,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <Outlet />
+        <OfflineBanner />
         <Toaster richColors position="top-right" />
       </ThemeProvider>
     </QueryClientProvider>
