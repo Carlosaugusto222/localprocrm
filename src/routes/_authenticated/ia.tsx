@@ -67,10 +67,10 @@ function AI() {
     },
   });
 
-  const { messages, sendMessage, status } = useChat({
+  const { messages, append, status } = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
-  } as any);
+  });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -81,7 +81,7 @@ function AI() {
   const onSend = (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!localInput.trim() || isLoading) return;
-    sendMessage(localInput);
+    append({ role: 'user', content: localInput });
     setLocalInput("");
   };
 
@@ -91,7 +91,7 @@ function AI() {
     try {
       const prompt = await buildActionPrompt(key, org.id, org.name);
       if (!prompt) return;
-      sendMessage(prompt);
+      append({ role: 'user', content: prompt });
     } catch (e: any) {
       toast.error(e.message ?? "Falha ao preparar contexto");
     } finally {
@@ -143,7 +143,7 @@ function AI() {
               <div className="grid sm:grid-cols-2 gap-2 mt-6 w-full">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => {
-                    sendMessage(s);
+                    append({ role: 'user', content: s });
                   }} className="text-left text-sm p-3 rounded-lg border hover:border-primary/40 hover:bg-accent transition-colors">
                     {s}
                   </button>
@@ -154,7 +154,7 @@ function AI() {
             messages.map((m: UIMessage) => (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted shadow-sm border border-border/50"}`}>
-                  {m.content}
+                  {m.parts?.map((part, i) => part.type === 'text' ? part.text : null).join('')}
                 </div>
               </div>
             ))
