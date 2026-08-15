@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useChat } from "@ai-sdk/react";
+import type { Message } from "ai";
 import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone, Tag } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,7 @@ function AI() {
     },
   });
 
-  const { messages, input, handleInputChange, handleSubmit, setInput, append, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setInput, append, status } = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
   });
@@ -73,6 +74,8 @@ function AI() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
+
+  const isLoading = status === "submitted" || status === "streaming";
 
   const runAction = async (key: string) => {
     if (!org || isLoading) return;
@@ -140,7 +143,7 @@ function AI() {
               </div>
             </div>
           ) : (
-            messages.map(m => (
+            messages.map((m: Message) => (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted shadow-sm border border-border/50"}`}>
                   {m.content}

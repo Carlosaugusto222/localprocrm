@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { convertToCoreMessages, streamText } from "ai";
+import { streamText } from "ai";
 import { aiGateway } from "@/lib/ai-gateway.server";
 
 export const Route = createFileRoute("/api/chat")({
@@ -14,10 +14,10 @@ export const Route = createFileRoute("/api/chat")({
         const tenantBlock = tenant ? `\n\nContexto da empresa do usuário (use para personalizar TODAS as respostas):\n${JSON.stringify(tenant, null, 2)}` : "";
         
         try {
-          const result = await streamText({
+          const result = streamText({
             model: aiGateway("gpt-4o-mini"),
             system: baseSystem + tenantBlock,
-            messages: convertToCoreMessages(messages),
+            messages: messages,
           });
           return result.toDataStreamResponse();
         } catch (e: any) {
