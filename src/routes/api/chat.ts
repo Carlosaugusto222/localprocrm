@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { streamText } from "ai";
+import { convertToCoreMessages, streamText } from "ai";
 import { aiGateway } from "@/lib/ai-gateway.server";
 
 export const Route = createFileRoute("/api/chat")({
@@ -14,12 +14,12 @@ export const Route = createFileRoute("/api/chat")({
         const tenantBlock = tenant ? `\n\nContexto da empresa do usuário (use para personalizar TODAS as respostas):\n${JSON.stringify(tenant, null, 2)}` : "";
         
         try {
-          const result = streamText({
+          const result = await streamText({
             model: aiGateway("gpt-4o-mini"),
             system: baseSystem + tenantBlock,
-            messages: messages,
+            messages: convertToCoreMessages(messages),
           });
-          return result.toTextStreamResponse();
+          return result.toDataStreamResponse();
         } catch (e: any) {
           const msg = String(e?.message ?? e);
           if (msg.includes("429")) return new Response("Muitas requisições. Tente novamente em instantes.", { status: 429 });

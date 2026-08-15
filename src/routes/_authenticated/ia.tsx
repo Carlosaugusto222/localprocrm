@@ -65,7 +65,7 @@ function AI() {
     },
   });
 
-  const { messages, input, handleInputChange, handleSubmit, setInput, status, append } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setInput, append, isLoading } = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
   });
@@ -73,8 +73,6 @@ function AI() {
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
-
-  const isLoading = status === "submitted" || status === "streaming";
 
   const runAction = async (key: string) => {
     if (!org || isLoading) return;
@@ -144,7 +142,7 @@ function AI() {
           ) : (
             messages.map(m => (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted shadow-sm border border-border/50"}`}>
                   {m.content}
                 </div>
               </div>
@@ -152,7 +150,7 @@ function AI() {
           )}
           {isLoading && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Pensando...</div>}
         </div>
-        <form onSubmit={handleSubmit} className="border-t p-3 flex gap-2">
+        <form onSubmit={handleSubmit} className="border-t p-3 flex gap-2 bg-card/50">
           <Input value={input} onChange={handleInputChange} placeholder="Pergunte algo..." disabled={isLoading} />
           <Button type="submit" disabled={isLoading || !input.trim()}><Send className="size-4" /></Button>
         </form>
