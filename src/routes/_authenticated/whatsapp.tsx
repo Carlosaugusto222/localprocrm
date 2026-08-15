@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { MessageSquare, Settings, Search, Send, User, Bot, History, ExternalLink, CheckCircle2, AlertCircle } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MessageSquare, Settings, Search, Send, User, Bot, History, ExternalLink, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
@@ -13,7 +13,15 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { useServerFn } from "@tanstack/react-start";
+import { 
+  getWaChannel, 
+  saveWaChannel, 
+  listWaConversations, 
+  listWaMessages, 
+  sendWaReply, 
+  setWaConversationStatus 
+} from "@/lib/wa.functions";
 
 export const Route = createFileRoute("/_authenticated/whatsapp")({
   head: () => ({ meta: [{ title: "WhatsApp AI — LocalPro CRM" }] }),
@@ -21,7 +29,6 @@ export const Route = createFileRoute("/_authenticated/whatsapp")({
 });
 
 function WhatsAppPage() {
-  const { org } = useCurrentOrg();
   const [activeTab, setActiveTab] = useState("inbox");
 
   return (
@@ -55,50 +62,64 @@ function WhatsAppPage() {
 
 function WhatsAppInbox() {
   const { org } = useCurrentOrg();
-  const [selectedConv, setSelectedConv] = useState<string | null>(null);
+  const qc = useQueryClient();
+  const [selectedConvId, setSelectedConvId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [msgInput, setMsgInput] = useState("");
+  
+  const listConversationsFn = useServerFn(listWaConversations);
+  const listMessagesFn = useServerFn(listWaMessages);
+  const sendReplyFn = useServerFn(sendWaReply);
+  const setStatusFn = useServerFn(setWaConversationStatus);
 
   const { data: conversations = [], isLoading: loadingConvs } = useQuery({
     enabled: !!org,
     queryKey: ["wa-conversations", org?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("wa_conversations")
-        .select(`
-          id, 
-          status, 
-          last_message_at,
-          customer:customers(id, name, phone)
-        `)
-        .eq("organization_id", org!.id)
-        .order("last_message_at", { ascending: false });
-      
-      if (error) throw error;
-      return data;
-    }
+    queryFn: () => listConversationsFn({ organizationId: org!.id })
   });
 
   const { data: messages = [], isLoading: loadingMsgs } = useQuery({
-    enabled: !!selectedConv,
-    queryKey: ["wa-messages", selectedConv],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("wa_messages")
-        .select("*")
-        .eq("conversation_id", selectedConv!)
-        .order("created_at", { ascending: true });
-      
-      if (error) throw error;
-      return data;
-    }
+    enabled: !!selectedConvId,
+    queryKey: ["wa-messages", selectedConvId],
+    queryFn: () => listMessagesFn({ conversationId: selectedConvId! })
   });
+
+  const selectedConv = conversations.find(c => c.id === selectedConvId);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const sendMutation = useMutation({
+    mutationFn: async (text: string) => {
+      if (!org || !selectedConvId) return;
+      await sendReplyFn({
+        organizationId: org.id,
+        conversationId: selectedConvId,
+        text
+      });
+    },
+    onSuccess: () => {
+      setMsgInput("");
+      qc.invalidateQueries({ queryKey: ["wa-messages", selectedConvId] });
+      qc.invalidateQueries({ queryKey: ["wa-conversations", org?.id] });
+    },
+    onError: (e: any) => toast.error("Erro ao enviar: " + e.message)
+  });
+
+  const toggleStatusMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedConvId || !selectedConv) return;
+      const nextStatus = selectedConv.status === "bot" ? "human" : "bot";
+      await setStatusFn({ conversationId: selectedConvId, status: nextStatus });
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["wa-conversations", org?.id] });
+      toast.success("Modo de atendimento alterado");
+    }
+  });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[350px_1fr] gap-4 h-[calc(100vh-280px)] min-h-[500px]">
@@ -115,9 +136,9 @@ function WhatsAppInbox() {
             {conversations.map((conv) => (
               <button
                 key={conv.id}
-                onClick={() => setSelectedConv(conv.id)}
+                onClick={() => setSelectedConvId(conv.id)}
                 className={`w-full text-left p-3 rounded-xl transition-colors flex gap-3 ${
-                  selectedConv === conv.id ? "bg-accent" : "hover:bg-accent/50"
+                  selectedConvId === conv.id ? "bg-accent" : "hover:bg-accent/50"
                 }`}
               >
                 <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
@@ -125,16 +146,21 @@ function WhatsAppInbox() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium truncate">{conv.customer?.name || "Cliente"}</span>
+                    <span className="font-medium truncate">{conv.wa_name || "Cliente"}</span>
                     <span className="text-[10px] text-muted-foreground whitespace-nowrap">
                       {conv.last_message_at ? format(new Date(conv.last_message_at), "HH:mm") : ""}
                     </span>
                   </div>
                   <div className="flex items-center justify-between mt-0.5">
-                    <p className="text-xs text-muted-foreground truncate">{conv.customer?.phone}</p>
-                    <Badge variant={conv.status === 'bot' ? 'secondary' : 'default'} className="text-[9px] h-4 px-1">
-                      {conv.status === 'bot' ? 'IA' : 'Humano'}
-                    </Badge>
+                    <p className="text-xs text-muted-foreground truncate">{conv.wa_phone}</p>
+                    <div className="flex items-center gap-1">
+                      {conv.unread_count > 0 && (
+                        <span className="size-2 rounded-full bg-primary animate-pulse" />
+                      )}
+                      <Badge variant={conv.status === 'bot' ? 'secondary' : 'default'} className="text-[9px] h-4 px-1">
+                        {conv.status === 'bot' ? 'IA' : 'Humano'}
+                      </Badge>
+                    </div>
                   </div>
                 </div>
               </button>
@@ -151,7 +177,7 @@ function WhatsAppInbox() {
 
       {/* Chat Area */}
       <Card className="flex flex-col overflow-hidden bg-accent/5">
-        {selectedConv ? (
+        {selectedConvId ? (
           <>
             <div className="p-4 border-b bg-card flex items-center justify-between">
               <div className="flex items-center gap-3">
@@ -160,28 +186,38 @@ function WhatsAppInbox() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-sm">
-                    {conversations.find(c => c.id === selectedConv)?.customer?.name || "Cliente"}
+                    {selectedConv?.wa_name || "Cliente"}
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <div className="size-1.5 rounded-full bg-success animate-pulse" />
-                      Online
+                    <span className="flex items-center gap-1 text-success">
+                      <div className="size-1.5 rounded-full bg-success" />
+                      Ativo
                     </span>
                     <span>•</span>
-                    <span>{conversations.find(c => c.id === selectedConv)?.customer?.phone}</span>
+                    <span>{selectedConv?.wa_phone}</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Bot className="size-4" /> Assumir IA
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                  onClick={() => toggleStatusMutation.mutate()}
+                  disabled={toggleStatusMutation.isPending}
+                >
+                  {selectedConv?.status === "bot" ? (
+                    <><User className="size-4" /> Assumir Humano</>
+                  ) : (
+                    <><Bot className="size-4" /> Devolver para IA</>
+                  )}
                 </Button>
               </div>
             </div>
 
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-y-auto p-4 space-y-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-fixed"
+              className="flex-1 overflow-y-auto p-4 space-y-4"
             >
               {messages.map((msg) => (
                 <div 
@@ -198,7 +234,12 @@ function WhatsAppInbox() {
                         <Bot className="size-3" /> Resposta IA
                       </div>
                     )}
-                    <p className="text-sm">{msg.text}</p>
+                    <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                    {msg.error && (
+                      <div className="text-[9px] text-destructive mt-1 flex items-center gap-1">
+                        <AlertCircle className="size-3" /> {msg.error}
+                      </div>
+                    )}
                     <div className={`text-[10px] mt-1 opacity-50 flex items-center ${msg.direction === 'in' ? 'justify-start' : 'justify-end'}`}>
                       {format(new Date(msg.created_at), "HH:mm")}
                     </div>
@@ -212,17 +253,19 @@ function WhatsAppInbox() {
               <form 
                 onSubmit={(e) => {
                   e.preventDefault();
-                  toast.info("Funcionalidade de envio manual em implementação");
+                  if (!msgInput.trim()) return;
+                  sendMutation.mutate(msgInput);
                 }}
                 className="flex gap-2"
               >
                 <Input 
-                  placeholder="Digite sua mensagem..." 
+                  placeholder={selectedConv?.status === 'bot' ? "IA está respondendo... (Assuma para digitar)" : "Digite sua mensagem..."} 
                   value={msgInput}
                   onChange={(e) => setMsgInput(e.target.value)}
+                  disabled={selectedConv?.status === 'bot' || sendMutation.isPending}
                   className="flex-1"
                 />
-                <Button type="submit" size="icon">
+                <Button type="submit" size="icon" disabled={selectedConv?.status === 'bot' || sendMutation.isPending}>
                   <Send className="size-4" />
                 </Button>
               </form>
@@ -246,54 +289,44 @@ function WhatsAppInbox() {
 
 function WhatsAppConfig() {
   const { org } = useCurrentOrg();
-  const [loading, setLoading] = useState(false);
-  const [config, setConfig] = useState<any>(null);
+  const getChannelFn = useServerFn(getWaChannel);
+  const saveChannelFn = useServerFn(saveWaChannel);
 
-  const { data: channel, refetch } = useQuery({
+  const { data: channel, refetch, isLoading } = useQuery({
     enabled: !!org,
     queryKey: ["wa-channel", org?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("wa_channels")
-        .select("*")
-        .eq("organization_id", org!.id)
-        .maybeSingle();
-      
-      if (error) throw error;
-      return data;
-    }
+    queryFn: () => getChannelFn({ organizationId: org!.id })
   });
 
-  const saveConfig = useMutation({
-    mutationFn: async (values: any) => {
-      setLoading(true);
-      const { error } = await supabase
-        .from("wa_channels")
-        .upsert({
-          organization_id: org!.id,
-          ...values,
-          updated_at: new Date().toISOString(),
-        });
-      
-      if (error) throw error;
-    },
+  const saveMutation = useMutation({
+    mutationFn: (values: any) => saveChannelFn({ ...values, organizationId: org!.id }),
     onSuccess: () => {
       toast.success("Configuração salva com sucesso!");
       refetch();
     },
-    onError: (e: any) => toast.error("Erro ao salvar: " + e.message),
-    onSettled: () => setLoading(false)
+    onError: (e: any) => toast.error("Erro ao salvar: " + e.message)
   });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const values = Object.fromEntries(formData.entries());
-    saveConfig.mutate(values);
+    const values = {
+      phone_number_id: formData.get("phone_number_id") as string,
+      waba_id: formData.get("waba_id") as string,
+      access_token: formData.get("access_token") as string,
+      app_secret: formData.get("app_secret") as string,
+      verify_token: formData.get("verify_token") as string,
+      enabled: formData.get("enabled") === "on",
+      auto_reply: formData.get("auto_reply") === "on",
+      system_prompt: formData.get("system_prompt") as string,
+    };
+    saveMutation.mutate(values);
   };
 
-  const webhookUrl = `https://localprocrm.lovable.app/api/public/wa/webhook`;
+  const webhookUrl = `https://localprocrm.lovable.app/api/public/wa.webhook`;
   const verifyToken = channel?.verify_token || "lp_" + Math.random().toString(36).substring(7);
+
+  if (isLoading) return <div className="text-center py-20 text-muted-foreground">Carregando configurações...</div>;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
@@ -325,21 +358,31 @@ function WhatsAppConfig() {
               <Input name="app_secret" type="password" defaultValue={channel?.app_secret || ""} placeholder="Chave secreta do app" required />
             </div>
 
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Prompt do Sistema (Opcional)</label>
+              <textarea 
+                name="system_prompt" 
+                defaultValue={channel?.system_prompt || ""}
+                placeholder="Ex: Você é o atendente da Barbearia X. Responda educadamente..."
+                className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              />
+            </div>
+
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center gap-2">
-                <input type="checkbox" name="enabled" defaultChecked={channel?.enabled} className="size-4" />
-                <label className="text-sm font-medium">Canal Ativado</label>
+                <input type="checkbox" name="enabled" defaultChecked={channel?.enabled !== false} className="size-4" id="enabled" />
+                <label htmlFor="enabled" className="text-sm font-medium">Canal Ativado</label>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" name="auto_reply" defaultChecked={channel?.auto_reply} className="size-4" />
-                <label className="text-sm font-medium">Auto-resposta IA</label>
+                <input type="checkbox" name="auto_reply" defaultChecked={channel?.auto_reply !== false} className="size-4" id="auto_reply" />
+                <label htmlFor="auto_reply" className="text-sm font-medium">Auto-resposta IA</label>
               </div>
             </div>
 
             <input type="hidden" name="verify_token" value={verifyToken} />
 
-            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
-              {loading ? "Salvando..." : "Salvar Configurações"}
+            <Button type="submit" disabled={saveMutation.isPending} className="w-full sm:w-auto">
+              {saveMutation.isPending ? "Salvando..." : "Salvar Configurações"}
             </Button>
           </form>
         </Card>
@@ -412,19 +455,9 @@ function WhatsAppConfig() {
               </Badge>
             </div>
           </div>
-          <Button variant="outline" className="w-full mt-6" onClick={() => toast.info("Em breve: Testar conexão")}>
-            Testar Conexão
+          <Button variant="outline" className="w-full mt-6 gap-2" onClick={() => refetch()}>
+            <RefreshCw className={`size-4 ${isLoading ? 'animate-spin' : ''}`} /> Atualizar Status
           </Button>
-        </Card>
-
-        <Card className="p-6">
-          <h3 className="font-semibold mb-4">Dicas de Uso</h3>
-          <ul className="text-xs text-muted-foreground space-y-3 list-disc pl-4">
-            <li>O bot responde automaticamente usando Gemini AI baseado no contexto do seu negócio.</li>
-            <li>Quando você responde manualmente, a IA é pausada por 24h para aquela conversa.</li>
-            <li>Você pode "Devolver para IA" a qualquer momento no chat.</li>
-            <li>Mantenha seu <strong>Access Token</strong> atualizado para evitar interrupções.</li>
-          </ul>
         </Card>
       </div>
     </div>
