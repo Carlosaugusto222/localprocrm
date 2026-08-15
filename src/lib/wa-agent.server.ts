@@ -1,6 +1,6 @@
 import { supabaseAdmin } from '@/integrations/supabase/client.server';
 import { generateText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai-compatible';
+import { createOpenAI } from '@ai-sdk/openai';
 
 const aiGateway = createOpenAI({
   baseURL: 'https://gateway.lovable.ai/v1',
