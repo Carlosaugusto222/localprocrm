@@ -65,7 +65,7 @@ function AI() {
     },
   });
 
-  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, setInput, isLoading } = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
   });
@@ -74,20 +74,18 @@ function AI() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const submitSuggestion = (s: string) => {
-    handleSubmit(undefined, { allowEmptyWithOptional: true, body: { tenant: tenantCtx }, experimental_formData: undefined });
-    // This is tricky with useChat, better to just simulate an event or use input
-  };
-
   const runAction = async (key: string) => {
     if (!org || isLoading) return;
     setBusyAction(key);
     try {
       const prompt = await buildActionPrompt(key, org.id, org.name);
       if (!prompt) return;
-      // We manually add the message and trigger submit
-      setMessages([...messages, { id: Math.random().toString(), role: 'user', content: prompt }]);
-      // Note: useChat's handleSubmit handles the API call
+      setInput(prompt);
+      // Wait a tick for state to update
+      setTimeout(() => {
+        const fakeEvent = { preventDefault: () => {} } as React.FormEvent;
+        handleSubmit(fakeEvent);
+      }, 50);
     } catch (e: any) {
       toast.error(e.message ?? "Falha ao preparar contexto");
     } finally {
@@ -139,10 +137,8 @@ function AI() {
               <div className="grid sm:grid-cols-2 gap-2 mt-6 w-full">
                 {suggestions.map(s => (
                   <button key={s} onClick={() => {
-                    // Manual trigger for suggestion
-                    const event = { preventDefault: () => {} } as any;
-                    handleInputChange({ target: { value: s } } as any);
-                    // useChat update is async, so this might not work immediately
+                    setInput(s);
+                    setTimeout(() => handleSubmit({ preventDefault: () => {} } as any), 50);
                   }} className="text-left text-sm p-3 rounded-lg border hover:border-primary/40 hover:bg-accent transition-colors">
                     {s}
                   </button>
