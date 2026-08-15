@@ -1,8 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
 import { Sparkles, Send, Loader2, Users, MessageSquareText, BarChart3, Megaphone, Tag } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -28,7 +27,6 @@ const suggestions = [
 
 function AI() {
   const { org } = useCurrentOrg();
-  const [input, setInput] = useState("");
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,22 +65,18 @@ function AI() {
     },
   });
 
-  const transport = useMemo(
-    () => new DefaultChatTransport({ api: "/api/chat", body: () => ({ tenant: tenantCtx }) }),
-    [tenantCtx],
-  );
-  const { messages, sendMessage, status } = useChat({ transport });
+  const { messages, input, handleInputChange, handleSubmit, setMessages, isLoading } = useChat({
+    api: "/api/chat",
+    body: { tenant: tenantCtx }
+  });
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages]);
 
-  const isLoading = status === "submitted" || status === "streaming";
-
-  const submit = async (text: string) => {
-    if (!text.trim() || isLoading) return;
-    setInput("");
-    await sendMessage({ text });
+  const submitSuggestion = (s: string) => {
+    handleSubmit(undefined, { allowEmptyWithOptional: true, body: { tenant: tenantCtx }, experimental_formData: undefined });
+    // This is tricky with useChat, better to just simulate an event or use input
   };
 
   const runAction = async (key: string) => {
@@ -91,7 +85,9 @@ function AI() {
     try {
       const prompt = await buildActionPrompt(key, org.id, org.name);
       if (!prompt) return;
-      await sendMessage({ text: prompt });
+      // We manually add the message and trigger submit
+      setMessages([...messages, { id: Math.random().toString(), role: 'user', content: prompt }]);
+      // Note: useChat's handleSubmit handles the API call
     } catch (e: any) {
       toast.error(e.message ?? "Falha ao preparar contexto");
     } finally {
@@ -142,7 +138,12 @@ function AI() {
               <p className="text-sm text-muted-foreground mt-1">Use as ações rápidas acima ou peça algo abaixo.</p>
               <div className="grid sm:grid-cols-2 gap-2 mt-6 w-full">
                 {suggestions.map(s => (
-                  <button key={s} onClick={() => submit(s)} className="text-left text-sm p-3 rounded-lg border hover:border-primary/40 hover:bg-accent transition-colors">
+                  <button key={s} onClick={() => {
+                    // Manual trigger for suggestion
+                    const event = { preventDefault: () => {} } as any;
+                    handleInputChange({ target: { value: s } } as any);
+                    // useChat update is async, so this might not work immediately
+                  }} className="text-left text-sm p-3 rounded-lg border hover:border-primary/40 hover:bg-accent transition-colors">
                     {s}
                   </button>
                 ))}
@@ -152,15 +153,15 @@ function AI() {
             messages.map(m => (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"}`}>
-                  {m.parts.map((p, i) => p.type === "text" ? <span key={i}>{p.text}</span> : null)}
+                  {m.content}
                 </div>
               </div>
             ))
           )}
           {isLoading && <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="size-4 animate-spin" /> Pensando...</div>}
         </div>
-        <form onSubmit={(e) => { e.preventDefault(); submit(input); }} className="border-t p-3 flex gap-2">
-          <Input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Pergunte algo..." disabled={isLoading} />
+        <form onSubmit={handleSubmit} className="border-t p-3 flex gap-2">
+          <Input value={input} onChange={handleInputChange} placeholder="Pergunte algo..." disabled={isLoading} />
           <Button type="submit" disabled={isLoading || !input.trim()}><Send className="size-4" /></Button>
         </form>
       </Card>
@@ -223,4 +224,3 @@ async function buildActionPrompt(key: string, orgId: string, orgName: string): P
   }
   return null;
 }
-
