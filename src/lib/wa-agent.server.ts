@@ -7,92 +7,32 @@ const aiGateway = createOpenAI({
   apiKey: process.env['LOVABLE_AI_GATEWAY_KEY'] || '',
 });
 
-export async function handleWhatsAppMessage(channel: any, value: any) {
-  const message = value.messages[0];
-  const contact = value.contacts[0];
-  const waPhone = message.from; 
-  const text = message.text?.body;
-
-  if (!text) return;
-
-  // 1. Find or create conversation
-  let { data: conversation } = await supabaseAdmin
-    .from('wa_conversations')
-    .select('*, customer:customers(*)')
-    .eq('organization_id', channel.organization_id)
-    .eq('wa_phone', waPhone)
-    .maybeSingle();
-
-  if (!conversation) {
-    // Check if customer exists by phone
-    let { data: customer } = await supabaseAdmin
-      .from('customers')
-      .select('*')
-      .eq('organization_id', channel.organization_id)
-      .eq('phone', waPhone)
-      .maybeSingle();
-
-    if (!customer) {
-      const { data: newCust, error: custErr } = await supabaseAdmin
-        .from('customers')
-        .insert({
-          organization_id: channel.organization_id,
-          name: contact?.profile?.name || 'Cliente WhatsApp',
-          phone: waPhone,
-          pipeline_stage: 'new'
-        })
-        .select()
-        .single();
-      
-      if (custErr) throw custErr;
-      customer = newCust;
-    }
-
-    const { data: newConv, error: convErr } = await supabaseAdmin
-      .from('wa_conversations')
-      .insert({
-        organization_id: channel.organization_id,
-        customer_id: customer?.id,
-        wa_phone: waPhone,
-        wa_name: contact?.profile?.name || null,
-        status: 'bot',
-        channel_id: channel.id
-      })
-      .select()
-      .single();
-    
-    if (convErr) throw convErr;
-    // Fetch again to get relations if needed, but we have enough here
-    conversation = { ...newConv, customer };
-  }
-
-  // 2. Log incoming message
-  await supabaseAdmin.from('wa_messages').insert({
-    organization_id: channel.organization_id,
-    conversation_id: conversation!.id,
-    direction: 'in',
-    wa_message_id: message.id,
-    text: text
-  });
-
-  // Update last_message_at
-  await supabaseAdmin.from('wa_conversations')
-    .update({ last_message_at: new Date().toISOString() })
-    .eq('id', conversation!.id);
-
-  // 3. AI Reply if enabled and in bot mode
-  if (channel.auto_reply && conversation!.status === 'bot') {
-    await sendAIReply(channel, conversation, text);
-  }
-}
-
-async function sendAIReply(channel: any, conversation: any, userText: string) {
-  const { data: org } = await supabaseAdmin.from('organizations').select('*').eq('id', channel.organization_id).single();
-  const { data: services } = await supabaseAdmin.from('products').select('*').eq('organization_id', channel.organization_id).eq('kind', 'service');
+export async function runWhatsAppAgent({
+  organizationId,
+  conversationId,
+  channel,
+  customerPhone,
+  customerText,
+}: {
+  organizationId: string;
+  conversationId: string;
+  channel: {
+    id: string;
+    phone_number_id: string;
+    access_token: string;
+    system_prompt: string | null;
+    escalation_keywords: string[];
+  };
+  customerPhone: string;
+  customerText: string;
+}) {
+  // 1. Context: Org & Services
+  const { data: org } = await supabaseAdmin.from('organizations').select('*').eq('id', organizationId).single();
+  const { data: services } = await supabaseAdmin.from('products').select('*').eq('organization_id', organizationId).eq('kind', 'service');
   
   if (!org) return;
 
-  const systemPrompt = `Você é o atendente virtual da empresa ${org.name}.
+  const systemPrompt = channel.system_prompt || `Você é o atendente virtual da empresa ${org.name}.
 Seu objetivo é ser prestativo, educado e ajudar o cliente a agendar serviços ou tirar dúvidas.
 Informações da empresa: ${org.address || 'Não informado'}.
 Serviços disponíveis: ${services?.map(s => `${s.name} (R$ ${s.price})`).join(', ') || 'Consultar preços'}.
@@ -108,39 +48,68 @@ Regras:
     const { text: aiResponse } = await generateText({
       model: aiGateway('gemini-1.5-flash'),
       system: systemPrompt,
-      prompt: userText,
+      prompt: customerText,
     });
 
-    // 4. Send back to WhatsApp via Meta API
-    const response = await fetch(`https://graph.facebook.com/v21.0/${channel.phone_number_id}/messages`, {
+    // 2. Send back to WhatsApp
+    const send = await sendWhatsAppText({
+      phoneNumberId: channel.phone_number_id,
+      accessToken: channel.access_token,
+      to: customerPhone,
+      text: aiResponse,
+    });
+
+    if (send.wa_message_id) {
+      // 3. Log outgoing message
+      await supabaseAdmin.from('wa_messages').insert({
+        organization_id: organizationId,
+        conversation_id: conversationId,
+        direction: 'out',
+        text: aiResponse,
+        ai_used: true,
+        wa_message_id: send.wa_message_id,
+      });
+    }
+  } catch (error) {
+    console.error('WhatsApp Agent Error:', error);
+  }
+}
+
+export async function sendWhatsAppText({
+  phoneNumberId,
+  accessToken,
+  to,
+  text,
+}: {
+  phoneNumberId: string;
+  accessToken: string;
+  to: string;
+  text: string;
+}) {
+  try {
+    const response = await fetch(`https://graph.facebook.com/v21.0/${phoneNumberId}/messages`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${channel.access_token}`,
+        'Authorization': `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         messaging_product: 'whatsapp',
         recipient_type: 'individual',
-        to: conversation.wa_phone,
+        to: to,
         type: 'text',
-        text: { body: aiResponse }
+        text: { body: text }
       }),
     });
 
     const metaResult: any = await response.json();
 
     if (metaResult.messages?.[0]) {
-      // Log outgoing message
-      await supabaseAdmin.from('wa_messages').insert({
-        organization_id: channel.organization_id,
-        conversation_id: conversation.id,
-        direction: 'out',
-        wa_message_id: metaResult.messages[0].id,
-        text: aiResponse,
-        ai_used: true
-      });
+      return { wa_message_id: metaResult.messages[0].id };
     }
-  } catch (error) {
-    console.error('AI Reply Error:', error);
+    
+    return { error: metaResult.error?.message || 'Unknown error' };
+  } catch (error: any) {
+    return { error: error.message };
   }
 }

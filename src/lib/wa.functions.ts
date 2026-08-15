@@ -113,7 +113,7 @@ export const sendWaReply = createServerFn({ method: "POST" })
       text: data.text,
       ai_used: false,
       sent_by: context.userId,
-      wa_message_id: send.wa_message_id,
+      wa_message_id: send.wa_message_id ?? null,
     });
     return { ok: true };
   });
