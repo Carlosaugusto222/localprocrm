@@ -67,10 +67,12 @@ function AI() {
     },
   });
 
-  const { messages, append, status } = useChat({
+  const chat = useChat({
     api: "/api/chat",
     body: { tenant: tenantCtx }
-  });
+  } as any);
+
+  const { messages, append, status } = chat as any;
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -151,10 +153,10 @@ function AI() {
               </div>
             </div>
           ) : (
-            messages.map((m: UIMessage) => (
+            messages.map((m: any) => (
               <div key={m.id} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm whitespace-pre-wrap ${m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted shadow-sm border border-border/50"}`}>
-                  {m.parts?.map((part, i) => part.type === 'text' ? part.text : null).join('')}
+                  {m.content}
                 </div>
               </div>
             ))
@@ -225,3 +227,4 @@ async function buildActionPrompt(key: string, orgId: string, orgName: string): P
   }
   return null;
 }
+
