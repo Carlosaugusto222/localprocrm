@@ -24,8 +24,7 @@ const diaADia: Item[] = [
   { title: "Caixa", url: "/caixa", icon: Banknote, module: "cash" },
   { title: "Clientes", url: "/crm", icon: Users, module: "crm" },
   { title: "Funil", url: "/funil", icon: Kanban, module: "crm" },
-  { title: "WhatsApp Templates", url: "/whatsapp", icon: MessageCircle, module: "whatsapp" },
-  { title: "WhatsApp Atendente", url: "/wa-inbox", icon: Bot, module: "whatsapp" },
+  { title: "WhatsApp AI", url: "/whatsapp", icon: Bot, module: "whatsapp" },
 ];
 
 const gestao: Item[] = [
@@ -34,7 +33,7 @@ const gestao: Item[] = [
   { title: "Equipe", url: "/equipe", icon: UserCog, module: "team" },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
   { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
-  { title: "WhatsApp — Config", url: "/wa-config", icon: KeyRound, module: "whatsapp" },
+  
 ];
 
 export function AppSidebar() {
