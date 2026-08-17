@@ -109,8 +109,8 @@ function Landing() {
       <section className="relative overflow-hidden" aria-label="Apresentação">
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--color-accent),transparent_70%)]" />
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
-          <Badge variant="outline" className="mb-6 gap-1.5 py-1.5 px-3">
-            <Sparkles className="size-3" /> Plataforma white-label para qualquer negócio
+          <Badge variant="outline" className="mb-6 gap-1.5 py-1.5 px-3 text-primary">
+            <Sparkles className="size-3" /> Gestão completa para o seu negócio
           </Badge>
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight">
             Gestão completa<br />
