@@ -1,0 +1,11 @@
+node_modules
+.output
+dist
+.lovable
+.git
+.env
+.workspace
+bun.lock
+package-lock.json
+Dockerfile
+.dockerignore
