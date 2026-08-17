@@ -137,7 +137,7 @@ function CreateOSDialog({ orgId, onClose }: { orgId?: string; onClose: () => voi
   return (
     <DialogContent>
       <DialogHeader><DialogTitle>Nova Ordem de Serviço</DialogTitle></DialogHeader>
-      <form onSubmit={e => { e.preventDefault(); create.mutate(); }} className="space-y-3">
+      <form onSubmit={e => { e.preventDefault(); create.mutate(form); }} className="space-y-3">
         <div className="space-y-1.5"><Label>Título *</Label>
           <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required placeholder="Ex: Troca de óleo - Honda Civic" /></div>
         <div className="space-y-1.5"><Label>Cliente</Label>
