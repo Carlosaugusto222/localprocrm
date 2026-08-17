@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt, MessageCircle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt, MessageCircle, Edit } from "lucide-react";
 import { PageContainer } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -179,10 +180,15 @@ function OSDetail() {
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Select value={os.status} onValueChange={v => updateOS.mutate({ status: v })}>
-            <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
-            <SelectContent>{STATUS.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
-          </Select>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1">
+                <Edit className="size-4" /> Editar Dados
+              </Button>
+            </DialogTrigger>
+            <EditOSDialog os={os} orgId={org?.id} onUpdated={() => qc.invalidateQueries({ queryKey: ["os", id] })} />
+          </Dialog>
+
           <Button variant="outline" size="sm" className="gap-1"
             onClick={() => generateBusinessPDF({
               kind: "quote", number: os.number, org: org ?? {}, customer: os.customer,
@@ -272,6 +278,88 @@ function OSDetail() {
   );
 }
 
+function EditOSDialog({ os, orgId, onUpdated }: { os: any; orgId?: string; onUpdated: () => void }) {
+  const { user } = useAuth();
+  const [form, setForm] = useState({ 
+    title: os.title, 
+    description: os.description || "", 
+    customer_id: os.customer_id || "", 
+    priority: os.priority || "normal",
+    status: os.status
+  });
+
+  const { data: customers = [] } = useQuery({
+    enabled: !!orgId,
+    queryKey: ["customers-sel-os-edit", orgId],
+    queryFn: async () => (await supabase.from("customers").select("id,name").eq("organization_id", orgId!).order("name")).data ?? [],
+  });
+
+  const update = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("service_orders").update({
+        title: form.title,
+        description: form.description,
+        customer_id: form.customer_id || null,
+        priority: form.priority,
+        status: form.status
+      }).eq("id", os.id);
+      if (error) throw error;
+
+      if (user && orgId) {
+        await logAudit({
+          orgId,
+          userId: user.id,
+          action: "update_os_header",
+          entity: "service_orders",
+          entityId: os.id,
+          payload: form
+        });
+      }
+    },
+    onSuccess: () => {
+      toast.success("OS atualizada");
+      onUpdated();
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <DialogContent>
+      <DialogHeader><DialogTitle>Editar Ordem de Serviço</DialogTitle></DialogHeader>
+      <form onSubmit={e => { e.preventDefault(); update.mutate(); }} className="space-y-3">
+        <div className="space-y-1.5"><Label>Título *</Label>
+          <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required /></div>
+        <div className="space-y-1.5"><Label>Status</Label>
+          <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>{STATUS.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
+          </Select></div>
+        <div className="space-y-1.5"><Label>Cliente</Label>
+          <Select value={form.customer_id} onValueChange={v => setForm({ ...form, customer_id: v })}>
+            <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+            <SelectContent>{customers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+          </Select></div>
+        <div className="space-y-1.5"><Label>Prioridade</Label>
+          <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Baixa</SelectItem>
+              <SelectItem value="normal">Normal</SelectItem>
+              <SelectItem value="high">Alta</SelectItem>
+              <SelectItem value="urgent">Urgente</SelectItem>
+            </SelectContent>
+          </Select></div>
+        <div className="space-y-1.5"><Label>Descrição</Label>
+          <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></div>
+        <DialogFooter>
+          <Button type="submit" disabled={update.isPending}>Salvar Alterações</Button>
+        </DialogFooter>
+      </form>
+    </DialogContent>
+  );
+}
+
+
 function AddItemRow({ products, onAdd }: { products: any[]; onAdd: (i: any) => void }) {
   const [pid, setPid] = useState<string>("");
   const [desc, setDesc] = useState("");
@@ -290,7 +378,13 @@ function AddItemRow({ products, onAdd }: { products: any[]; onAdd: (i: any) => v
       <div className="col-span-4 space-y-1"><Label className="text-xs text-muted-foreground">Produto/Serviço</Label>
         <Select value={pid} onValueChange={pickProduct}>
           <SelectTrigger className="h-9"><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-          <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
+          <SelectContent>
+            {products.map(p => (
+              <SelectItem key={p.id} value={p.id}>
+                {p.name} {p.sku ? `(SKU: ${p.sku})` : ""}
+              </SelectItem>
+            ))}
+          </SelectContent>
         </Select>
       </div>
       <div className="col-span-2 space-y-1"><Label className="text-xs text-muted-foreground">Qtd</Label>
