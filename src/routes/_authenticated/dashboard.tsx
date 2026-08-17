@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, Users, Calendar, DollarSign, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, Calendar, DollarSign, ShoppingBag, Sparkles, ArrowRight, Package } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer, PageHeader } from "@/components/page-header";
@@ -87,12 +87,13 @@ function Dashboard() {
     <PageContainer>
       <PageHeader title="Visão geral" description={`Bem-vindo, ${org?.name ?? ""}. Comparativo vs mês anterior.`} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
         <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} deltaPct={delta(stats?.revenue ?? 0, stats?.prevRevenue ?? 0)} accent="text-success" />
         <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} deltaPct={delta(stats?.newCustomers ?? 0, stats?.prevNewCustomers ?? 0)} />
         <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} />
         <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} deltaPct={delta(stats?.salesCount ?? 0, stats?.prevSalesCount ?? 0)} />
         <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} deltaPct={delta(stats?.avgTicket ?? 0, stats?.prevAvgTicket ?? 0)} />
+        <Stat icon={Package} label="Alerta Estoque" value={String(stats?.lowStockCount ?? 0)} accent={stats?.lowStockCount ? "text-orange-500" : ""} />
       </div>
 
       <div className="mt-6">
