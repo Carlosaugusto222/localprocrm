@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { streamText } from "ai";
 import { aiGateway } from "@/lib/ai-gateway.server";
+import { logAudit } from "@/lib/audit";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+
 
 export const Route = createFileRoute("/api/chat")({
   server: {
@@ -18,8 +21,29 @@ export const Route = createFileRoute("/api/chat")({
             model: aiGateway("gpt-4o-mini"),
             system: baseSystem + tenantBlock,
             messages: messages,
+            onFinish: async ({ text }) => {
+              // Log the IA interaction for audit
+              if (tenant?.empresa?.id || tenant?.id) {
+                const orgId = tenant.empresa?.id || tenant.id;
+                const lastUserMessage = messages[messages.length - 1]?.content;
+                
+                await logAudit({
+                  orgId,
+                  userId: "system-ia", // We don't have user session easily here without more middleware, or we could pass it from client
+                  action: "chat_completion",
+                  entity: "ia_interaction",
+                  payload: {
+                    user_query: lastUserMessage,
+                    response: text,
+                    system_prompt: baseSystem,
+                    tenant_context: tenant
+                  }
+                });
+              }
+            }
           });
           return result.toTextStreamResponse();
+
         } catch (e: any) {
           const msg = String(e?.message ?? e);
           if (msg.includes("429")) return new Response("Muitas requisições. Tente novamente em instantes.", { status: 429 });
