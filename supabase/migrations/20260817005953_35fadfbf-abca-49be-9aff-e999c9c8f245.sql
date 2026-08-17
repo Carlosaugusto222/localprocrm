@@ -1,0 +1,2 @@
+ALTER TABLE public.service_order_items ADD COLUMN IF NOT EXISTS discount numeric(12,2) DEFAULT 0;
+COMMENT ON COLUMN public.service_order_items.discount IS 'Discount applied to this specific item in the service order';
