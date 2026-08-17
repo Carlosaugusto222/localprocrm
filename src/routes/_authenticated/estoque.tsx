@@ -163,7 +163,7 @@ function EstoquePage() {
                 <div className="text-center md:text-right">
                   <div className="text-xs text-muted-foreground uppercase tracking-tight">Qtd. Atual</div>
                   <div className="font-display font-bold text-xl tabular-nums">
-                    {p.stock_qty}
+                    {Number(p.stock_qty).toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: 3 })}
                     <span className="text-xs font-normal text-muted-foreground ml-1">un</span>
                   </div>
                 </div>
