@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt, MessageCircle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, CheckCircle2, Circle, FileText, Receipt, MessageCircle, Edit } from "lucide-react";
 import { PageContainer } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
