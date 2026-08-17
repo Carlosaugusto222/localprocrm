@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ShoppingBag, Calendar, UserPlus, MessageCircle, Wallet, Wrench, Banknote,
-  Clock, ArrowRight, Sparkles, Kanban, Cake,
+  Clock, ArrowRight, Sparkles, Kanban, Cake, Package,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/hoje")({
