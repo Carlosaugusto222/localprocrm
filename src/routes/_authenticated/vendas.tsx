@@ -268,7 +268,7 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
   const { user } = useAuth();
   const qc = useQueryClient();
   const isEdit = !!saleId;
-  const [form, setForm] = useState({ customer_id: "", notes: "", status: "order" as "quote" | "order" | "paid" | "cancelled" });
+  const [form, setForm] = useState({ customer_id: "", notes: "", status: "order" as "quote" | "order" | "paid" | "cancelled" | "returned" });
   const [items, setItems] = useState<SaleItem[]>([]);
   const { data: customers = [] } = useQuery({
     enabled: !!orgId,

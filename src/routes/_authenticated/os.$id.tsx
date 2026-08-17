@@ -173,11 +173,28 @@ function OSDetail() {
 
       <div className="flex flex-wrap items-start justify-between gap-3 mb-6">
         <div>
-          <div className="text-xs font-mono text-muted-foreground">#{os.number}</div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="text-xs font-mono text-muted-foreground px-1.5 py-0.5 bg-muted rounded">
+              #{os.number}
+            </div>
+            {os.extra_fields?.serial_number && (
+              <Badge variant="secondary" className="text-[10px] uppercase font-mono tracking-tighter">
+                {os.extra_fields.serial_number}
+              </Badge>
+            )}
+          </div>
           <h1 className="text-2xl font-display font-bold">{os.title}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {os.customer?.name ?? "Sem cliente"} · Aberta em {new Date(os.opened_at).toLocaleDateString("pt-BR")}
-          </p>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-1">
+            <span>{os.customer?.name ?? "Sem cliente"}</span>
+            <span>·</span>
+            <span>Aberta em {new Date(os.opened_at).toLocaleDateString("pt-BR")}</span>
+            {os.extra_fields?.brand_model && (
+              <>
+                <span>·</span>
+                <span className="font-medium text-foreground">{os.extra_fields.brand_model}</span>
+              </>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Dialog>
@@ -285,7 +302,8 @@ function EditOSDialog({ os, orgId, onUpdated }: { os: any; orgId?: string; onUpd
     description: os.description || "", 
     customer_id: os.customer_id || "", 
     priority: os.priority || "normal",
-    status: os.status
+    status: os.status,
+    extra_fields: os.extra_fields || {}
   });
 
   const { data: customers = [] } = useQuery({
@@ -301,7 +319,8 @@ function EditOSDialog({ os, orgId, onUpdated }: { os: any; orgId?: string; onUpd
         description: form.description,
         customer_id: form.customer_id || null,
         priority: form.priority,
-        status: form.status
+        status: form.status,
+        extra_fields: form.extra_fields
       }).eq("id", os.id);
       if (error) throw error;
 
@@ -323,36 +342,72 @@ function EditOSDialog({ os, orgId, onUpdated }: { os: any; orgId?: string; onUpd
     onError: (e: any) => toast.error(e.message),
   });
 
+  const updateExtraField = (key: string, value: string) => {
+    setForm(prev => ({
+      ...prev,
+      extra_fields: { ...prev.extra_fields, [key]: value }
+    }));
+  };
+
   return (
-    <DialogContent>
+    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
       <DialogHeader><DialogTitle>Editar Ordem de Serviço</DialogTitle></DialogHeader>
-      <form onSubmit={e => { e.preventDefault(); update.mutate(); }} className="space-y-3">
-        <div className="space-y-1.5"><Label>Título *</Label>
-          <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required /></div>
-        <div className="space-y-1.5"><Label>Status</Label>
-          <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>{STATUS.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
-          </Select></div>
-        <div className="space-y-1.5"><Label>Cliente</Label>
-          <Select value={form.customer_id} onValueChange={v => setForm({ ...form, customer_id: v })}>
-            <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
-            <SelectContent>{customers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-          </Select></div>
-        <div className="space-y-1.5"><Label>Prioridade</Label>
-          <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="low">Baixa</SelectItem>
-              <SelectItem value="normal">Normal</SelectItem>
-              <SelectItem value="high">Alta</SelectItem>
-              <SelectItem value="urgent">Urgente</SelectItem>
-            </SelectContent>
-          </Select></div>
+      <form onSubmit={e => { e.preventDefault(); update.mutate(); }} className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5"><Label>Título *</Label>
+            <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required /></div>
+          <div className="space-y-1.5"><Label>Status</Label>
+            <Select value={form.status} onValueChange={v => setForm({ ...form, status: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{STATUS.map(s => <SelectItem key={s.id} value={s.id}>{s.label}</SelectItem>)}</SelectContent>
+            </Select></div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1.5"><Label>Cliente</Label>
+            <Select value={form.customer_id} onValueChange={v => setForm({ ...form, customer_id: v })}>
+              <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+              <SelectContent>{customers.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+            </Select></div>
+          <div className="space-y-1.5"><Label>Prioridade</Label>
+            <Select value={form.priority} onValueChange={v => setForm({ ...form, priority: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="low">Baixa</SelectItem>
+                <SelectItem value="normal">Normal</SelectItem>
+                <SelectItem value="high">Alta</SelectItem>
+                <SelectItem value="urgent">Urgente</SelectItem>
+              </SelectContent>
+            </Select></div>
+        </div>
+
+        <div className="border-t pt-4">
+          <Label className="text-sm font-semibold mb-2 block">Campos Extras / Informações Adicionais</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs">Marca/Modelo</Label>
+              <Input value={form.extra_fields.brand_model || ""} onChange={e => updateExtraField("brand_model", e.target.value)} placeholder="Ex: Honda Civic" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Placa / Serial</Label>
+              <Input value={form.extra_fields.serial_number || ""} onChange={e => updateExtraField("serial_number", e.target.value)} placeholder="Ex: ABC-1234" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Cor / Detalhes</Label>
+              <Input value={form.extra_fields.color || ""} onChange={e => updateExtraField("color", e.target.value)} placeholder="Ex: Preto Fosco" />
+            </div>
+            <div className="space-y-1.5">
+              <Label className="text-xs">Kilometragem / Uso</Label>
+              <Input value={form.extra_fields.usage_metrics || ""} onChange={e => updateExtraField("usage_metrics", e.target.value)} placeholder="Ex: 50.000 km" />
+            </div>
+          </div>
+        </div>
+
         <div className="space-y-1.5"><Label>Descrição</Label>
           <Textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} rows={3} /></div>
+        
         <DialogFooter>
-          <Button type="submit" disabled={update.isPending}>Salvar Alterações</Button>
+          <Button type="submit" disabled={update.isPending} className="w-full sm:w-auto">Salvar Alterações</Button>
         </DialogFooter>
       </form>
     </DialogContent>
