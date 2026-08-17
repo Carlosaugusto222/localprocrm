@@ -177,9 +177,9 @@ function OSDetail() {
             <div className="text-xs font-mono text-muted-foreground px-1.5 py-0.5 bg-muted rounded">
               #{os.number}
             </div>
-            {os.extra_fields?.serial_number && (
+            {(os.extra_fields as any)?.serial_number && (
               <Badge variant="secondary" className="text-[10px] uppercase font-mono tracking-tighter">
-                {os.extra_fields.serial_number}
+                {(os.extra_fields as any).serial_number}
               </Badge>
             )}
           </div>
@@ -188,10 +188,10 @@ function OSDetail() {
             <span>{os.customer?.name ?? "Sem cliente"}</span>
             <span>·</span>
             <span>Aberta em {new Date(os.opened_at).toLocaleDateString("pt-BR")}</span>
-            {os.extra_fields?.brand_model && (
+            {(os.extra_fields as any)?.brand_model && (
               <>
                 <span>·</span>
-                <span className="font-medium text-foreground">{os.extra_fields.brand_model}</span>
+                <span className="font-medium text-foreground">{(os.extra_fields as any).brand_model}</span>
               </>
             )}
           </div>
@@ -386,19 +386,19 @@ function EditOSDialog({ os, orgId, onUpdated }: { os: any; orgId?: string; onUpd
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <Label className="text-xs">Marca/Modelo</Label>
-              <Input value={form.extra_fields.brand_model || ""} onChange={e => updateExtraField("brand_model", e.target.value)} placeholder="Ex: Honda Civic" />
+              <Input value={(form.extra_fields as any).brand_model || ""} onChange={e => updateExtraField("brand_model", e.target.value)} placeholder="Ex: Honda Civic" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Placa / Serial</Label>
-              <Input value={form.extra_fields.serial_number || ""} onChange={e => updateExtraField("serial_number", e.target.value)} placeholder="Ex: ABC-1234" />
+              <Input value={(form.extra_fields as any).serial_number || ""} onChange={e => updateExtraField("serial_number", e.target.value)} placeholder="Ex: ABC-1234" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Cor / Detalhes</Label>
-              <Input value={form.extra_fields.color || ""} onChange={e => updateExtraField("color", e.target.value)} placeholder="Ex: Preto Fosco" />
+              <Input value={(form.extra_fields as any).color || ""} onChange={e => updateExtraField("color", e.target.value)} placeholder="Ex: Preto Fosco" />
             </div>
             <div className="space-y-1.5">
               <Label className="text-xs">Kilometragem / Uso</Label>
-              <Input value={form.extra_fields.usage_metrics || ""} onChange={e => updateExtraField("usage_metrics", e.target.value)} placeholder="Ex: 50.000 km" />
+              <Input value={(form.extra_fields as any).usage_metrics || ""} onChange={e => updateExtraField("usage_metrics", e.target.value)} placeholder="Ex: 50.000 km" />
             </div>
           </div>
         </div>

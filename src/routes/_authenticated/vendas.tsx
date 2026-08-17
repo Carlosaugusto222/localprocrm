@@ -403,6 +403,7 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
                 <SelectItem value="order">Pedido</SelectItem>
                 <SelectItem value="paid">Pago</SelectItem>
                 <SelectItem value="cancelled">Cancelado</SelectItem>
+                <SelectItem value="returned">Devolvido</SelectItem>
               </SelectContent>
             </Select>
           </div>
