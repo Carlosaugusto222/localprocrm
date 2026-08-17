@@ -3,6 +3,7 @@ import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
   Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays, Bot, KeyRound,
+  Package,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -22,6 +23,7 @@ const diaADia: Item[] = [
   { title: "Vendas", url: "/vendas", icon: ShoppingBag, module: "sales" },
   { title: "Ordens de Serviço", url: "/os", icon: Wrench, module: "service_orders" },
   { title: "Caixa", url: "/caixa", icon: Banknote, module: "cash" },
+  { title: "Estoque", url: "/estoque", icon: Package, module: "sales" },
   { title: "Clientes", url: "/crm", icon: Users, module: "crm" },
   { title: "Funil", url: "/funil", icon: Kanban, module: "crm" },
   { title: "WhatsApp AI", url: "/whatsapp", icon: Bot, module: "whatsapp" },

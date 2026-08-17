@@ -97,6 +97,7 @@ function HojePage() {
     { title: "Novo Cliente", icon: UserPlus, to: "/crm", color: "from-purple-500 to-fuchsia-500" },
     { title: "Funil", icon: Kanban, to: "/funil", color: "from-pink-500 to-rose-500" },
     { title: "Caixa", icon: Banknote, to: "/caixa", color: "from-amber-500 to-yellow-500" },
+    { title: "Estoque", icon: Package, to: "/estoque", color: "from-zinc-500 to-slate-500" },
     { title: "Financeiro", icon: Wallet, to: "/financeiro", color: "from-cyan-500 to-blue-500" },
     { title: "WhatsApp", icon: MessageCircle, to: "/whatsapp", color: "from-green-500 to-emerald-500" },
   ] as const;
