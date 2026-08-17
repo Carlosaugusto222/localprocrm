@@ -14,8 +14,12 @@ export async function runWhatsAppAgent({
     phone_number_id: string;
     access_token: string;
     system_prompt: string | null;
+    tone_of_voice: string | null;
+    campaign_goals: string | null;
+    ai_restrictions: string | null;
     escalation_keywords: string[];
   };
+
   customerPhone: string;
   customerText: string;
 }) {
@@ -25,17 +29,27 @@ export async function runWhatsAppAgent({
   
   if (!org) return;
 
+  const settingsBlock = `
+Tom de Voz: ${channel.tone_of_voice || 'Profissional e amigável'}
+Objetivos: ${channel.campaign_goals || 'Agendar serviços ou tirar dúvidas'}
+Restrições: ${channel.ai_restrictions || 'Nenhuma'}
+`;
+
   const systemPrompt = channel.system_prompt || `Você é o atendente virtual da empresa ${org.name}.
-Seu objetivo é ser prestativo, educado e ajudar o cliente a agendar serviços ou tirar dúvidas.
+Seu objetivo é ser prestativo, educado e seguir as diretrizes da empresa.
 Informações da empresa: ${org.address || 'Não informado'}.
 Serviços disponíveis: ${services?.map(s => `${s.name} (R$ ${s.price})`).join(', ') || 'Consultar preços'}.
+
+Diretrizes da Empresa:
+${settingsBlock}
 
 Regras:
 1. Responda de forma curta e objetiva (máximo 3 parágrafos).
 2. Se o cliente quiser agendar, peça o serviço, dia e horário.
-3. Use emojis para ser amigável.
-4. Se não souber algo, peça para aguardar um atendente humano.
+3. Use o tom de voz solicitado.
+4. Se não souber algo ou atingir uma restrição, peça para aguardar um atendente humano.
 5. Se detectar palavras como "problema", "reclamação" ou "urgente", avise que um humano irá assumir.`;
+
 
   try {
     const { aiGateway } = await import('@/lib/ai-gateway.server');

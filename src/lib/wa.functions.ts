@@ -26,8 +26,12 @@ const SaveChannelInput = z.object({
   enabled: z.boolean().default(true),
   auto_reply: z.boolean().default(true),
   system_prompt: z.string().optional().nullable(),
+  tone_of_voice: z.string().optional().nullable(),
+  campaign_goals: z.string().optional().nullable(),
+  ai_restrictions: z.string().optional().nullable(),
   escalation_keywords: z.array(z.string()).default([]),
 });
+
 
 export const saveWaChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

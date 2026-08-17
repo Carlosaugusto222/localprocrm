@@ -22,21 +22,31 @@ export const suggestWaReply = createServerFn({ method: "POST" })
 
     if (!messages || messages.length === 0) return { suggestion: "" };
 
-    // 2. Get org & services context
+    // 2. Get org & services context & channel settings
+    const { data: channel } = await context.supabase.from("wa_channels").select("*").eq("organization_id", data.organizationId).single();
     const { data: org } = await context.supabase.from("organizations").select("*").eq("id", data.organizationId).single();
     const { data: services } = await context.supabase.from("products").select("name,price").eq("organization_id", data.organizationId).eq("kind", "service");
 
     const history = messages.reverse().map(m => `${m.direction === 'in' ? 'Cliente' : 'Atendente'}: ${m.text}`).join('\n');
     
+    const settingsBlock = `
+Tom de Voz: ${channel?.tone_of_voice || 'Profissional e amigável'}
+Objetivos: ${channel?.campaign_goals || 'Agendamento e suporte'}
+Restrições: ${channel?.ai_restrictions || 'Nenhuma'}
+`;
+
     const systemPrompt = `Você é o assistente IA do LocalPro CRM ajudando um atendente da empresa ${org?.name || 'LocalPro'}.
 Analise o histórico de conversa e sugira uma resposta curta, educada e prestativa para o atendente enviar via WhatsApp.
 Contexto da empresa: ${org?.segment || 'Negócio local'}.
 Serviços: ${services?.map(s => `${s.name} (R$ ${s.price})`).join(', ') || 'Consultar'}.
 
-Regras:
+Regras Personalizadas:
+${settingsBlock}
+
+Instruções Gerais:
 1. Responda apenas com a sugestão de mensagem, sem aspas ou explicações.
-2. Use um tom amigável e emojis.
-3. Se o cliente perguntar preço ou agendamento, use os dados acima.
+2. Use o tom de voz definido acima.
+3. Se o cliente perguntar preço ou agendamento, use os dados acima e respeite as restrições.
 4. Máximo 3 linhas.`;
 
     const { aiGateway } = await import("@/lib/ai-gateway.server");
@@ -60,7 +70,12 @@ Regras:
         history: messages,
         context_used: {
           org: org?.name,
-          services_count: services?.length
+          services_count: services?.length,
+          ai_settings: {
+            tone: channel?.tone_of_voice,
+            goals: channel?.campaign_goals,
+            restrictions: channel?.ai_restrictions
+          }
         }
       }
     });

@@ -52,7 +52,7 @@ export const Route = createFileRoute("/api/public/wa/webhook")({
 
             const { data: channel } = await sb
               .from("wa_channels")
-              .select("id,organization_id,phone_number_id,access_token,app_secret,verify_token,enabled,auto_reply,system_prompt,escalation_keywords")
+              .select("id,organization_id,phone_number_id,access_token,app_secret,verify_token,enabled,auto_reply,system_prompt,tone_of_voice,campaign_goals,ai_restrictions,escalation_keywords")
               .eq("phone_number_id", phoneNumberId)
               .maybeSingle();
             if (!channel) continue;
@@ -116,7 +116,11 @@ export const Route = createFileRoute("/api/public/wa/webhook")({
                     phone_number_id: channel.phone_number_id,
                     access_token: channel.access_token,
                     system_prompt: channel.system_prompt,
+                    tone_of_voice: channel.tone_of_voice,
+                    campaign_goals: channel.campaign_goals,
+                    ai_restrictions: channel.ai_restrictions,
                     escalation_keywords: channel.escalation_keywords ?? [],
+
                   },
                   customerPhone: fromPhone,
                   customerText: text,

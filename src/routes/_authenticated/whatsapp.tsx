@@ -351,7 +351,11 @@ function WhatsAppConfig() {
       enabled: formData.get("enabled") === "on",
       auto_reply: formData.get("auto_reply") === "on",
       system_prompt: formData.get("system_prompt") as string,
+      tone_of_voice: formData.get("tone_of_voice") as string,
+      campaign_goals: formData.get("campaign_goals") as string,
+      ai_restrictions: formData.get("ai_restrictions") as string,
     };
+
     saveMutation.mutate(values);
   };
 
@@ -390,15 +394,47 @@ function WhatsAppConfig() {
               <Input name="app_secret" type="password" defaultValue={channel?.app_secret || ""} placeholder="Chave secreta do app" required />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Prompt do Sistema (Opcional)</label>
-              <textarea 
-                name="system_prompt" 
-                defaultValue={channel?.system_prompt || ""}
-                placeholder="Ex: Você é o atendente da Barbearia X. Responda educadamente..."
-                className="w-full min-h-[100px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              />
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Instruções de Personalidade (Prompt do Sistema)</label>
+                <textarea 
+                  name="system_prompt" 
+                  defaultValue={channel?.system_prompt || ""}
+                  placeholder="Ex: Você é o atendente da Barbearia X. Responda educadamente..."
+                  className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Tom de Voz</label>
+                  <Input 
+                    name="tone_of_voice" 
+                    defaultValue={channel?.tone_of_voice || ""} 
+                    placeholder="Ex: Profissional, Amigável, Jovem..." 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Objetivos da IA</label>
+                  <Input 
+                    name="campaign_goals" 
+                    defaultValue={channel?.campaign_goals || ""} 
+                    placeholder="Ex: Agendar serviços, Vender combos..." 
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Restrições e Regras de Negócio</label>
+                <textarea 
+                  name="ai_restrictions" 
+                  defaultValue={channel?.ai_restrictions || ""}
+                  placeholder="Ex: Máximo de 10% de desconto. Não falar de política..."
+                  className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                />
+              </div>
             </div>
+
 
             <div className="flex items-center gap-4 pt-2">
               <div className="flex items-center gap-2">
