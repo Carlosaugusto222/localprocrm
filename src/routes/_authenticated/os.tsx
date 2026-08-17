@@ -101,6 +101,7 @@ function OSPage() {
 }
 
 function CreateOSDialog({ orgId, onClose }: { orgId?: string; onClose: () => void }) {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [form, setForm] = useState({ title: "", description: "", customer_id: "", priority: "normal" });
 
