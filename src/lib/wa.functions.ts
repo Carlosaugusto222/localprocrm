@@ -57,7 +57,7 @@ export const listWaConversations = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: rows } = await context.supabase
       .from("wa_conversations")
-      .select("id,wa_phone,wa_name,status,last_message_at,unread_count,tone_of_voice,campaign_goals,ai_restrictions")
+      .select("id,wa_phone,wa_name,status,last_message_at,unread_count")
       .eq("organization_id", data.organizationId)
       .order("last_message_at", { ascending: false })
       .limit(100);
