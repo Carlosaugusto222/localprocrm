@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Plus, Wrench, ArrowRight } from "lucide-react";
@@ -35,6 +35,7 @@ const fmtMoney = (n: number) => Number(n).toLocaleString("pt-BR", { style: "curr
 function OSPage() {
   const { org } = useCurrentOrg();
   const orgId = org?.id;
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
 
@@ -100,6 +101,7 @@ function OSPage() {
 }
 
 function CreateOSDialog({ orgId, onClose }: { orgId?: string; onClose: () => void }) {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [form, setForm] = useState({ title: "", description: "", customer_id: "", priority: "normal" });
 
@@ -110,24 +112,32 @@ function CreateOSDialog({ orgId, onClose }: { orgId?: string; onClose: () => voi
   });
 
   const create = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (values: typeof form) => {
       if (!orgId) throw new Error("Sem empresa");
       const { data: nextNum } = await supabase.rpc("next_service_order_number", { _org_id: orgId });
-      const { error } = await supabase.from("service_orders").insert({
+      const { data, error } = await supabase.from("service_orders").insert({
         organization_id: orgId, number: nextNum ?? 1,
-        title: form.title, description: form.description || null,
-        customer_id: form.customer_id || null, priority: form.priority, status: "open",
-      });
+        title: values.title, description: values.description || null,
+        customer_id: values.customer_id || null, priority: values.priority, status: "open",
+      }).select().single();
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["service-orders"] }); toast.success("OS criada"); onClose(); },
+    onSuccess: (data) => { 
+      qc.invalidateQueries({ queryKey: ["service-orders"] }); 
+      toast.success("OS criada"); 
+      onClose();
+      if (data?.id) {
+        navigate({ to: "/os/$id", params: { id: data.id } });
+      }
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
   return (
     <DialogContent>
       <DialogHeader><DialogTitle>Nova Ordem de Serviço</DialogTitle></DialogHeader>
-      <form onSubmit={e => { e.preventDefault(); create.mutate(); }} className="space-y-3">
+      <form onSubmit={e => { e.preventDefault(); create.mutate(form); }} className="space-y-3">
         <div className="space-y-1.5"><Label>Título *</Label>
           <Input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required placeholder="Ex: Troca de óleo - Honda Civic" /></div>
         <div className="space-y-1.5"><Label>Cliente</Label>
