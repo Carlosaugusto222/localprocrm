@@ -32,7 +32,7 @@ function Dashboard() {
       const prevStart = startOfMonth(subMonths(now, 1));
       const prevEnd = endOfMonth(subMonths(now, 1));
 
-      const [customers, appointments, txs, prevTxs, sales, prevSales, prevCustomers] = await Promise.all([
+      const [customers, appointments, txs, prevTxs, sales, prevSales, prevCustomers, products] = await Promise.all([
         supabase.from("customers").select("id, created_at").eq("organization_id", orgId!),
         supabase.from("appointments").select("id, starts_at, status").eq("organization_id", orgId!).gte("starts_at", monthStart.toISOString()),
         supabase.from("transactions").select("amount, kind, paid_at, created_at").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
@@ -40,6 +40,7 @@ function Dashboard() {
         supabase.from("sales").select("id, total, created_at, status").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
         supabase.from("sales").select("id, total").eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
         supabase.from("customers").select("id", { count: "exact", head: true }).eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
+        supabase.from("products").select("track_stock, stock_qty, stock_min").eq("organization_id", orgId!).eq("kind", "product"),
       ]);
 
       const allTxs = txs.data ?? [];
@@ -54,8 +55,7 @@ function Dashboard() {
       const salesCount = (sales.data ?? []).length;
       const prevSalesCount = (prevSales.data ?? []).length;
       const prevSalesTotal = (prevSales.data ?? []).reduce((s, x) => s + Number(x.total), 0);
-      const avgTicket = salesCount ? salesTotal / salesCount : 0;
-      const prevAvgTicket = prevSalesCount ? prevSalesTotal / prevSalesCount : 0;
+      const lowStockCount = (products.data ?? []).filter(p => p.track_stock && Number(p.stock_qty) <= Number(p.stock_min)).length;
 
       const days = Array.from({ length: 14 }).map((_, i) => {
         const d = subDays(now, 13 - i);
@@ -73,6 +73,7 @@ function Dashboard() {
         appointments: appointments.data?.length ?? 0,
         upcoming: (appointments.data ?? []).filter(a => new Date(a.starts_at) >= now && a.status !== "cancelled").slice(0, 5),
         salesCount, prevSalesCount, avgTicket, prevAvgTicket,
+        lowStockCount,
         days,
       };
     },
