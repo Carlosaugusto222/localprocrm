@@ -72,8 +72,9 @@ function OSPage() {
         {data.map((os: any) => {
           const st = STATUS.find(s => s.id === os.status) ?? STATUS[0];
           return (
-            <Link key={os.id} to="/os/$id" params={{ id: os.id }}>
-              <Card className="p-3 flex items-center gap-3 hover:bg-accent/40 transition-colors">
+            <Link key={os.id} to="/os/$id" params={{ id: os.id }} className="block">
+              <Card className="p-3 flex items-center gap-3 hover:bg-accent/40 transition-all active:scale-[0.99] cursor-pointer border-l-4 border-l-transparent data-[status=open]:border-l-blue-500 data-[status=in_progress]:border-l-amber-500" data-status={os.status}>
+
                 <div className="size-10 rounded-lg bg-muted grid place-items-center"><Wrench className="size-4 text-muted-foreground" /></div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
