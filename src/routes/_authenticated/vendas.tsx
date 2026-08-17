@@ -250,7 +250,12 @@ function SalesList({ orgId }: { orgId?: string }) {
               <div className="font-medium">{s.customers?.name ?? "Sem cliente"}</div>
               <div className="text-xs text-muted-foreground">{s.notes ?? "—"}</div>
             </div>
-            <Badge variant="outline">{s.status}</Badge>
+            <Badge variant="outline" className={s.status === 'returned' ? 'border-orange-500 text-orange-500 bg-orange-50' : ''}>
+              {s.status === 'returned' ? 'Devolvida' : 
+               s.status === 'paid' ? 'Pago' : 
+               s.status === 'quote' ? 'Orçamento' : 
+               s.status === 'order' ? 'Pedido' : 'Cancelado'}
+            </Badge>
             <div className="font-display font-bold">{brl(Number(s.total))}</div>
             <Button variant="ghost" size="icon" onClick={() => openEdit(s.id)}><Pencil className="size-4" /></Button>
             <Button variant="ghost" size="icon" onClick={() => { if (confirm("Excluir esta venda?")) del.mutate(s.id); }}><Trash2 className="size-4" /></Button>
