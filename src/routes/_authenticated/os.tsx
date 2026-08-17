@@ -120,7 +120,11 @@ function CreateOSDialog({ orgId, onClose }: { orgId?: string; onClose: () => voi
       });
       if (error) throw error;
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["service-orders"] }); toast.success("OS criada"); onClose(); },
+    onSuccess: (data: any, variables: any, context: any) => { 
+      qc.invalidateQueries({ queryKey: ["service-orders"] }); 
+      toast.success("OS criada"); 
+      onClose(); 
+    },
     onError: (e: any) => toast.error(e.message),
   });
 
