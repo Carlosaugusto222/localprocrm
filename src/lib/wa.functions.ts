@@ -26,8 +26,12 @@ const SaveChannelInput = z.object({
   enabled: z.boolean().default(true),
   auto_reply: z.boolean().default(true),
   system_prompt: z.string().optional().nullable(),
+  tone_of_voice: z.string().optional().nullable(),
+  campaign_goals: z.string().optional().nullable(),
+  ai_restrictions: z.string().optional().nullable(),
   escalation_keywords: z.array(z.string()).default([]),
 });
+
 
 export const saveWaChannel = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -53,7 +57,7 @@ export const listWaConversations = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: rows } = await context.supabase
       .from("wa_conversations")
-      .select("id,wa_phone,wa_name,status,last_message_at,unread_count")
+      .select("id,wa_phone,wa_name,status,last_message_at,unread_count,tone_of_voice,campaign_goals,ai_restrictions")
       .eq("organization_id", data.organizationId)
       .order("last_message_at", { ascending: false })
       .limit(100);
