@@ -110,15 +110,16 @@ function CreateOSDialog({ orgId, onClose }: { orgId?: string; onClose: () => voi
   });
 
   const create = useMutation({
-    mutationFn: async () => {
+    mutationFn: async (values: typeof form) => {
       if (!orgId) throw new Error("Sem empresa");
       const { data: nextNum } = await supabase.rpc("next_service_order_number", { _org_id: orgId });
-      const { error } = await supabase.from("service_orders").insert({
+      const { data, error } = await supabase.from("service_orders").insert({
         organization_id: orgId, number: nextNum ?? 1,
-        title: form.title, description: form.description || null,
-        customer_id: form.customer_id || null, priority: form.priority, status: "open",
-      });
+        title: values.title, description: values.description || null,
+        customer_id: values.customer_id || null, priority: values.priority, status: "open",
+      }).select().single();
       if (error) throw error;
+      return data;
     },
     onSuccess: (data: any, variables: any, context: any) => { 
       qc.invalidateQueries({ queryKey: ["service-orders"] }); 
