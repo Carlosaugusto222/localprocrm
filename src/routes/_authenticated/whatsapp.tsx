@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageSquare, Settings, Search, Send, User, Bot, History, ExternalLink, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { MessageSquare, Settings, Search, Send, User, Bot, History, ExternalLink, CheckCircle2, AlertCircle, RefreshCw, Sparkles, Loader2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import {
   sendWaReply, 
   setWaConversationStatus 
 } from "@/lib/wa.functions";
+import { suggestWaReply } from "@/lib/wa-ai.functions";
 
 export const Route = createFileRoute("/_authenticated/whatsapp")({
   head: () => ({ meta: [{ title: "WhatsApp AI — LocalPro CRM" }] }),
@@ -71,6 +72,8 @@ function WhatsAppInbox() {
   const listMessagesFn = useServerFn(listWaMessages);
   const sendReplyFn = useServerFn(sendWaReply);
   const setStatusFn = useServerFn(setWaConversationStatus);
+  const suggestReplyFn = useServerFn(suggestWaReply);
+  const [isSuggesting, setIsSuggesting] = useState(false);
 
   const { data: conversations = [], isLoading: loadingConvs } = useQuery({
     enabled: !!org,
@@ -122,6 +125,21 @@ function WhatsAppInbox() {
       toast.success("Modo de atendimento alterado");
     }
   });
+
+  const handleSuggest = async () => {
+    if (!org || !selectedConvId || isSuggesting) return;
+    setIsSuggesting(true);
+    try {
+      const { suggestion } = await suggestReplyFn({
+        data: { organizationId: org.id, conversationId: selectedConvId }
+      });
+      if (suggestion) setMsgInput(suggestion);
+    } catch (error) {
+      toast.error("Erro ao gerar sugestão");
+    } finally {
+      setIsSuggesting(false);
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-[350px_1fr] gap-4 h-[calc(100vh-280px)] min-h-[500px]">
@@ -251,7 +269,19 @@ function WhatsAppInbox() {
               {loadingMsgs && <div className="text-center text-xs text-muted-foreground">Carregando mensagens...</div>}
             </div>
 
-            <div className="p-4 bg-card border-t">
+            <div className="p-4 bg-card border-t space-y-3">
+              <div className="flex items-center justify-between">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 text-[10px] gap-1.5 text-primary hover:text-primary hover:bg-primary/10"
+                  onClick={handleSuggest}
+                  disabled={isSuggesting || selectedConv?.status === 'bot'}
+                >
+                  {isSuggesting ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3" />}
+                  Sugerir resposta com IA
+                </Button>
+              </div>
               <form 
                 onSubmit={(e) => {
                   e.preventDefault();

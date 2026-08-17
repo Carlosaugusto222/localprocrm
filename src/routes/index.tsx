@@ -69,7 +69,7 @@ const modules = [
   { icon: Calendar, title: "Agenda", desc: "Calendário diário, semanal e mensal com confirmações." },
   { icon: Wallet, title: "Financeiro", desc: "Receitas, despesas, fluxo de caixa e relatórios." },
   { icon: ShoppingBag, title: "Vendas", desc: "Produtos, serviços, orçamentos e pedidos." },
-  { icon: Sparkles, title: "Assistente IA", desc: "Gere mensagens, campanhas e resuma atendimentos." },
+  { icon: Sparkles, title: "Assistente IA", desc: "Sugestões de mensagens, campanhas e insights preditivos." },
   { icon: BarChart3, title: "Relatórios", desc: "Receita, conversão, clientes e ticket médio." },
 ];
 
