@@ -2,6 +2,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
+import { logAudit } from "@/lib/audit";
+
 
 export const suggestWaReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -46,5 +48,23 @@ Regras:
       prompt: `Histórico da conversa:\n${history}\n\nSugira a próxima resposta para o atendente:`,
     });
 
+    // Log the IA suggestion for audit
+    await logAudit({
+      orgId: data.organizationId,
+      userId: context.userId || "system-ia",
+      action: "wa_suggestion",
+      entity: "ia_interaction",
+      entityId: data.conversationId,
+      payload: {
+        suggestion: suggestion.trim(),
+        history: messages,
+        context_used: {
+          org: org?.name,
+          services_count: services?.length
+        }
+      }
+    });
+
     return { suggestion: suggestion.trim() };
+
   });
