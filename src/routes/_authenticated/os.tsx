@@ -35,6 +35,7 @@ const fmtMoney = (n: number) => Number(n).toLocaleString("pt-BR", { style: "curr
 function OSPage() {
   const { org } = useCurrentOrg();
   const orgId = org?.id;
+  const navigate = useNavigate();
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
 
