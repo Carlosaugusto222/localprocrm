@@ -4,6 +4,7 @@ import { TrendingUp, TrendingDown, Users, Calendar, DollarSign, ShoppingBag, Spa
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer, PageHeader } from "@/components/page-header";
+import { Button } from "@/components/ui/button";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, Bar, CartesianGrid } from "recharts";
