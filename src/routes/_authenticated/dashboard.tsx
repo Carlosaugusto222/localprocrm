@@ -55,6 +55,8 @@ function Dashboard() {
       const salesCount = (sales.data ?? []).length;
       const prevSalesCount = (prevSales.data ?? []).length;
       const prevSalesTotal = (prevSales.data ?? []).reduce((s, x) => s + Number(x.total), 0);
+      const avgTicket = salesCount ? salesTotal / salesCount : 0;
+      const prevAvgTicket = prevSalesCount ? prevSalesTotal / prevSalesCount : 0;
       const lowStockCount = (products.data ?? []).filter(p => p.track_stock && Number(p.stock_qty) <= Number(p.stock_min)).length;
 
       const days = Array.from({ length: 14 }).map((_, i) => {
