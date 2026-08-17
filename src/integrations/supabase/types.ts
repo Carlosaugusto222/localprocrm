@@ -1069,8 +1069,10 @@ export type Database = {
       wa_channels: {
         Row: {
           access_token: string
+          ai_restrictions: string | null
           app_secret: string
           auto_reply: boolean
+          campaign_goals: string | null
           created_at: string
           display_phone_number: string | null
           enabled: boolean
@@ -1079,14 +1081,17 @@ export type Database = {
           organization_id: string
           phone_number_id: string
           system_prompt: string | null
+          tone_of_voice: string | null
           updated_at: string
           verify_token: string
           waba_id: string | null
         }
         Insert: {
           access_token: string
+          ai_restrictions?: string | null
           app_secret: string
           auto_reply?: boolean
+          campaign_goals?: string | null
           created_at?: string
           display_phone_number?: string | null
           enabled?: boolean
@@ -1095,14 +1100,17 @@ export type Database = {
           organization_id: string
           phone_number_id: string
           system_prompt?: string | null
+          tone_of_voice?: string | null
           updated_at?: string
           verify_token: string
           waba_id?: string | null
         }
         Update: {
           access_token?: string
+          ai_restrictions?: string | null
           app_secret?: string
           auto_reply?: boolean
+          campaign_goals?: string | null
           created_at?: string
           display_phone_number?: string | null
           enabled?: boolean
@@ -1111,6 +1119,7 @@ export type Database = {
           organization_id?: string
           phone_number_id?: string
           system_prompt?: string | null
+          tone_of_voice?: string | null
           updated_at?: string
           verify_token?: string
           waba_id?: string | null
