@@ -102,6 +102,7 @@ function AI() {
   };
 
   const actions = [
+    { key: "insights", label: "Insights da IA", icon: Sparkles },
     { key: "summarize", label: "Resumir base de clientes", icon: Users },
     { key: "campaign", label: "Gerar campanha WhatsApp", icon: Megaphone },
     { key: "promotion", label: "Sugerir promoção do mês", icon: Tag },
@@ -173,6 +174,17 @@ function AI() {
 }
 
 async function buildActionPrompt(key: string, orgId: string, orgName: string): Promise<string | null> {
+  if (key === "insights") {
+    return `Gere um painel de "Insights da IA" com recomendações acionáveis para ${orgName} baseadas no contexto atual do negócio.
+    
+    Por favor, forneça:
+    1. Três recomendações estratégicas curtas.
+    2. Uma explicação simples das métricas atuais (receita, ticket médio).
+    3. Uma sugestão de foco para a próxima semana.
+    
+    Use um tom profissional, amigável e direto.`;
+  }
+
   if (key === "summarize") {
     const res = await supabase
       .from("customers")

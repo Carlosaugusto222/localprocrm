@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { TrendingUp, TrendingDown, Users, Calendar, DollarSign, ShoppingBag } from "lucide-react";
+import { TrendingUp, TrendingDown, Users, Calendar, DollarSign, ShoppingBag, Sparkles, ArrowRight } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { useCurrentOrg } from "@/hooks/use-current-org";
@@ -91,6 +92,27 @@ function Dashboard() {
         <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} />
         <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} deltaPct={delta(stats?.salesCount ?? 0, stats?.prevSalesCount ?? 0)} />
         <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} deltaPct={delta(stats?.avgTicket ?? 0, stats?.prevAvgTicket ?? 0)} />
+      </div>
+
+      <div className="mt-6">
+        <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
+          <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-2xl bg-primary/20 grid place-items-center text-primary shadow-glow">
+                <Sparkles className="size-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-bold text-lg">Insights da IA</h3>
+                <p className="text-sm text-muted-foreground">Visualize recomendações acionáveis e métricas explicadas pelo assistente.</p>
+              </div>
+            </div>
+            <Link to="/ia">
+              <Button className="gap-2 group">
+                Ver Insights <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4 mt-6">
