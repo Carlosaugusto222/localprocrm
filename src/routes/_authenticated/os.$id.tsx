@@ -76,12 +76,14 @@ function OSDetail() {
 
   const addItem = useMutation({
     mutationFn: async (item: { product_id: string | null; description: string; quantity: number; unit_price: number; discount?: number }) => {
+      const { discount, ...rest } = item;
       const { error } = await supabase.from("service_order_items").insert({ 
         service_order_id: id, 
-        ...item,
-        total: (Number(item.quantity) * Number(item.unit_price)) - Number(item.discount || 0)
-      });
+        ...rest,
+        total: (Number(item.quantity) * Number(item.unit_price)) - Number(discount || 0)
+      } as any); // Use any because we might have a schema mismatch if we don't have discount column yet
       if (error) throw error;
+      
       // recompute total
       const { data: its } = await supabase.from("service_order_items").select("total").eq("service_order_id", id);
       const total = (its ?? []).reduce((a, b) => a + Number(b.total ?? 0), 0);
