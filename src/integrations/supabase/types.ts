@@ -865,6 +865,7 @@ export type Database = {
           customer_id: string | null
           description: string | null
           due_at: string | null
+          extra_fields: Json | null
           id: string
           number: number
           opened_at: string
@@ -884,6 +885,7 @@ export type Database = {
           customer_id?: string | null
           description?: string | null
           due_at?: string | null
+          extra_fields?: Json | null
           id?: string
           number: number
           opened_at?: string
@@ -903,6 +905,7 @@ export type Database = {
           customer_id?: string | null
           description?: string | null
           due_at?: string | null
+          extra_fields?: Json | null
           id?: string
           number?: number
           opened_at?: string
@@ -1304,7 +1307,7 @@ export type Database = {
       customer_status: "lead" | "active" | "inactive"
       org_plan: "basic" | "pro" | "premium"
       org_role: "owner" | "staff"
-      sale_status: "quote" | "order" | "paid" | "cancelled"
+      sale_status: "quote" | "order" | "paid" | "cancelled" | "returned"
       tx_kind: "income" | "expense"
     }
     CompositeTypes: {
@@ -1444,7 +1447,7 @@ export const Constants = {
       customer_status: ["lead", "active", "inactive"],
       org_plan: ["basic", "pro", "premium"],
       org_role: ["owner", "staff"],
-      sale_status: ["quote", "order", "paid", "cancelled"],
+      sale_status: ["quote", "order", "paid", "cancelled", "returned"],
       tx_kind: ["income", "expense"],
     },
   },

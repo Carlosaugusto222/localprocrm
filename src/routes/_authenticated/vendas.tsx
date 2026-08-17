@@ -250,7 +250,12 @@ function SalesList({ orgId }: { orgId?: string }) {
               <div className="font-medium">{s.customers?.name ?? "Sem cliente"}</div>
               <div className="text-xs text-muted-foreground">{s.notes ?? "—"}</div>
             </div>
-            <Badge variant="outline">{s.status}</Badge>
+            <Badge variant="outline" className={s.status === 'returned' ? 'border-orange-500 text-orange-500 bg-orange-50' : ''}>
+              {s.status === 'returned' ? 'Devolvida' : 
+               s.status === 'paid' ? 'Pago' : 
+               s.status === 'quote' ? 'Orçamento' : 
+               s.status === 'order' ? 'Pedido' : 'Cancelado'}
+            </Badge>
             <div className="font-display font-bold">{brl(Number(s.total))}</div>
             <Button variant="ghost" size="icon" onClick={() => openEdit(s.id)}><Pencil className="size-4" /></Button>
             <Button variant="ghost" size="icon" onClick={() => { if (confirm("Excluir esta venda?")) del.mutate(s.id); }}><Trash2 className="size-4" /></Button>
@@ -268,7 +273,7 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
   const { user } = useAuth();
   const qc = useQueryClient();
   const isEdit = !!saleId;
-  const [form, setForm] = useState({ customer_id: "", notes: "", status: "order" as "quote" | "order" | "paid" | "cancelled" });
+  const [form, setForm] = useState({ customer_id: "", notes: "", status: "order" as "quote" | "order" | "paid" | "cancelled" | "returned" });
   const [items, setItems] = useState<SaleItem[]>([]);
   const { data: customers = [] } = useQuery({
     enabled: !!orgId,
@@ -403,6 +408,7 @@ function SaleDialog({ orgId, saleId, onClose }: { orgId?: string; saleId?: strin
                 <SelectItem value="order">Pedido</SelectItem>
                 <SelectItem value="paid">Pago</SelectItem>
                 <SelectItem value="cancelled">Cancelado</SelectItem>
+                <SelectItem value="returned">Devolvido</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -87,9 +87,16 @@ function OSPage() {
                   </div>
                 </div>
                 <div className="font-display font-bold tabular-nums text-sm">{fmtMoney(Number(os.total ?? 0))}</div>
-                <Badge variant="secondary" className="gap-1">
-                  <span className={`size-2 rounded-full ${st.color}`} />{st.label}
-                </Badge>
+                <div className="flex flex-col items-end gap-1">
+                  <Badge variant="secondary" className="gap-1">
+                    <span className={`size-2 rounded-full ${st.color}`} />{st.label}
+                  </Badge>
+                  {os.extra_fields?.serial_number && (
+                    <span className="text-[10px] font-mono text-muted-foreground uppercase bg-muted/50 px-1 rounded">
+                      {os.extra_fields.serial_number}
+                    </span>
+                  )}
+                </div>
                 <ArrowRight className="size-4 text-muted-foreground" />
               </Card>
             </Link>
