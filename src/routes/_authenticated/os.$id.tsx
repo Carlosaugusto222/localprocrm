@@ -75,8 +75,12 @@ function OSDetail() {
   });
 
   const addItem = useMutation({
-    mutationFn: async (item: { product_id: string | null; description: string; quantity: number; unit_price: number }) => {
-      const { error } = await supabase.from("service_order_items").insert({ service_order_id: id, ...item });
+    mutationFn: async (item: { product_id: string | null; description: string; quantity: number; unit_price: number; discount?: number }) => {
+      const { error } = await supabase.from("service_order_items").insert({ 
+        service_order_id: id, 
+        ...item,
+        total: (Number(item.quantity) * Number(item.unit_price)) - Number(item.discount || 0)
+      });
       if (error) throw error;
       // recompute total
       const { data: its } = await supabase.from("service_order_items").select("total").eq("service_order_id", id);
@@ -216,10 +220,19 @@ function OSDetail() {
             <div className="mt-3 divide-y divide-border">
               {items.map((it: any) => (
                 <div key={it.id} className="py-2 flex items-center gap-3 text-sm">
-                  <div className="flex-1 truncate">{it.description}</div>
-                  <div className="text-muted-foreground tabular-nums">{it.quantity} × {fmtMoney(Number(it.unit_price))}</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="truncate font-medium">{it.description}</div>
+                    {Number(it.discount) > 0 && (
+                      <div className="text-[10px] text-emerald-600 font-medium">
+                        Desconto: -{fmtMoney(Number(it.discount))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="text-muted-foreground tabular-nums text-right whitespace-nowrap">
+                    {it.quantity} × {fmtMoney(Number(it.unit_price))}
+                  </div>
                   <div className="font-medium tabular-nums w-24 text-right">{fmtMoney(Number(it.total))}</div>
-                  <Button size="icon" variant="ghost" onClick={() => delItem.mutate(it.id)}><Trash2 className="size-3.5" /></Button>
+                  <Button size="icon" variant="ghost" onClick={() => delItem.mutate(it.id)} className="text-muted-foreground hover:text-destructive"><Trash2 className="size-3.5" /></Button>
                 </div>
               ))}
               {items.length === 0 && <p className="text-sm text-muted-foreground py-4 text-center">Nenhum item.</p>}
@@ -257,32 +270,41 @@ function AddItemRow({ products, onAdd }: { products: any[]; onAdd: (i: any) => v
   const [desc, setDesc] = useState("");
   const [qty, setQty] = useState("1");
   const [price, setPrice] = useState("0");
+  const [discount, setDiscount] = useState("0");
 
   const pickProduct = (id: string) => {
     setPid(id);
     const p = products.find(x => x.id === id);
-    if (p) { setDesc(p.name); setPrice(String(p.price)); }
+    if (p) { setDesc(p.name); setPrice(String(p.price)); setDiscount("0"); }
   };
 
   return (
     <div className="grid grid-cols-12 gap-2 items-end">
-      <div className="col-span-5 space-y-1"><Label className="text-xs">Produto/Serviço</Label>
+      <div className="col-span-4 space-y-1"><Label className="text-xs text-muted-foreground">Produto/Serviço</Label>
         <Select value={pid} onValueChange={pickProduct}>
-          <SelectTrigger><SelectValue placeholder="Selecionar..." /></SelectTrigger>
+          <SelectTrigger className="h-9"><SelectValue placeholder="Selecionar..." /></SelectTrigger>
           <SelectContent>{products.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
         </Select>
       </div>
-      <div className="col-span-3 space-y-1"><Label className="text-xs">Descrição</Label>
-        <Input value={desc} onChange={e => setDesc(e.target.value)} /></div>
-      <div className="col-span-1 space-y-1"><Label className="text-xs">Qtd</Label>
-        <Input value={qty} onChange={e => setQty(e.target.value)} type="number" step="0.01" /></div>
-      <div className="col-span-2 space-y-1"><Label className="text-xs">Preço</Label>
-        <Input value={price} onChange={e => setPrice(e.target.value)} type="number" step="0.01" /></div>
-      <Button className="col-span-1" size="icon" onClick={() => {
-        if (!desc) return;
-        onAdd({ product_id: pid || null, description: desc, quantity: Number(qty), unit_price: Number(price) });
-        setPid(""); setDesc(""); setQty("1"); setPrice("0");
-      }}><Plus className="size-4" /></Button>
+      <div className="col-span-2 space-y-1"><Label className="text-xs text-muted-foreground">Qtd</Label>
+        <Input value={qty} onChange={e => setQty(e.target.value)} type="number" step="0.01" className="h-9" /></div>
+      <div className="col-span-2 space-y-1"><Label className="text-xs text-muted-foreground">Unitário</Label>
+        <Input value={price} onChange={e => setPrice(e.target.value)} type="number" step="0.01" className="h-9" /></div>
+      <div className="col-span-2 space-y-1"><Label className="text-xs text-muted-foreground">Desconto</Label>
+        <Input value={discount} onChange={e => setDiscount(e.target.value)} type="number" step="0.01" className="h-9 text-emerald-600" /></div>
+      <div className="col-span-2 flex justify-end">
+        <Button className="w-full h-9" size="sm" onClick={() => {
+          if (!desc && !pid) return;
+          onAdd({ 
+            product_id: pid || null, 
+            description: desc || (products.find(x => x.id === pid)?.name ?? ""), 
+            quantity: Number(qty), 
+            unit_price: Number(price),
+            discount: Number(discount)
+          });
+          setPid(""); setDesc(""); setQty("1"); setPrice("0"); setDiscount("0");
+        }}><Plus className="size-4 mr-1" /> Add</Button>
+      </div>
     </div>
   );
 }
