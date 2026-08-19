@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Check, Upload, Copy, ExternalLink } from "lucide-react";
+import { Check, Upload, Copy, ExternalLink, Clock } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — LocalPro CRM" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
-    tab: (search.tab as string) || "company",
+    tab: (search.tab as string) || undefined,
   }),
   component: Settings,
 });
@@ -107,7 +107,7 @@ function Settings() {
     <PageContainer>
       <PageHeader title="Configurações" description="Empresa, plano, módulos, horários e portal do cliente." />
 
-      <Tabs defaultValue={tab}>
+      <Tabs defaultValue={tab || "company"}>
         <TabsList>
           <TabsTrigger value="company">Empresa</TabsTrigger>
           <TabsTrigger value="modules">Módulos & Plano</TabsTrigger>
@@ -274,7 +274,7 @@ function Settings() {
       </Tabs>
 
       <div className="mt-8 text-xs text-muted-foreground text-center">
-        <Link to="/onboarding" className="underline hover:text-foreground">Reabrir assistente de configuração</Link>
+        <Link to="/onboarding" search={{}} className="underline hover:text-foreground">Reabrir assistente de configuração</Link>
       </div>
     </PageContainer>
   );
