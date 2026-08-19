@@ -74,11 +74,6 @@ function HojePage() {
     queryFn: async () => (await supabase.from("products")
       .select("id,name,stock_qty,stock_min")
       .eq("organization_id", orgId!)
-      .eq("track_stock", true)
-      .lte("stock_qty", 10), // Example: only fetch those with potential low stock
-    queryFn: async () => (await supabase.from("products")
-      .select("id,name,stock_qty,stock_min")
-      .eq("organization_id", orgId!)
       .eq("track_stock", true)).data ?? [],
   });
   const lowStockItems = lowStock.filter((p: any) => Number(p.stock_qty) <= Number(p.stock_min ?? 0));

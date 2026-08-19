@@ -9,10 +9,11 @@ export const getRouter = () => {
       queries: {
         // mantém os dados no cache por 24h para uso offline
         gcTime: 1000 * 60 * 60 * 24,
-        staleTime: 1000 * 30,
+        staleTime: 1000 * 60 * 2, // 2 minutos (up from 30s)
         retry: (failureCount) =>
           typeof navigator !== "undefined" && !navigator.onLine ? false : failureCount < 2,
         refetchOnReconnect: true,
+        refetchOnWindowFocus: false,
       },
     },
   });

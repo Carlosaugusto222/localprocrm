@@ -15,7 +15,7 @@ export function setupOfflinePersistence(queryClient: QueryClient) {
     const persister = createSyncStoragePersister({
       storage: window.localStorage,
       key: CACHE_KEY,
-      throttleTime: 1000,
+      throttleTime: 2000, // Increase throttle to reduce disk I/O (from 1s)
     });
 
     persistQueryClient({
