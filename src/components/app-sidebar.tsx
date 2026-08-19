@@ -51,11 +51,12 @@ export function AppSidebar() {
       .map(item => (
         <SidebarMenuItem key={item.url}>
           <SidebarMenuButton asChild isActive={pathname === item.url || pathname.startsWith(item.url + "/")}>
-            <Link to={item.url} className="flex items-center gap-2">
-              <item.icon className="size-4" aria-hidden="true" />
-              <span>{item.title}</span>
+            <Link to={item.url} className="flex items-center gap-2 transition-all duration-200 hover:pl-1">
+              <item.icon className="size-4 transition-transform group-hover:scale-110" aria-hidden="true" />
+              <span className="font-medium tracking-tight">{item.title}</span>
             </Link>
           </SidebarMenuButton>
+
         </SidebarMenuItem>
       ));
 

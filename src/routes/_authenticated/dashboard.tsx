@@ -90,14 +90,15 @@ function Dashboard() {
     <PageContainer>
       <PageHeader title="Visão geral" description={`Bem-vindo, ${org?.name ?? ""}. Comparativo vs mês anterior.`} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3">
-        <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} deltaPct={delta(stats?.revenue ?? 0, stats?.prevRevenue ?? 0)} accent="text-success" />
-        <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} deltaPct={delta(stats?.newCustomers ?? 0, stats?.prevNewCustomers ?? 0)} />
-        <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} />
-        <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} deltaPct={delta(stats?.salesCount ?? 0, stats?.prevSalesCount ?? 0)} />
-        <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} deltaPct={delta(stats?.avgTicket ?? 0, stats?.prevAvgTicket ?? 0)} />
-        <Stat icon={Package} label="Alerta Estoque" value={String(stats?.lowStockCount ?? 0)} accent={stats?.lowStockCount ? "text-orange-500" : ""} />
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 animate-in-fade">
+        <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} deltaPct={delta(stats?.revenue ?? 0, stats?.prevRevenue ?? 0)} accent="text-success" delay="delay-0" />
+        <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} deltaPct={delta(stats?.newCustomers ?? 0, stats?.prevNewCustomers ?? 0)} delay="delay-75" />
+        <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} delay="delay-100" />
+        <Stat icon={ShoppingBag} label="Vendas" value={String(stats?.salesCount ?? 0)} deltaPct={delta(stats?.salesCount ?? 0, stats?.prevSalesCount ?? 0)} delay="delay-150" />
+        <Stat icon={TrendingUp} label="Ticket médio" value={brl(stats?.avgTicket ?? 0)} deltaPct={delta(stats?.avgTicket ?? 0, stats?.prevAvgTicket ?? 0)} delay="delay-200" />
+        <Stat icon={Package} label="Alerta Estoque" value={String(stats?.lowStockCount ?? 0)} accent={stats?.lowStockCount ? "text-orange-500" : ""} delay="delay-300" />
       </div>
+
 
       <div className="mt-6">
         <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
@@ -180,23 +181,26 @@ function Dashboard() {
   );
 }
 
-function Stat({ icon: Icon, label, value, accent, deltaPct }: { icon: React.ComponentType<{className?: string}>; label: string; value: string; accent?: string; deltaPct?: number }) {
+function Stat({ icon: Icon, label, value, accent, deltaPct, delay }: { icon: React.ComponentType<{className?: string}>; label: string; value: string; accent?: string; deltaPct?: number; delay?: string }) {
   const up = (deltaPct ?? 0) >= 0;
   return (
-    <Card>
+    <Card className={cn("animate-in-slide-up", delay)}>
       <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-          <Icon className={`size-4 ${accent ?? "text-muted-foreground"}`} aria-hidden="true" />
+        <div className="flex items-center justify-between group">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/80">{label}</span>
+          <div className="p-1.5 rounded-md bg-muted/50 transition-colors group-hover:bg-primary/10">
+            <Icon className={cn("size-3.5 transition-transform group-hover:scale-110", accent ?? "text-muted-foreground")} aria-hidden="true" />
+          </div>
         </div>
-        <div className={`mt-2 text-xl sm:text-2xl font-display font-bold ${accent ?? ""}`}>{value}</div>
+        <div className={cn("mt-2 text-xl sm:text-2xl font-display font-bold tracking-tight", accent ?? "")}>{value}</div>
         {deltaPct !== undefined && (
-          <div className={`mt-1 flex items-center gap-1 text-xs ${up ? "text-success" : "text-destructive"}`}>
+          <div className={cn("mt-1 flex items-center gap-1 text-[10px] font-medium", up ? "text-success" : "text-destructive")}>
             {up ? <TrendingUp className="size-3" /> : <TrendingDown className="size-3" />}
-            {up ? "+" : ""}{deltaPct.toFixed(1)}% vs mês anterior
+            {up ? "+" : ""}{deltaPct.toFixed(1)}% <span className="text-muted-foreground/60">vs mês ant.</span>
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
+
