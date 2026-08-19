@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — LocalPro CRM" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
     tab: (search.tab as string) || undefined,
-  }),
+  } as { tab?: string }),
   component: Settings,
 });
 
