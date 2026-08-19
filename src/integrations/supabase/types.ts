@@ -520,6 +520,8 @@ export type Database = {
       organizations: {
         Row: {
           address: string | null
+          cash_auto_close_time: string | null
+          cash_auto_open_time: string | null
           city: string | null
           cnpj: string | null
           created_at: string
@@ -544,6 +546,8 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          cash_auto_close_time?: string | null
+          cash_auto_open_time?: string | null
           city?: string | null
           cnpj?: string | null
           created_at?: string
@@ -568,6 +572,8 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          cash_auto_close_time?: string | null
+          cash_auto_open_time?: string | null
           city?: string | null
           cnpj?: string | null
           created_at?: string

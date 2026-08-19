@@ -37,7 +37,7 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate({ to: "/configuracoes" })}>
+        <DropdownMenuItem onClick={() => navigate({ to: "/configuracoes", search: { tab: undefined } })}>
           <UserIcon className="size-4 mr-2" /> Configurações
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut}>

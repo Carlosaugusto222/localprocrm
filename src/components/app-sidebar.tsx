@@ -99,7 +99,7 @@ export function AppSidebar() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={pathname.startsWith("/configuracoes")}>
-                  <Link to="/configuracoes" className="flex items-center gap-2">
+                  <Link to="/configuracoes" search={{ tab: undefined }} className="flex items-center gap-2">
                     <Settings className="size-4" /><span>Configurações</span>
                   </Link>
                 </SidebarMenuButton>
