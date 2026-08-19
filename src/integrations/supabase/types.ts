@@ -520,7 +520,9 @@ export type Database = {
       organizations: {
         Row: {
           address: string | null
+          cash_auto_close_enabled: boolean | null
           cash_auto_close_time: string | null
+          cash_auto_open_enabled: boolean | null
           cash_auto_open_time: string | null
           city: string | null
           cnpj: string | null
@@ -546,7 +548,9 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          cash_auto_close_enabled?: boolean | null
           cash_auto_close_time?: string | null
+          cash_auto_open_enabled?: boolean | null
           cash_auto_open_time?: string | null
           city?: string | null
           cnpj?: string | null
@@ -572,7 +576,9 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          cash_auto_close_enabled?: boolean | null
           cash_auto_close_time?: string | null
+          cash_auto_open_enabled?: boolean | null
           cash_auto_open_time?: string | null
           city?: string | null
           cnpj?: string | null
