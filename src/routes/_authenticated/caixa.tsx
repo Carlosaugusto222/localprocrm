@@ -72,6 +72,9 @@ function CaixaPage() {
     onSuccess: () => { qc.invalidateQueries(); toast.success("Caixa fechado"); },
   });
 
+  return (
+    <PageContainer>
+
       <PageHeader 
         title="Caixa" 
         description="Abertura, movimentações e fechamento do dia." 
