@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Check, Upload, Copy, ExternalLink } from "lucide-react";
@@ -17,6 +17,9 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — LocalPro CRM" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    tab: (search.tab as string) || "company",
+  }),
   component: Settings,
 });
 
@@ -24,6 +27,7 @@ const WEEKDAYS = ["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábad
 
 function Settings() {
   const { org } = useCurrentOrg();
+  const { tab } = useSearch({ from: "/_authenticated/configuracoes" });
   const qc = useQueryClient();
   const [form, setForm] = useState<any>({});
   const [modules, setModules] = useState<Set<string>>(new Set());
@@ -38,6 +42,8 @@ function Settings() {
         state: (org as any).state ?? "", zip: (org as any).zip ?? "",
         logo_url: (org as any).logo_url ?? "",
         public_booking_enabled: (org as any).public_booking_enabled ?? false,
+        cash_auto_open_time: (org as any).cash_auto_open_time ?? "",
+        cash_auto_close_time: (org as any).cash_auto_close_time ?? "",
       });
       setModules(new Set(org.enabled_modules));
     }
@@ -101,11 +107,12 @@ function Settings() {
     <PageContainer>
       <PageHeader title="Configurações" description="Empresa, plano, módulos, horários e portal do cliente." />
 
-      <Tabs defaultValue="company">
+      <Tabs defaultValue={tab}>
         <TabsList>
           <TabsTrigger value="company">Empresa</TabsTrigger>
           <TabsTrigger value="modules">Módulos & Plano</TabsTrigger>
           <TabsTrigger value="hours">Horários</TabsTrigger>
+          <TabsTrigger value="caixa">Caixa</TabsTrigger>
           <TabsTrigger value="booking">Portal do Cliente</TabsTrigger>
         </TabsList>
 
@@ -212,6 +219,26 @@ function Settings() {
                   </div>
                 );
               })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="caixa" className="mt-4">
+          <Card>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="size-5" />Automação de Caixa</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">Programe horários fixos para sugerir a abertura e fechamento do caixa.</p>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <Label>Sugerir abertura às</Label>
+                  <Input type="time" value={form.cash_auto_open_time || ""} onChange={e => setForm({ ...form, cash_auto_open_time: e.target.value })} />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>Sugerir fechamento às</Label>
+                  <Input type="time" value={form.cash_auto_close_time || ""} onChange={e => setForm({ ...form, cash_auto_close_time: e.target.value })} />
+                </div>
+              </div>
+              <Button onClick={() => save.mutate()} disabled={save.isPending}>Salvar programação</Button>
             </CardContent>
           </Card>
         </TabsContent>

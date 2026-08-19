@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Banknote, Play, Square, TrendingUp, TrendingDown } from "lucide-react";
+import { Banknote, Play, Square, TrendingUp, TrendingDown, Clock, Settings as SettingsIcon } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -72,9 +72,18 @@ function CaixaPage() {
     onSuccess: () => { qc.invalidateQueries(); toast.success("Caixa fechado"); },
   });
 
-  return (
-    <PageContainer>
-      <PageHeader title="Caixa" description="Abertura, movimentações e fechamento do dia." />
+      <PageHeader 
+        title="Caixa" 
+        description="Abertura, movimentações e fechamento do dia." 
+        actions={
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/configuracoes" search={{ tab: 'caixa' }}>
+              <SettingsIcon className="size-4 mr-2" />
+              Programar Horários
+            </Link>
+          </Button>
+        }
+      />
 
       {!openSession ? <OpenCard onOpen={(v) => openCash.mutate(v)} /> :
         <OpenSessionView session={openSession} movements={movements} onClose={(v, n) => closeCash.mutate({ amount: v, notes: n })} />
