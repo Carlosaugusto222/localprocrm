@@ -306,11 +306,12 @@ const MODULE_GUIDES = [
   },
   {
     icon: BarChart3,
-    title: "Relatórios",
+    title: "Relatórios & Auditoria",
     points: [
       "Exportação em CSV, Excel (XLSX) e PDF",
-      "Use o PDF pro contador, o Excel pra análise sua",
+      "Use o PDF pro contador, o Excel pra análise estratégica",
       "Filtre por período antes de exportar",
+      "Logs de Auditoria: Rastreie quem alterou preços ou status de OS",
     ],
   },
   {
@@ -544,12 +545,12 @@ function GuiaPage() {
                 {[
                   { t: "Ajuste sua empresa", d: "Vá em Configurações → preencha nome, segmento e plano." },
                   { t: "Ative só os módulos que você usa", d: "Em Configurações → Módulos. Desative o que não fizer sentido — interface fica mais limpa." },
-                  { t: "Cadastre seu catálogo", d: "Em Vendas → Produtos. Adicione seus serviços e produtos com preço." },
-                  { t: "Importe ou cadastre seus primeiros clientes", d: "Em Clientes (CRM). Mínimo: nome + WhatsApp." },
-                  { t: "Crie os primeiros agendamentos", d: "Em Agenda. Vincule cada um a um cliente." },
-                  { t: "Fechou venda? Lance imediatamente", d: "Em Vendas → Nova venda. Vai pro Financeiro automaticamente." },
-                  { t: "Lance despesas todo dia", d: "Em Financeiro. Não acumule pro fim do mês." },
-                  { t: "Toda segunda: exporte relatório", d: "Em Relatórios. PDF pro contador, Excel pra você." },
+                  { t: "Frente de Loja (PDV)", d: "Use o /pdv para vendas rápidas com leitor de código de barras e controle de caixa." },
+                  { t: "Cadastre seu catálogo com SKU", d: "Em Vendas → Produtos. Use SKUs para controle preciso de estoque e busca no PDV." },
+                  { t: "Ordens de Serviço (OS)", d: "Gerencie reparos complexos, adicione peças e serviços, e envie para o cliente via WhatsApp." },
+                  { t: "Use a IA para Planejamento", d: "Em Planejamento, peça sugestões de campanhas e posts baseados nos seus dados." },
+                  { t: "WhatsApp Inbox Inteligente", d: "Responda clientes com sugestões da IA e alterne entre atendimento bot/humano." },
+                  { t: "Acompanhe pela Nova Início", d: "Veja seus resultados, clientes e agenda centralizados na nova dashboard de entrada." },
                 ].map((s, i) => (
                   <li key={i} className="flex gap-4">
                     <div className="size-8 rounded-full bg-primary text-primary-foreground grid place-items-center text-sm font-bold shrink-0">{i + 1}</div>
