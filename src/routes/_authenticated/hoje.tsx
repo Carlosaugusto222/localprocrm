@@ -72,7 +72,9 @@ function HojePage() {
     queryKey: ["hoje-lowstock", orgId],
     enabled: !!orgId,
     queryFn: async () => (await supabase.from("products")
-      .select("id,name,stock_qty,stock_min").eq("organization_id", orgId!).eq("track_stock", true)).data ?? [],
+      .select("id,name,stock_qty,stock_min")
+      .eq("organization_id", orgId!)
+      .eq("track_stock", true)).data ?? [],
   });
   const lowStockItems = lowStock.filter((p: any) => Number(p.stock_qty) <= Number(p.stock_min ?? 0));
 

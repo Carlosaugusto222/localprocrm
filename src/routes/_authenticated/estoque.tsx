@@ -35,7 +35,7 @@ function EstoquePage() {
     queryKey: ["estoque-products", orgId],
     queryFn: async () => {
       const { data } = await supabase.from("products")
-        .select("*")
+        .select("id, name, sku, stock_qty, stock_min, track_stock, price, category, kind, cost")
         .eq("organization_id", orgId!)
         .eq("kind", "product")
         .order("name");
