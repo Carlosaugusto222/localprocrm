@@ -37,7 +37,7 @@ function Dashboard() {
       const [customers, appointments, txs, prevTxs, sales, prevSales, prevCustomers, products] = await Promise.all([
         supabase.from("customers").select("id, created_at").eq("organization_id", orgId!),
         supabase.from("appointments").select("id, starts_at, status").eq("organization_id", orgId!).gte("starts_at", monthStart.toISOString()),
-        supabase.from("transactions").select("amount, kind, paid_at, created_at").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
+        supabase.from("transactions").select("amount, kind, created_at").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
         supabase.from("transactions").select("amount, kind").eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
         supabase.from("sales").select("id, total, created_at, status").eq("organization_id", orgId!).gte("created_at", monthStart.toISOString()),
         supabase.from("sales").select("id, total").eq("organization_id", orgId!).gte("created_at", prevStart.toISOString()).lte("created_at", prevEnd.toISOString()),
