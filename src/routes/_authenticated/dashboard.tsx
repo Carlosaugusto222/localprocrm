@@ -187,7 +187,7 @@ function Stat({ icon: Icon, label, value, accent, deltaPct }: { icon: React.Comp
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <span className="text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
-          <Icon className={`size-4 ${accent ?? "text-muted-foreground"}`} />
+          <Icon className={`size-4 ${accent ?? "text-muted-foreground"}`} aria-hidden="true" />
         </div>
         <div className={`mt-2 text-xl sm:text-2xl font-display font-bold ${accent ?? ""}`}>{value}</div>
         {deltaPct !== undefined && (
