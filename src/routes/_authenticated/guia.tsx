@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { Scissors, Sparkles, Stethoscope, Wrench, UtensilsCrossed, Dumbbell, Building2, BookOpen, Calendar, Users, Wallet, ShoppingBag, MessageCircle, BarChart3, Settings, CheckCircle2, Lightbulb, Zap } from "lucide-react";
+import { Scissors, Sparkles, Stethoscope, Wrench, UtensilsCrossed, Dumbbell, Building2, BookOpen, Calendar, Users, Wallet, ShoppingBag, MessageCircle, BarChart3, Settings, CheckCircle2, Lightbulb, Zap, ClipboardList, MonitorSmartphone, Package } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/guia")({
   component: GuiaPage,
@@ -321,6 +321,35 @@ const MODULE_GUIDES = [
       "Ative só os módulos que você usa — interface fica mais limpa",
       "Troque de plano aqui (Básico → Pro → Premium)",
       "Convide funcionários e defina os módulos que cada um vê",
+    ],
+  },
+  {
+    icon: MonitorSmartphone,
+    title: "PDV & Caixa",
+    points: [
+      "Frente de loja otimizada para desktop/tablet",
+      "Controle de abertura e fechamento de caixa",
+      "Busca rápida por SKU ou nome",
+      "Geração de Cupom não fiscal simplificado",
+    ],
+  },
+  {
+    icon: ClipboardList,
+    title: "Ordens de Serviço",
+    points: [
+      "Adicione peças, produtos e serviços em uma única OS",
+      "Envie o orçamento em PDF diretamente pelo WhatsApp",
+      "Campos extras (Marca, Modelo, Serial) para rastreabilidade",
+      "Faturamento direto para o módulo de Vendas",
+    ],
+  },
+  {
+    icon: Package,
+    title: "Estoque",
+    points: [
+      "Alertas de estoque baixo e controle de entrada/saída",
+      "Cálculo automático do valor total do inventário",
+      "Movimentações integradas com Vendas e OS",
     ],
   },
 ];
