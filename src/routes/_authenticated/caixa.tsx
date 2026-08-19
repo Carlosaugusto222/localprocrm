@@ -115,28 +115,76 @@ function CaixaPage() {
 }
 
 function OpenCard({ onOpen }: { onOpen: (v: number) => void }) {
+  const { org } = useCurrentOrg();
   const [amount, setAmount] = useState("0");
+  
+  const now = new Date();
+  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+  const autoOpenTime = (org as any)?.cash_auto_open_time;
+  const isScheduled = autoOpenTime && currentTime >= autoOpenTime;
+
   return (
-    <Card>
+    <div className="space-y-4">
+      {isScheduled && (
+        <Card className="bg-primary/5 border-primary/20 animate-in fade-in slide-in-from-top-2 duration-300">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-full bg-primary/10 grid place-items-center text-primary">
+                <Clock className="size-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold">Sugestão de abertura</p>
+                <p className="text-xs text-muted-foreground">Horário programado atingido ({autoOpenTime})</p>
+              </div>
+            </div>
+            <Button size="sm" onClick={() => onOpen(0)}>Abrir com R$ 0,00</Button>
+          </CardContent>
+        </Card>
+      )}
+      <Card>
       <CardHeader><CardTitle className="flex items-center gap-2"><Play className="size-4 text-emerald-500" />Abrir caixa</CardTitle></CardHeader>
       <CardContent className="space-y-3">
         <div className="space-y-1.5"><Label>Valor de abertura (troco em dinheiro)</Label>
           <Input type="number" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} /></div>
         <Button onClick={() => onOpen(Number(amount))}>Abrir caixa</Button>
       </CardContent>
-    </Card>
+      </Card>
+    </div>
   );
 }
 
 function OpenSessionView({ session, movements, onClose }: { session: any; movements: any[]; onClose: (v: number, n: string) => void }) {
+  const { org } = useCurrentOrg();
   const income = movements.filter(m => m.kind === "income").reduce((a, b) => a + Number(b.amount), 0);
   const expense = movements.filter(m => m.kind === "expense").reduce((a, b) => a + Number(b.amount), 0);
   const expected = Number(session.opening_amount) + income - expense;
   const [closing, setClosing] = useState(String(expected));
   const [notes, setNotes] = useState("");
 
+  const now = new Date();
+  const currentTime = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+  const autoCloseTime = (org as any)?.cash_auto_close_time;
+  const isScheduledClose = autoCloseTime && currentTime >= autoCloseTime;
+
   return (
-    <div className="grid lg:grid-cols-3 gap-4">
+    <div className="space-y-4">
+      {isScheduledClose && (
+        <Card className="bg-rose-500/5 border-rose-500/20 animate-in fade-in slide-in-from-top-2 duration-300">
+          <CardContent className="p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-10 rounded-full bg-rose-500/10 grid place-items-center text-rose-500">
+                <Clock className="size-5" />
+              </div>
+              <div>
+                <p className="text-sm font-bold">Sugestão de fechamento</p>
+                <p className="text-xs text-muted-foreground">Horário programado atingido ({autoCloseTime})</p>
+              </div>
+            </div>
+            <Button variant="destructive" size="sm" onClick={() => onClose(expected, "Fechamento automático/agendado")}>Fechar agora</Button>
+          </CardContent>
+        </Card>
+      )}
+      <div className="grid lg:grid-cols-3 gap-4">
       <Card className="lg:col-span-2">
         <CardHeader><CardTitle>Movimento do caixa aberto</CardTitle></CardHeader>
         <CardContent>
@@ -182,6 +230,7 @@ function OpenSessionView({ session, movements, onClose }: { session: any; moveme
           <Button className="w-full" onClick={() => onClose(Number(closing), notes)}>Fechar caixa</Button>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
