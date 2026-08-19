@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { TrendingUp, TrendingDown, Users, Calendar, DollarSign, ShoppingBag, Sparkles, ArrowRight, Package } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContainer, PageHeader } from "@/components/page-header";
+import { PageContainer, PageHeader, ErrorBoundary } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
@@ -92,7 +92,8 @@ function Dashboard() {
     <PageContainer>
       <PageHeader title="Visão geral" description={`Bem-vindo, ${org?.name ?? ""}. Comparativo vs mês anterior.`} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 animate-in-fade">
+      <ErrorBoundary>
+        <div className="grid grid-cols-2 lg:grid-cols-6 gap-3 animate-in-fade">
         <Stat icon={DollarSign} label="Receita do mês" value={brl(stats?.revenue ?? 0)} deltaPct={delta(stats?.revenue ?? 0, stats?.prevRevenue ?? 0)} accent="text-success" delay="delay-0" />
         <Stat icon={Users} label="Novos clientes" value={String(stats?.newCustomers ?? 0)} deltaPct={delta(stats?.newCustomers ?? 0, stats?.prevNewCustomers ?? 0)} delay="delay-75" />
         <Stat icon={Calendar} label="Agendamentos" value={String(stats?.appointments ?? 0)} delay="delay-100" />
@@ -179,6 +180,7 @@ function Dashboard() {
           )}
         </CardContent>
       </Card>
+      </ErrorBoundary>
     </PageContainer>
   );
 }
