@@ -11,6 +11,8 @@ import {
   ShoppingBag, Calendar, UserPlus, MessageCircle, Wallet, Wrench, Banknote,
   Clock, ArrowRight, Sparkles, Kanban, Cake, Package,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_authenticated/hoje")({
   component: HojePage,

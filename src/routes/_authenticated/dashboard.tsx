@@ -11,6 +11,8 @@ import { AreaChart, Area, XAxis, YAxis, ResponsiveContainer, Tooltip, BarChart, 
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — LocalPro CRM" }] }),
