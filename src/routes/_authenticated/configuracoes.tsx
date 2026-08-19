@@ -2,12 +2,12 @@ import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Check, Upload, Copy, ExternalLink, Clock } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCurrentOrg } from "@/hooks/use-current-org";
@@ -44,6 +44,8 @@ function Settings() {
         public_booking_enabled: (org as any).public_booking_enabled ?? false,
         cash_auto_open_time: (org as any).cash_auto_open_time ?? "",
         cash_auto_close_time: (org as any).cash_auto_close_time ?? "",
+        cash_auto_open_enabled: !!(org as any).cash_auto_open_enabled,
+        cash_auto_close_enabled: !!(org as any).cash_auto_close_enabled,
       });
       setModules(new Set(org.enabled_modules));
     }
@@ -226,19 +228,58 @@ function Settings() {
         <TabsContent value="caixa" className="mt-4">
           <Card>
             <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="size-5" />Automação de Caixa</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">Programe horários fixos para sugerir a abertura e fechamento do caixa.</p>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <Label>Sugerir abertura às</Label>
-                  <Input type="time" value={form.cash_auto_open_time || ""} onChange={e => setForm({ ...form, cash_auto_open_time: e.target.value })} />
+            <CardContent className="space-y-8">
+              <div className="grid sm:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base font-bold">Abertura Automática</Label>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Sugestão de abertura</p>
+                    </div>
+                    <Switch 
+                      checked={form.cash_auto_open_enabled} 
+                      onCheckedChange={v => setForm({ ...form, cash_auto_open_enabled: v })} 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Horário de abertura</Label>
+                    <Input 
+                      type="time" 
+                      disabled={!form.cash_auto_open_enabled}
+                      value={form.cash_auto_open_time || ""} 
+                      onChange={e => setForm({ ...form, cash_auto_open_time: e.target.value })} 
+                    />
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <Label>Sugerir fechamento às</Label>
-                  <Input type="time" value={form.cash_auto_close_time || ""} onChange={e => setForm({ ...form, cash_auto_close_time: e.target.value })} />
+
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-base font-bold">Fechamento Automático</Label>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Execução em 5 minutos</p>
+                    </div>
+                    <Switch 
+                      checked={form.cash_auto_close_enabled} 
+                      onCheckedChange={v => setForm({ ...form, cash_auto_close_enabled: v })} 
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Horário de fechamento</Label>
+                    <Input 
+                      type="time" 
+                      disabled={!form.cash_auto_close_enabled}
+                      value={form.cash_auto_close_time || ""} 
+                      onChange={e => setForm({ ...form, cash_auto_close_time: e.target.value })} 
+                    />
+                  </div>
                 </div>
               </div>
-              <Button onClick={() => save.mutate()} disabled={save.isPending}>Salvar programação</Button>
+
+              <div className="pt-6 border-t flex justify-end">
+                <Button onClick={() => save.mutate()} disabled={save.isPending}>
+                  {save.isPending ? "Salvando..." : "Salvar Configuração de Automação"}
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
