@@ -11,6 +11,8 @@ import {
   ShoppingBag, Calendar, UserPlus, MessageCircle, Wallet, Wrench, Banknote,
   Clock, ArrowRight, Sparkles, Kanban, Cake, Package,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/_authenticated/hoje")({
   component: HojePage,
@@ -114,18 +116,18 @@ function HojePage() {
         }
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-        {quickActions.map(a => (
-          <Link key={a.to + a.title} to={a.to} className="group">
-            <Card className="h-full transition-all hover:shadow-lg hover:-translate-y-0.5 border-border/60">
-              <CardContent className="p-4 flex items-start gap-3">
-                <div className={`size-10 rounded-lg bg-gradient-to-br ${a.color} grid place-items-center text-white shadow-sm shrink-0`}>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-3 mb-8 animate-in-fade">
+        {quickActions.map((a, i) => (
+          <Link key={a.to + a.title} to={a.to} className={cn("group animate-in-slide-up", `delay-[${i * 50}ms]`)}>
+            <Card className="h-full transition-all hover:shadow-glow hover:-translate-y-1 border-border/40 overflow-hidden">
+              <CardContent className="p-3 flex flex-col items-center text-center gap-2">
+                <div className={cn("size-10 rounded-xl bg-gradient-to-br grid place-items-center text-white shadow-sm shrink-0 transition-transform group-hover:scale-110 group-hover:rotate-3", a.color)}>
                   <a.icon className="size-5" />
+
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="font-semibold text-sm flex items-center gap-1">
+                  <div className="font-bold text-[11px] uppercase tracking-wider text-muted-foreground group-hover:text-foreground transition-colors">
                     {a.title}
-                    <ArrowRight className="size-3 opacity-0 -translate-x-1 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
                   </div>
                 </div>
               </CardContent>
@@ -133,6 +135,7 @@ function HojePage() {
           </Link>
         ))}
       </div>
+
 
       <div className="grid lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">
