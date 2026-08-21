@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// eu quero poder  sincronizar estoque com uma loja virtual extrna tbm sem ser um sub dominio, nao uero que remova nenhuma funcao atual estaq tudo otimo, so adcionar
+// nao vi nenhuma alteracao, como configurar a loja ?
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
