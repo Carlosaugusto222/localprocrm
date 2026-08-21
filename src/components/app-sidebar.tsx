@@ -33,9 +33,9 @@ const gestao: Item[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
   { title: "Equipe", url: "/equipe", icon: UserCog, module: "team" },
+  { title: "Integrações", url: "/integracoes", icon: Globe },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
   { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
-  
 ];
 
 export function AppSidebar() {
