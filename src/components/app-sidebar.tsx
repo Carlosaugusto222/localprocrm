@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
   Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays, Bot, KeyRound,
-  Package,
+  Package, Globe,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
