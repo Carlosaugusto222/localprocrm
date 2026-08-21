@@ -134,6 +134,10 @@ function LojaPropriaPage() {
           </Card>
         </div>
       </div>
+
+      <div className="mt-6">
+        <StoreCatalog />
+      </div>
     </PageContainer>
   );
 }
