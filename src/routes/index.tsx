@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Integração com Loja Própria/Customizada implementada em /integracoes com suporte a API e endpoints de sync.
+// Planos atualizados com suporte a PDV, OS, Loja Própria e IA avançada.
+
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
