@@ -14,7 +14,7 @@ import { useCurrentOrg } from '@/hooks/use-current-org';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
-export const Route = createFileRoute('/_authenticated/integracoes' as any)({
+export const Route = createFileRoute('/_authenticated/integracoes')({
   component: IntegracoesPage,
 });
 
