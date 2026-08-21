@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Layout, Globe, Smartphone, Palette, Zap, Check } from 'lucide-react';
+import { Layout, Globe, Smartphone, Palette, Zap, Check, Sparkles } from 'lucide-react';
 
 export const Route = createFileRoute('/_authenticated/loja-propria')({
   component: LojaPropriaPage,
