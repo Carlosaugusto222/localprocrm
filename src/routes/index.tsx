@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// nao vi nenhuma alteracao, como configurar a loja ?
+// na aba gestao, integracao crie a opcao de conectr uma loja virtual propria criada sem ser por aquelas opçoes ja existentes
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
