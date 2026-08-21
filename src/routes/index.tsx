@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Ajustes realizados: Mensagens de erro de token clarificadas e limites de integração adicionados aos planos.
+// Assistente de IA otimizado em todo o sistema, incluindo insights no dashboard e sugestões no WhatsApp.
+
 
 
 
