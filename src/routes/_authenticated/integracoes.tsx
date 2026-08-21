@@ -95,7 +95,7 @@ function IntegracoesPage() {
                     <CardDescription>Loja Virtual</CardDescription>
                   </div>
                 </div>
-                <Badge variant={isActive ? "success" : "secondary"}>
+                <Badge variant={isActive ? "default" : "secondary"}>
                   {isActive ? "Ativo" : "Desconectado"}
                 </Badge>
               </CardHeader>
