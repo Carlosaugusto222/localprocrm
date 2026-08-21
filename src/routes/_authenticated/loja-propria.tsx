@@ -33,6 +33,21 @@ function LojaPropriaPage() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-primary/5 border border-primary/20 animate-in-fade">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-full bg-primary/10 text-primary grid place-items-center">
+                  <Sparkles className="size-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Sincronização Completa Ativa</p>
+                  <p className="text-xs text-muted-foreground">Nome, descrição, fotos e estoque sincronizados automaticamente com a vitrine.</p>
+                </div>
+              </div>
+              <Badge variant="outline" className="text-success border-success/20 bg-success/5">
+                <Check className="size-3 mr-1" /> Sincronizado
+              </Badge>
+            </div>
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 rounded-xl border bg-muted/30 text-center">
                 <Globe className="size-5 mx-auto mb-2 text-muted-foreground" />
