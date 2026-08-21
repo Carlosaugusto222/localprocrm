@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Integração com Loja Própria/Customizada implementada em /integracoes com suporte a API e endpoints de sync.
+// Planos atualizados com suporte a PDV, OS, Loja Própria e IA avançada.
+
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -76,9 +77,9 @@ const modules = [
 ];
 
 const plans = [
-  { name: "Básico", price: "R$ 49", desc: "Para começar com o essencial.", features: ["CRM completo", "Cadastro ilimitado de clientes", "Tags e funil"], cta: "Começar" },
-  { name: "Profissional", price: "R$ 99", desc: "CRM + Agenda + Financeiro.", features: ["Tudo do Básico", "Agenda completa", "Controle financeiro", "Relatórios"], cta: "Mais popular", featured: true },
-  { name: "Premium", price: "R$ 199", desc: "Todos os módulos + IA.", features: ["Tudo do Profissional", "Vendas e orçamentos", "Assistente IA", "WhatsApp"], cta: "Falar com vendas" },
+  { name: "Básico", price: "R$ 49", desc: "Para começar com o essencial.", features: ["CRM completo", "Cadastro ilimitado de clientes", "Tags e funil", "Gestão de estoque"], cta: "Começar" },
+  { name: "Profissional", price: "R$ 99", desc: "CRM + Agenda + Financeiro.", features: ["Tudo do Básico", "Agenda completa", "Ordens de serviço", "PDV e Caixa", "Exportações PDF/Excel"], cta: "Mais popular", featured: true },
+  { name: "Premium", price: "R$ 199", desc: "Todos os módulos + IA.", features: ["Tudo do Profissional", "Assistente IA & Marketing", "WhatsApp Automático", "Loja Própria & Integrações", "Audit Log & Super Admin"], cta: "Falar com vendas" },
 ];
 
 function Landing() {
