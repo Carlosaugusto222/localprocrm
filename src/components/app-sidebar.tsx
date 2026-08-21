@@ -34,6 +34,7 @@ const gestao: Item[] = [
   { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
   { title: "Equipe", url: "/equipe", icon: UserCog, module: "team" },
   { title: "Integrações", url: "/integracoes", icon: Globe },
+  { title: "Loja Própria", url: "/loja-propria", icon: ShoppingBag },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
   { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
 ];

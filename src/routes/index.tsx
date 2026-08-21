@@ -1,4 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
+// e se eu quisr criar um loja propria ? sm sr essas integracoes ja existentes?
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
