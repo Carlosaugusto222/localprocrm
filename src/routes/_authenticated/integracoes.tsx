@@ -23,6 +23,7 @@ const PLATFORMS = [
   { id: 'woocommerce', name: 'WooCommerce', icon: Globe, color: 'text-[#96588a]' },
   { id: 'nuvemshop', name: 'Nuvemshop', icon: ShoppingBag, color: 'text-[#00b1ea]' },
   { id: 'mercado_livre', name: 'Mercado Livre', icon: ShoppingBag, color: 'text-[#fff159]' },
+  { id: 'custom', name: 'Loja Própria / Customizada', icon: Globe, color: 'text-primary' },
 ];
 
 function IntegracoesPage() {
