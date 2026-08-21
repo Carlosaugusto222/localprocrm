@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Planos atualizados com suporte a PDV, OS, Loja Própria e IA avançada.
+// qnd ajusto as opcoes da erro de token
+
 
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
