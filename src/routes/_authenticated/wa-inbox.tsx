@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/hooks/use-current-org";
-import { listWaConversations, listWaMessages, sendWaReply, setWaConversationStatus, suggestWaReply } from "@/lib/wa.functions";
+import { listWaConversations, listWaMessages, sendWaReply, setWaConversationStatus } from "@/lib/wa.functions";
+import { suggestWaReplyAction } from "@/lib/wa-ai.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/wa-inbox")({
@@ -25,7 +26,7 @@ function WaInboxPage() {
   const fetchMsgs = useServerFn(listWaMessages);
   const sendReply = useServerFn(sendWaReply);
   const setStatus = useServerFn(setWaConversationStatus);
-  const getSuggestion = useServerFn(suggestWaReply);
+  const getSuggestion = useServerFn(suggestWaReplyAction);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -59,7 +60,7 @@ function WaInboxPage() {
 
   const suggest = useMutation({
     mutationFn: () => getSuggestion({ data: { organizationId: org!.id, conversationId: selectedId! } }),
-    onSuccess: (res) => {
+    onSuccess: (res: any) => {
       if (res.suggestion) setDraft(res.suggestion);
     },
     onError: (e: any) => toast.error("Falha ao gerar sugestão: " + e.message),

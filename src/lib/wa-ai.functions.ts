@@ -5,7 +5,7 @@ import { z } from "zod";
 import { logAudit } from "@/lib/audit";
 
 
-export const suggestWaReply = createServerFn({ method: "POST" })
+export const suggestWaReplyAction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data: unknown) => z.object({
     organizationId: z.string().uuid(),
