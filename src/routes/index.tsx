@@ -1,5 +1,5 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// na aba gestao, integracao crie a opcao de conectr uma loja virtual propria criada sem ser por aquelas opçoes ja existentes
+// Integração com Loja Própria/Customizada implementada em /integracoes com suporte a API e endpoints de sync.
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

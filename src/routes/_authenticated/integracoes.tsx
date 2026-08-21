@@ -23,6 +23,7 @@ const PLATFORMS = [
   { id: 'woocommerce', name: 'WooCommerce', icon: Globe, color: 'text-[#96588a]' },
   { id: 'nuvemshop', name: 'Nuvemshop', icon: ShoppingBag, color: 'text-[#00b1ea]' },
   { id: 'mercado_livre', name: 'Mercado Livre', icon: ShoppingBag, color: 'text-[#fff159]' },
+  { id: 'custom', name: 'Loja Própria / Customizada', icon: Globe, color: 'text-primary' },
 ];
 
 function IntegracoesPage() {
@@ -54,6 +55,9 @@ function IntegracoesPage() {
           api_secret: values.api_secret,
           shop_url: values.shop_url,
           is_active: values.is_active,
+          custom_api_url: values.custom_api_url,
+          sync_orders_endpoint: values.sync_orders_endpoint,
+          sync_products_endpoint: values.sync_products_endpoint,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'organization_id, platform' });
       if (error) throw error;
@@ -125,11 +129,15 @@ function IntegracoesPage() {
       </div>
 
       {selectedPlatform && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in-fade">
-          <Card className="w-full max-w-lg mx-4 shadow-glow ring-1 ring-primary/20">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-in-fade px-4">
+          <Card className="w-full max-w-lg shadow-glow ring-1 ring-primary/20">
             <CardHeader>
               <CardTitle>Configurar {PLATFORMS.find(p => p.id === selectedPlatform)?.name}</CardTitle>
-              <CardDescription>Insira as credenciais da sua loja para ativar a sincronização.</CardDescription>
+              <CardDescription>
+                {selectedPlatform === 'custom' 
+                  ? 'Configure sua API customizada para sincronização direta.'
+                  : 'Insira as credenciais da sua loja para ativar a sincronização.'}
+              </CardDescription>
             </CardHeader>
             <form onSubmit={(e) => {
               e.preventDefault();
@@ -139,48 +147,113 @@ function IntegracoesPage() {
                 shop_url: formData.get('shop_url'),
                 api_key: formData.get('api_key'),
                 api_secret: formData.get('api_secret'),
+                custom_api_url: formData.get('custom_api_url'),
+                sync_orders_endpoint: formData.get('sync_orders_endpoint'),
+                sync_products_endpoint: formData.get('sync_products_endpoint'),
                 is_active: true,
               });
             }}>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="shop_url">URL da Loja</Label>
-                  <Input 
-                    id="shop_url" 
-                    name="shop_url" 
-                    placeholder="https://minhaloja.com" 
-                    defaultValue={getIntegration(selectedPlatform)?.shop_url || ''} 
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="api_key">Chave da API (API Key)</Label>
-                  <Input 
-                    id="api_key" 
-                    name="api_key" 
-                    type="password"
-                    defaultValue={getIntegration(selectedPlatform)?.api_key || ''}
-                    required 
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="api_secret">Segredo da API (API Secret / Token)</Label>
-                  <Input 
-                    id="api_secret" 
-                    name="api_secret" 
-                    type="password"
-                    defaultValue={getIntegration(selectedPlatform)?.api_secret || ''}
-                    required 
-                  />
-                </div>
+              <CardContent className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+                {selectedPlatform === 'custom' ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="custom_api_url">URL da API da Loja</Label>
+                      <Input 
+                        id="custom_api_url" 
+                        name="custom_api_url" 
+                        type="url"
+                        placeholder="https://api.minhaloja.com/v1" 
+                        defaultValue={getIntegration(selectedPlatform)?.custom_api_url || ''} 
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="api_secret">Token de Autenticação / Chave de API</Label>
+                      <Input 
+                        id="api_secret" 
+                        name="api_secret" 
+                        type="password"
+                        placeholder="gerar-seu-token-aqui"
+                        defaultValue={getIntegration(selectedPlatform)?.api_secret || ''}
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sync_orders_endpoint">Endpoint de Sincronização de Pedidos</Label>
+                      <Input 
+                        id="sync_orders_endpoint" 
+                        name="sync_orders_endpoint" 
+                        placeholder="/pedidos/sync"
+                        defaultValue={getIntegration(selectedPlatform)?.sync_orders_endpoint || ''}
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="sync_products_endpoint">Endpoint de Sincronização de Produtos</Label>
+                      <Input 
+                        id="sync_products_endpoint" 
+                        name="sync_products_endpoint" 
+                        placeholder="/produtos/sync"
+                        defaultValue={getIntegration(selectedPlatform)?.sync_products_endpoint || ''}
+                        required 
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="shop_url">URL da Loja</Label>
+                      <Input 
+                        id="shop_url" 
+                        name="shop_url" 
+                        placeholder="https://minhaloja.com" 
+                        defaultValue={getIntegration(selectedPlatform)?.shop_url || ''} 
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="api_key">Chave da API (API Key)</Label>
+                      <Input 
+                        id="api_key" 
+                        name="api_key" 
+                        type="password"
+                        defaultValue={getIntegration(selectedPlatform)?.api_key || ''}
+                        required 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="api_secret">Segredo da API (API Secret / Token)</Label>
+                      <Input 
+                        id="api_secret" 
+                        name="api_secret" 
+                        type="password"
+                        defaultValue={getIntegration(selectedPlatform)?.api_secret || ''}
+                        required 
+                      />
+                    </div>
+                  </>
+                )}
               </CardContent>
-              <CardFooter className="flex justify-between gap-3">
+              <CardFooter className="flex justify-between gap-3 pt-4">
                 <Button type="button" variant="ghost" onClick={() => setSelectedPlatform(null)}>
                   Cancelar
                 </Button>
-                <Button type="submit" disabled={upsertMutation.isPending}>
-                  {upsertMutation.isPending ? "Salvando..." : "Salvar e Ativar"}
-                </Button>
+                <div className="flex gap-2">
+                  {selectedPlatform === 'custom' && (
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        toast.success("Conexão bem-sucedida! (Simulação)");
+                      }}
+                    >
+                      Testar Conexão
+                    </Button>
+                  )}
+                  <Button type="submit" disabled={upsertMutation.isPending}>
+                    {upsertMutation.isPending ? "Salvando..." : "Salvar Configuração"}
+                  </Button>
+                </div>
               </CardFooter>
             </form>
           </Card>
