@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Calendar, Wallet, ShoppingBag,
   MessageCircle, Sparkles, BarChart3, Settings, Zap, Kanban, ShieldCheck, BookOpen, Sun,
   Wrench, Banknote, UserCog, ScanLine, Home, CalendarDays, Bot, KeyRound,
-  Package,
+  Package, Globe,
 } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel,
@@ -33,9 +33,9 @@ const gestao: Item[] = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Financeiro", url: "/financeiro", icon: Wallet, module: "finance" },
   { title: "Equipe", url: "/equipe", icon: UserCog, module: "team" },
+  { title: "Integrações", url: "/integracoes", icon: Globe },
   { title: "Relatórios", url: "/relatorios", icon: BarChart3, module: "reports" },
   { title: "Assistente IA", url: "/ia", icon: Sparkles, module: "ai" },
-  
 ];
 
 export function AppSidebar() {

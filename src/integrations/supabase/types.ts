@@ -287,6 +287,62 @@ export type Database = {
           },
         ]
       }
+      ecommerce_integrations: {
+        Row: {
+          access_token: string | null
+          api_key: string | null
+          api_secret: string | null
+          config: Json | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_sync_at: string | null
+          organization_id: string
+          platform: Database["public"]["Enums"]["ecommerce_platform"]
+          shop_url: string | null
+          updated_at: string | null
+          webhook_secret: string | null
+        }
+        Insert: {
+          access_token?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          organization_id: string
+          platform: Database["public"]["Enums"]["ecommerce_platform"]
+          shop_url?: string | null
+          updated_at?: string | null
+          webhook_secret?: string | null
+        }
+        Update: {
+          access_token?: string | null
+          api_key?: string | null
+          api_secret?: string | null
+          config?: Json | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_sync_at?: string | null
+          organization_id?: string
+          platform?: Database["public"]["Enums"]["ecommerce_platform"]
+          shop_url?: string | null
+          updated_at?: string | null
+          webhook_secret?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ecommerce_integrations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -1317,6 +1373,12 @@ export type Database = {
         | "cancelled"
         | "no_show"
       customer_status: "lead" | "active" | "inactive"
+      ecommerce_platform:
+        | "shopify"
+        | "woocommerce"
+        | "nuvemshop"
+        | "mercado_livre"
+        | "custom"
       org_plan: "basic" | "pro" | "premium"
       org_role: "owner" | "staff"
       sale_status: "quote" | "order" | "paid" | "cancelled" | "returned"
@@ -1457,6 +1519,13 @@ export const Constants = {
         "no_show",
       ],
       customer_status: ["lead", "active", "inactive"],
+      ecommerce_platform: [
+        "shopify",
+        "woocommerce",
+        "nuvemshop",
+        "mercado_livre",
+        "custom",
+      ],
       org_plan: ["basic", "pro", "premium"],
       org_role: ["owner", "staff"],
       sale_status: ["quote", "order", "paid", "cancelled", "returned"],
