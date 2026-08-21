@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Assistente de IA otimizado em todo o sistema.
+// IA Assistente ajustada em todo o sistema.
+
 
 
 
