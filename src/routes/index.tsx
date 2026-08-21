@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// qnd ajusto as opcoes da erro de token
+// Ajustes realizados: Mensagens de erro de token clarificadas e limites de integração adicionados aos planos.
+
 
 
 import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
