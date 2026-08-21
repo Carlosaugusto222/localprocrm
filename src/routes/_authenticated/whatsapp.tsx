@@ -22,7 +22,7 @@ import {
   sendWaReply, 
   setWaConversationStatus 
 } from "@/lib/wa.functions";
-import { suggestWaReply } from "@/lib/wa-ai.functions";
+import { suggestWaReplyAction } from "@/lib/wa-ai.functions";
 
 export const Route = createFileRoute("/_authenticated/whatsapp")({
   head: () => ({ meta: [{ title: "WhatsApp AI — LocalPro CRM" }] }),
@@ -72,7 +72,7 @@ function WhatsAppInbox() {
   const listMessagesFn = useServerFn(listWaMessages);
   const sendReplyFn = useServerFn(sendWaReply);
   const setStatusFn = useServerFn(setWaConversationStatus);
-  const suggestReplyFn = useServerFn(suggestWaReply);
+  const suggestReplyFn = useServerFn(suggestWaReplyAction);
   const [isSuggesting, setIsSuggesting] = useState(false);
 
   const { data: conversations = [], isLoading: loadingConvs } = useQuery({
