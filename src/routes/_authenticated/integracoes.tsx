@@ -55,6 +55,9 @@ function IntegracoesPage() {
           api_secret: values.api_secret,
           shop_url: values.shop_url,
           is_active: values.is_active,
+          custom_api_url: values.custom_api_url,
+          sync_orders_endpoint: values.sync_orders_endpoint,
+          sync_products_endpoint: values.sync_products_endpoint,
           updated_at: new Date().toISOString(),
         }, { onConflict: 'organization_id, platform' });
       if (error) throw error;
