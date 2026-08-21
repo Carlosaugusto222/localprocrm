@@ -8,9 +8,9 @@ const URL = "https://localprocrm.lovable.app/precos";
 const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
 
 const plans = [
-  { name: "Básico", price: "49", desc: "Para começar com o essencial.", features: ["CRM completo", "Clientes ilimitados", "Tags e funil", "Gestão de estoque", "Suporte por e-mail"], cta: "Começar grátis" },
-  { name: "Profissional", price: "99", desc: "CRM + Agenda + Financeiro + OS.", features: ["Tudo do Básico", "Agenda completa", "Ordens de serviço (OS)", "PDV / Frente de Caixa", "Controle financeiro", "Relatórios e exportações"], cta: "Assinar profissional", featured: true },
-  { name: "Premium", price: "199", desc: "Todos os módulos + IA + PDV.", features: ["Tudo do Profissional", "Assistente IA & Marketing", "WhatsApp Centralizado", "Loja Própria & Integrações", "Audit Log completo", "Super Admin"], cta: "Falar com vendas" },
+  { name: "Básico", price: "49", desc: "Para começar com o essencial.", features: ["CRM completo", "Clientes ilimitados", "Tags e funil", "Gestão de estoque", "Suporte por e-mail", "Loja Própria (até 50 itens)"], cta: "Começar grátis" },
+  { name: "Profissional", price: "99", desc: "CRM + Agenda + Financeiro + OS.", features: ["Tudo do Básico", "Agenda completa", "Ordens de serviço (OS)", "PDV / Frente de Caixa", "Controle financeiro", "Relatórios e exportações", "Integrações E-commerce (1 plataforma)"], cta: "Assinar profissional", featured: true },
+  { name: "Premium", price: "199", desc: "Todos os módulos + IA + PDV.", features: ["Tudo do Profissional", "Assistente IA & Marketing", "WhatsApp Centralizado", "Loja Própria ilimitada", "Integrações ilimitadas", "Audit Log completo", "Super Admin"], cta: "Falar com vendas" },
 ];
 
 export const Route = createFileRoute("/precos")({

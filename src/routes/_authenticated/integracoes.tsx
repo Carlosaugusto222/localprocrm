@@ -68,7 +68,11 @@ function IntegracoesPage() {
       setSelectedPlatform(null);
     },
     onError: (error: any) => {
-      toast.error('Erro ao salvar integração: ' + error.message);
+      if (error.message?.includes('token') || error.message?.includes('auth') || error.message?.includes('key')) {
+        toast.error('Erro de autenticação: Verifique se sua Chave de API ou Token estão corretos e têm as permissões necessárias.');
+      } else {
+        toast.error('Erro ao salvar integração: ' + error.message);
+      }
     },
   });
 
