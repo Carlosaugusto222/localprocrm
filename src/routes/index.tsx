@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Assistente de IA otimizado em todo o sistema, incluindo insights no dashboard e sugestões no WhatsApp.
+// Assistente de IA otimizado em todo o sistema.
+
 
 
 
