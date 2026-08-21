@@ -1,5 +1,9 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Ajustes realizados: Mensagens de erro de token clarificadas e limites de integração adicionados aos planos.
+// ajuste o assistnte de IA em todo sistema, e certifique se esta tudo funcionando
+
+
+
+
 
 
 

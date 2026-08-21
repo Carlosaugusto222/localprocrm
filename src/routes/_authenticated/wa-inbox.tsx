@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bot, User, Send, MessageCircle, CircleDot } from "lucide-react";
+import { Bot, User, Send, MessageCircle, CircleDot, Sparkles, Loader2 } from "lucide-react";
 import { PageContainer, PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/hooks/use-current-org";
 import { listWaConversations, listWaMessages, sendWaReply, setWaConversationStatus } from "@/lib/wa.functions";
+import { suggestWaReplyAction } from "@/lib/wa-ai.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/wa-inbox")({
@@ -25,6 +26,7 @@ function WaInboxPage() {
   const fetchMsgs = useServerFn(listWaMessages);
   const sendReply = useServerFn(sendWaReply);
   const setStatus = useServerFn(setWaConversationStatus);
+  const getSuggestion = useServerFn(suggestWaReplyAction);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
@@ -54,6 +56,14 @@ function WaInboxPage() {
   const updateStatus = useMutation({
     mutationFn: (status: "bot" | "human" | "closed") => setStatus({ data: { conversationId: selectedId!, status } }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["wa_convs"] }); toast.success("Status atualizado"); },
+  });
+
+  const suggest = useMutation({
+    mutationFn: () => getSuggestion({ data: { organizationId: org!.id, conversationId: selectedId! } }),
+    onSuccess: (res: any) => {
+      if (res.suggestion) setDraft(res.suggestion);
+    },
+    onError: (e: any) => toast.error("Falha ao gerar sugestão: " + e.message),
   });
 
   return (
@@ -131,13 +141,29 @@ function WaInboxPage() {
                 ))}
               </div>
               <div className="p-3 border-t flex gap-2">
-                <Textarea
-                  rows={2}
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  placeholder="Mensagem manual (a IA pausa enquanto o status estiver em 'humano')"
-                  onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (draft.trim()) send.mutate(); } }}
-                />
+                <div className="flex flex-col gap-2 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Mensagem</span>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-7 text-[10px] gap-1 px-2" 
+                      disabled={suggest.isPending}
+                      onClick={() => suggest.mutate()}
+                    >
+                      {suggest.isPending ? <Loader2 className="size-3 animate-spin" /> : <Sparkles className="size-3 text-primary" />}
+                      Sugerir com IA
+                    </Button>
+                  </div>
+                  <Textarea
+                    rows={2}
+                    value={draft}
+                    onChange={e => setDraft(e.target.value)}
+                    placeholder="Mensagem manual (a IA pausa enquanto o status estiver em 'humano')"
+                    onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (draft.trim()) send.mutate(); } }}
+                  />
+                </div>
                 <Button onClick={() => send.mutate()} disabled={!draft.trim() || send.isPending} className="gap-1 self-end">
                   <Send className="size-4" /> Enviar
                 </Button>
