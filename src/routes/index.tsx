@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// ajuste o assistnte de IA em todo sistema, e certifique se esta tudo funcionando
+// Erro "invalid input syntax for type time: """ corrigido ao salvar planos e módulos.
+
 
 
 

@@ -60,9 +60,13 @@ function Settings() {
   const save = useMutation({
     mutationFn: async () => {
       if (!org) return;
-      const { error } = await supabase.from("organizations").update({
-        ...form, enabled_modules: Array.from(modules),
-      }).eq("id", org.id);
+      const updateData = { ...form, enabled_modules: Array.from(modules) };
+      
+      // Fix potential "invalid input syntax for type time: """ by ensuring empty strings are sent as null
+      if (updateData.cash_auto_open_time === "") updateData.cash_auto_open_time = null;
+      if (updateData.cash_auto_close_time === "") updateData.cash_auto_close_time = null;
+
+      const { error } = await supabase.from("organizations").update(updateData).eq("id", org.id);
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ["organizations"] }); toast.success("Configurações salvas"); },
