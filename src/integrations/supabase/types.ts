@@ -294,12 +294,15 @@ export type Database = {
           api_secret: string | null
           config: Json | null
           created_at: string | null
+          custom_api_url: string | null
           id: string
           is_active: boolean | null
           last_sync_at: string | null
           organization_id: string
           platform: Database["public"]["Enums"]["ecommerce_platform"]
           shop_url: string | null
+          sync_orders_endpoint: string | null
+          sync_products_endpoint: string | null
           updated_at: string | null
           webhook_secret: string | null
         }
@@ -309,12 +312,15 @@ export type Database = {
           api_secret?: string | null
           config?: Json | null
           created_at?: string | null
+          custom_api_url?: string | null
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
           organization_id: string
           platform: Database["public"]["Enums"]["ecommerce_platform"]
           shop_url?: string | null
+          sync_orders_endpoint?: string | null
+          sync_products_endpoint?: string | null
           updated_at?: string | null
           webhook_secret?: string | null
         }
@@ -324,12 +330,15 @@ export type Database = {
           api_secret?: string | null
           config?: Json | null
           created_at?: string | null
+          custom_api_url?: string | null
           id?: string
           is_active?: boolean | null
           last_sync_at?: string | null
           organization_id?: string
           platform?: Database["public"]["Enums"]["ecommerce_platform"]
           shop_url?: string | null
+          sync_orders_endpoint?: string | null
+          sync_products_endpoint?: string | null
           updated_at?: string | null
           webhook_secret?: string | null
         }
