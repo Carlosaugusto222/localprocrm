@@ -20,12 +20,13 @@ import {
   listWaConversations, 
   listWaMessages, 
   sendWaReply, 
-  setWaConversationStatus 
+  setWaConversationStatus,
+  sendWaTypingIndicator
 } from "@/lib/wa.functions";
 import { suggestWaReplyAction } from "@/lib/wa-ai.functions";
 
 export const Route = createFileRoute("/_authenticated/whatsapp")({
-  head: () => ({ meta: [{ title: "WhatsApp AI — LocalPro CRM" }] }),
+  head: () => ({ meta: [{ title: "WhatsApp AI â€” LocalPro CRM" }] }),
   component: WhatsAppPage,
 });
 
@@ -45,7 +46,7 @@ function WhatsAppPage() {
             <MessageSquare className="size-4" /> Caixa de Entrada
           </TabsTrigger>
           <TabsTrigger value="config" className="gap-2">
-            <Settings className="size-4" /> Configuração
+            <Settings className="size-4" /> ConfiguraÃ§Ã£o
           </TabsTrigger>
         </TabsList>
 
@@ -66,6 +67,7 @@ function WhatsAppInbox() {
   const qc = useQueryClient();
   const [selectedConvId, setSelectedConvId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const typingTimeoutRef = useRef<any>(null);
   const [msgInput, setMsgInput] = useState("");
   
   const listConversationsFn = useServerFn(listWaConversations);
@@ -73,6 +75,7 @@ function WhatsAppInbox() {
   const sendReplyFn = useServerFn(sendWaReply);
   const setStatusFn = useServerFn(setWaConversationStatus);
   const suggestReplyFn = useServerFn(suggestWaReplyAction);
+  const sendTypingFn = useServerFn(sendWaTypingIndicator);
   const [isSuggesting, setIsSuggesting] = useState(false);
 
   const { data: conversations = [], isLoading: loadingConvs } = useQuery({
@@ -135,9 +138,19 @@ function WhatsAppInbox() {
       });
       if (suggestion) setMsgInput(suggestion);
     } catch (error) {
-      toast.error("Erro ao gerar sugestão");
+      toast.error("Erro ao gerar sugestÃ£o");
     } finally {
       setIsSuggesting(false);
+    }
+  };
+
+  const handleTyping = () => {
+    if (!org || !selectedConvId || selectedConv?.status === "bot") return;
+    if (!typingTimeoutRef.current) {
+      sendTypingFn({ data: { organizationId: org.id, conversationId: selectedConvId } }).catch(() => {});
+      typingTimeoutRef.current = setTimeout(() => {
+        typingTimeoutRef.current = null;
+      }, 3000);
     }
   };
 
@@ -213,7 +226,7 @@ function WhatsAppInbox() {
                       <div className="size-1.5 rounded-full bg-success" />
                       Ativo
                     </span>
-                    <span>•</span>
+                    <span>â€¢</span>
                     <span>{selectedConv?.wa_phone}</span>
                   </div>
                 </div>
@@ -291,9 +304,12 @@ function WhatsAppInbox() {
                 className="flex gap-2"
               >
                 <Input 
-                  placeholder={selectedConv?.status === 'bot' ? "IA está respondendo... (Assuma para digitar)" : "Digite sua mensagem..."} 
+                  placeholder={selectedConv?.status === 'bot' ? "IA estÃ¡ respondendo... (Assuma para digitar)" : "Digite sua mensagem..."} 
                   value={msgInput}
-                  onChange={(e) => setMsgInput(e.target.value)}
+                  onChange={(e) => {
+                    setMsgInput(e.target.value);
+                    handleTyping();
+                  }}
                   disabled={selectedConv?.status === 'bot' || sendMutation.isPending}
                   className="flex-1"
                 />
@@ -310,7 +326,7 @@ function WhatsAppInbox() {
             </div>
             <h3 className="font-semibold text-lg text-foreground">Sua Caixa de Entrada</h3>
             <p className="max-w-xs mt-2 text-sm">
-              Selecione uma conversa ao lado para visualizar o histórico e interagir com o cliente.
+              Selecione uma conversa ao lado para visualizar o histÃ³rico e interagir com o cliente.
             </p>
           </div>
         )}
@@ -333,7 +349,7 @@ function WhatsAppConfig() {
   const saveMutation = useMutation({
     mutationFn: (values: any) => saveChannelFn({ data: { ...values, organizationId: org!.id } }),
     onSuccess: () => {
-      toast.success("Configuração salva com sucesso!");
+      toast.success("ConfiguraÃ§Ã£o salva com sucesso!");
       refetch();
     },
     onError: (e: any) => toast.error("Erro ao salvar: " + e.message)
@@ -362,7 +378,7 @@ function WhatsAppConfig() {
   const webhookUrl = `https://localprocrm.lovable.app/api/public/wa.webhook`;
   const verifyToken = channel?.verify_token || "lp_" + Math.random().toString(36).substring(7);
 
-  if (isLoading) return <div className="text-center py-20 text-muted-foreground">Carregando configurações...</div>;
+  if (isLoading) return <div className="text-center py-20 text-muted-foreground">Carregando configuraÃ§Ãµes...</div>;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
@@ -386,7 +402,7 @@ function WhatsAppConfig() {
             <div className="space-y-2">
               <label className="text-sm font-medium">Access Token Permanente (System User)</label>
               <Input name="access_token" type="password" defaultValue={channel?.access_token || ""} placeholder="EAABw..." required />
-              <p className="text-[10px] text-muted-foreground italic">Use um token de longa duração gerado no painel do desenvolvedor Meta.</p>
+              <p className="text-[10px] text-muted-foreground italic">Use um token de longa duraÃ§Ã£o gerado no painel do desenvolvedor Meta.</p>
             </div>
 
             <div className="space-y-2">
@@ -396,11 +412,11 @@ function WhatsAppConfig() {
 
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Instruções de Personalidade (Prompt do Sistema)</label>
+                <label className="text-sm font-medium">InstruÃ§Ãµes de Personalidade (Prompt do Sistema)</label>
                 <textarea 
                   name="system_prompt" 
                   defaultValue={channel?.system_prompt || ""}
-                  placeholder="Ex: Você é o atendente da Barbearia X. Responda educadamente..."
+                  placeholder="Ex: VocÃª Ã© o atendente da Barbearia X. Responda educadamente..."
                   className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
               </div>
@@ -411,7 +427,7 @@ function WhatsAppConfig() {
                   <Input 
                     name="tone_of_voice" 
                     defaultValue={channel?.tone_of_voice || ""} 
-                    placeholder="Ex: Profissional, Amigável, Jovem..." 
+                    placeholder="Ex: Profissional, AmigÃ¡vel, Jovem..." 
                   />
                 </div>
                 <div className="space-y-2">
@@ -419,17 +435,17 @@ function WhatsAppConfig() {
                   <Input 
                     name="campaign_goals" 
                     defaultValue={channel?.campaign_goals || ""} 
-                    placeholder="Ex: Agendar serviços, Vender combos..." 
+                    placeholder="Ex: Agendar serviÃ§os, Vender combos..." 
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Restrições e Regras de Negócio</label>
+                <label className="text-sm font-medium">RestriÃ§Ãµes e Regras de NegÃ³cio</label>
                 <textarea 
                   name="ai_restrictions" 
                   defaultValue={channel?.ai_restrictions || ""}
-                  placeholder="Ex: Máximo de 10% de desconto. Não falar de política..."
+                  placeholder="Ex: MÃ¡ximo de 10% de desconto. NÃ£o falar de polÃ­tica..."
                   className="w-full min-h-[80px] rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
               </div>
@@ -450,7 +466,7 @@ function WhatsAppConfig() {
             <input type="hidden" name="verify_token" value={verifyToken} />
 
             <Button type="submit" disabled={saveMutation.isPending} className="w-full sm:w-auto">
-              {saveMutation.isPending ? "Salvando..." : "Salvar Configurações"}
+              {saveMutation.isPending ? "Salvando..." : "Salvar ConfiguraÃ§Ãµes"}
             </Button>
           </form>
         </Card>
@@ -489,10 +505,10 @@ function WhatsAppConfig() {
               <div className="text-xs space-y-2">
                 <p className="font-semibold">Como configurar no Meta Developers:</p>
                 <ol className="list-decimal pl-4 space-y-1">
-                  <li>No seu app Meta, vá em <strong>WhatsApp &gt; Configuration</strong>.</li>
+                  <li>No seu app Meta, vÃ¡ em <strong>WhatsApp &gt; Configuration</strong>.</li>
                   <li>Clique em <strong>Edit</strong> no Webhook.</li>
                   <li>Cole a <strong>Callback URL</strong> e o <strong>Verify Token</strong> acima.</li>
-                  <li>Após salvar, em "Webhook fields", clique em <strong>Manage</strong> e assine o campo <strong>messages</strong>.</li>
+                  <li>ApÃ³s salvar, em "Webhook fields", clique em <strong>Manage</strong> e assine o campo <strong>messages</strong>.</li>
                 </ol>
               </div>
             </div>
@@ -502,7 +518,7 @@ function WhatsAppConfig() {
 
       <div className="space-y-6">
         <Card className="p-6">
-          <h3 className="font-semibold mb-4">Status da Conexão</h3>
+          <h3 className="font-semibold mb-4">Status da ConexÃ£o</h3>
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 rounded-lg bg-accent/50">
               <span className="text-sm">Webhook</span>

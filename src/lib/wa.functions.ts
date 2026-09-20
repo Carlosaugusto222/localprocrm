@@ -136,3 +136,46 @@ export const setWaConversationStatus = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const sendWaTypingIndicator = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => z.object({
+    organizationId: z.string().uuid(),
+    conversationId: z.string().uuid(),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { data: conv } = await context.supabase
+      .from("wa_conversations")
+      .select("id,wa_phone,channel_id,organization_id")
+      .eq("id", data.conversationId)
+      .maybeSingle();
+    if (!conv || conv.organization_id !== data.organizationId) throw new Error("Conversa não encontrada");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: channel } = await supabaseAdmin
+      .from("wa_channels").select("phone_number_id,access_token").eq("id", conv.channel_id).maybeSingle();
+    if (!channel) throw new Error("Canal não configurado");
+
+    const url = `https://graph.facebook.com/v19.0/${channel.phone_number_id}/messages`;
+    const payload = {
+      messaging_product: "whatsapp",
+      to: conv.wa_phone,
+      type: "sender_action",
+      sender_action: "typing_on"
+    };
+
+    try {
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${channel.access_token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      // Ignorar erros na API da Meta
+    }
+
+    return { ok: true };
+  });

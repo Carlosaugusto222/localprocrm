@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bot, User, Send, MessageCircle, CircleDot, Sparkles, Loader2 } from "lucide-react";
@@ -10,12 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useCurrentOrg } from "@/hooks/use-current-org";
-import { listWaConversations, listWaMessages, sendWaReply, setWaConversationStatus } from "@/lib/wa.functions";
+import { listWaConversations, listWaMessages, sendWaReply, setWaConversationStatus, sendWaTypingIndicator } from "@/lib/wa.functions";
 import { suggestWaReplyAction } from "@/lib/wa-ai.functions";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/wa-inbox")({
-  head: () => ({ meta: [{ title: "WhatsApp — Caixa de entrada" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({ meta: [{ title: "WhatsApp â€” Caixa de entrada" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: WaInboxPage,
 });
 
@@ -27,9 +27,11 @@ function WaInboxPage() {
   const sendReply = useServerFn(sendWaReply);
   const setStatus = useServerFn(setWaConversationStatus);
   const getSuggestion = useServerFn(suggestWaReplyAction);
+  const sendTypingFn = useServerFn(sendWaTypingIndicator);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const typingTimeoutRef = useRef<any>(null);
 
   const { data: convs = [] } = useQuery({
     enabled: !!org?.id,
@@ -63,8 +65,18 @@ function WaInboxPage() {
     onSuccess: (res: any) => {
       if (res.suggestion) setDraft(res.suggestion);
     },
-    onError: (e: any) => toast.error("Falha ao gerar sugestão: " + e.message),
+    onError: (e: any) => toast.error("Falha ao gerar sugestÃ£o: " + e.message),
   });
+
+  const handleTyping = () => {
+    if (!org || !selectedId || selected?.status === "bot") return;
+    if (!typingTimeoutRef.current) {
+      sendTypingFn({ data: { organizationId: org.id, conversationId: selectedId } }).catch(() => {});
+      typingTimeoutRef.current = setTimeout(() => {
+        typingTimeoutRef.current = null;
+      }, 3000);
+    }
+  };
 
   return (
     <PageContainer>
@@ -119,7 +131,7 @@ function WaInboxPage() {
                 <div className="flex gap-2">
                   <StatusPill status={selected.status} />
                   {selected.status !== "human" && <Button size="sm" variant="outline" onClick={() => updateStatus.mutate("human")}>Assumir</Button>}
-                  {selected.status !== "bot" && <Button size="sm" variant="outline" onClick={() => updateStatus.mutate("bot")}>Devolver à IA</Button>}
+                  {selected.status !== "bot" && <Button size="sm" variant="outline" onClick={() => updateStatus.mutate("bot")}>Devolver Ã  IA</Button>}
                   {selected.status !== "closed" && <Button size="sm" variant="ghost" onClick={() => updateStatus.mutate("closed")}>Encerrar</Button>}
                 </div>
               </div>
@@ -134,7 +146,7 @@ function WaInboxPage() {
                         {m.ai_used && <Bot className="size-3" />}
                         {!m.ai_used && m.direction === "out" && <User className="size-3" />}
                         {new Date(m.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
-                        {m.error && <span className="text-destructive">· {m.error}</span>}
+                        {m.error && <span className="text-destructive">Â· {m.error}</span>}
                       </div>
                     </div>
                   </div>
@@ -159,7 +171,10 @@ function WaInboxPage() {
                   <Textarea
                     rows={2}
                     value={draft}
-                    onChange={e => setDraft(e.target.value)}
+                    onChange={e => {
+                      setDraft(e.target.value);
+                      handleTyping();
+                    }}
                     placeholder="Mensagem manual (a IA pausa enquanto o status estiver em 'humano')"
                     onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (draft.trim()) send.mutate(); } }}
                   />
