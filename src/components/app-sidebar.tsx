@@ -109,7 +109,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild isActive={pathname.startsWith("/super-admin")}>
                     <Link to="/super-admin" className="flex items-center gap-2">
-                      <ShieldCheck className="size-4" /><span>Super Admin</span>
+                      <ShieldCheck className="size-4" /><span>Painel Admin</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

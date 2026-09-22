@@ -7,13 +7,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/super-admin")({
-  head: () => ({ meta: [{ title: "Super Admin — LocalPro CRM" }] }),
+  head: () => ({ meta: [{ title: "Painel Admin — LocalPro CRM" }] }),
   beforeLoad: async () => {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) throw redirect({ to: "/auth" });
@@ -113,7 +114,7 @@ function SuperAdmin() {
   return (
     <PageContainer>
       <PageHeader
-        title="Super Admin"
+        title="Painel Admin"
         description="Métricas globais de todas as empresas na plataforma."
         actions={
           <Badge className="gap-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/30" variant="outline">
@@ -122,100 +123,125 @@ function SuperAdmin() {
         }
       />
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatCard icon={Building2} label="Empresas" value={orgs.length.toString()} />
-        <StatCard icon={Users} label="Usuários" value={String(counts?.users ?? 0)} />
-        <StatCard icon={TrendingUp} label="Clientes (total)" value={String(counts?.customers ?? 0)} />
-        <StatCard icon={Crown} label="Receita agregada" value={brl(counts?.revenue ?? 0)} />
-      </div>
+      <Tabs defaultValue="visao-geral" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="visao-geral">Visão Geral</TabsTrigger>
+          <TabsTrigger value="empresas">Empresas</TabsTrigger>
+          <TabsTrigger value="sistema">Sistema</TabsTrigger>
+        </TabsList>
 
-      <div className="grid lg:grid-cols-3 gap-4 mb-6">
-        {(["basic", "pro", "premium"] as const).map(plan => (
-          <Card key={plan}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground capitalize">Plano {plan}</CardTitle>
+        <TabsContent value="visao-geral" className="space-y-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <StatCard icon={Building2} label="Empresas" value={orgs.length.toString()} />
+            <StatCard icon={Users} label="Usuários" value={String(counts?.users ?? 0)} />
+            <StatCard icon={TrendingUp} label="Clientes (total)" value={String(counts?.customers ?? 0)} />
+            <StatCard icon={Crown} label="Receita agregada" value={brl(counts?.revenue ?? 0)} />
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-4 mb-6">
+            {("basic" as const, "pro" as const, "premium" as const, ["basic", "pro", "premium"] as const).map(plan => (
+              <Card key={plan}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground capitalize">Plano {plan}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-3xl font-display font-bold">{planBreakdown[plan] ?? 0}</p>
+                  <p className="text-xs text-muted-foreground mt-1">empresas ativas</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="empresas">
+          <Card>
+            <CardHeader>
+              <CardTitle>Empresas cadastradas</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-display font-bold">{planBreakdown[plan] ?? 0}</p>
-              <p className="text-xs text-muted-foreground mt-1">empresas ativas</p>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Segmento</TableHead>
+                      <TableHead>Plano</TableHead>
+                      <TableHead>Criada em</TableHead>
+                      <TableHead className="text-right">Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {lo && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Carregando...</TableCell>
+                      </TableRow>
+                    )}
+                    {!lo && orgs.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nenhuma empresa.</TableCell>
+                      </TableRow>
+                    )}
+                    {orgs.map(o => (
+                      <TableRow key={o.id}>
+                        <TableCell className="font-medium">
+                          <div>{o.name}</div>
+                          <div className="text-[10px] text-muted-foreground font-mono">{o.slug}</div>
+                        </TableCell>
+                        <TableCell className="text-sm">{o.segment ?? "—"}</TableCell>
+                        <TableCell>
+                          <Select
+                            defaultValue={o.plan}
+                            onValueChange={(plan) => updatePlan.mutate({ id: o.id, plan })}
+                          >
+                            <SelectTrigger className="h-8 w-28 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="basic">Básico</SelectItem>
+                              <SelectItem value="pro">Profissional</SelectItem>
+                              <SelectItem value="premium">Premium</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-sm">
+                          {format(new Date(o.created_at), "dd/MM/yyyy", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => {
+                              if (confirm(`TEM CERTEZA? Isso excluirá permanentemente a empresa "${o.name}" e TODOS os seus dados (clientes, vendas, agenda). Esta ação não pode ser desfeita.`)) {
+                                deleteOrg.mutate(o.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="size-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
+        </TabsContent>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Empresas cadastradas</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Segmento</TableHead>
-                  <TableHead>Plano</TableHead>
-                  <TableHead>Criada em</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {lo && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Carregando...</TableCell>
-                  </TableRow>
-                )}
-                {!lo && orgs.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">Nenhuma empresa.</TableCell>
-                  </TableRow>
-                )}
-                {orgs.map(o => (
-                  <TableRow key={o.id}>
-                    <TableCell className="font-medium">
-                      <div>{o.name}</div>
-                      <div className="text-[10px] text-muted-foreground font-mono">{o.slug}</div>
-                    </TableCell>
-                    <TableCell className="text-sm">{o.segment ?? "—"}</TableCell>
-                    <TableCell>
-                      <Select
-                        defaultValue={o.plan}
-                        onValueChange={(plan) => updatePlan.mutate({ id: o.id, plan })}
-                      >
-                        <SelectTrigger className="h-8 w-28 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="basic">Básico</SelectItem>
-                          <SelectItem value="pro">Profissional</SelectItem>
-                          <SelectItem value="premium">Premium</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-sm">
-                      {format(new Date(o.created_at), "dd/MM/yyyy", { locale: ptBR })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => {
-                          if (confirm(`TEM CERTEZA? Isso excluirá permanentemente a empresa "${o.name}" e TODOS os seus dados (clientes, vendas, agenda). Esta ação não pode ser desfeita.`)) {
-                            deleteOrg.mutate(o.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
+        <TabsContent value="sistema">
+          <Card>
+            <CardHeader>
+              <CardTitle>Configurações do Sistema</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Em breve: configurações globais, logs de auditoria de segurança e controle de feature flags para a plataforma.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </PageContainer>
   );
 }
