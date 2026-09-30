@@ -9,6 +9,14 @@ import { Layout, Globe, Smartphone, Palette, Zap, Check, Sparkles } from 'lucide
 import { StoreCatalog } from '@/components/store-catalog';
 
 export const Route = createFileRoute('/_authenticated/loja-propria')({
+  head: () => ({ meta: [
+    { title: 'Loja Própria — LocalPro CRM' },
+    { name: 'description', content: 'Gerencie o catálogo da sua loja no LocalPro CRM.' },
+    { property: 'og:title', content: 'Loja Própria — LocalPro CRM' },
+    { property: 'og:description', content: 'Gerencie o catálogo da sua loja no LocalPro CRM.' },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary' },
+  ] }),
   component: LojaPropriaPage,
 });
 

@@ -14,6 +14,7 @@ import { Route as SegmentosRouteImport } from './routes/segmentos'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PrecosRouteImport } from './routes/precos'
+import { Route as LocalproRouteImport } from './routes/localpro'
 import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -72,6 +73,11 @@ const RecursosRoute = RecursosRouteImport.update({
 const PrecosRoute = PrecosRouteImport.update({
   id: '/precos',
   path: '/precos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalproRoute = LocalproRouteImport.update({
+  id: '/localpro',
+  path: '/localpro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContatoRoute = ContatoRouteImport.update({
@@ -252,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
+  '/localpro': typeof LocalproRoute
   '/precos': typeof PrecosRoute
   '/recursos': typeof RecursosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -292,6 +299,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
+  '/localpro': typeof LocalproRoute
   '/precos': typeof PrecosRoute
   '/recursos': typeof RecursosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -334,6 +342,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/contato': typeof ContatoRoute
+  '/localpro': typeof LocalproRoute
   '/precos': typeof PrecosRoute
   '/recursos': typeof RecursosRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -376,6 +385,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/contato'
+    | '/localpro'
     | '/precos'
     | '/recursos'
     | '/reset-password'
@@ -416,6 +426,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/contato'
+    | '/localpro'
     | '/precos'
     | '/recursos'
     | '/reset-password'
@@ -457,6 +468,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/contato'
+    | '/localpro'
     | '/precos'
     | '/recursos'
     | '/reset-password'
@@ -499,6 +511,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ContatoRoute: typeof ContatoRoute
+  LocalproRoute: typeof LocalproRoute
   PrecosRoute: typeof PrecosRoute
   RecursosRoute: typeof RecursosRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -544,6 +557,13 @@ declare module '@tanstack/react-router' {
       path: '/precos'
       fullPath: '/precos'
       preLoaderRoute: typeof PrecosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/localpro': {
+      id: '/localpro'
+      path: '/localpro'
+      fullPath: '/localpro'
+      preLoaderRoute: typeof LocalproRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contato': {
@@ -874,6 +894,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ContatoRoute: ContatoRoute,
+  LocalproRoute: LocalproRoute,
   PrecosRoute: PrecosRoute,
   RecursosRoute: RecursosRoute,
   ResetPasswordRoute: ResetPasswordRoute,

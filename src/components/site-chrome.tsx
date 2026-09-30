@@ -6,7 +6,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-30 surface-glass">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/localpro" className="flex items-center gap-2">
           <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-chart-4 grid place-items-center text-primary-foreground">
             <Zap className="size-4" />
           </div>
@@ -19,6 +19,7 @@ export function SiteHeader() {
           <Link to="/contato" className="hover:text-foreground">Contato</Link>
         </nav>
         <div className="flex items-center gap-2">
+          <Link to="/" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground">MCX Digital</Link>
           <Link to="/auth"><Button variant="ghost" size="sm">Entrar</Button></Link>
           <Link to="/auth"><Button size="sm" className="gap-1">Criar conta <ArrowRight className="size-3.5" /></Button></Link>
         </div>

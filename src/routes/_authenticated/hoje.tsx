@@ -15,6 +15,14 @@ import { cn } from "@/lib/utils";
 
 
 export const Route = createFileRoute("/_authenticated/hoje")({
+  head: () => ({ meta: [
+    { title: "Hoje — LocalPro CRM" },
+    { name: "description", content: "Acompanhe os atendimentos, vendas e tarefas de hoje no LocalPro CRM." },
+    { property: "og:title", content: "Hoje — LocalPro CRM" },
+    { property: "og:description", content: "Acompanhe os atendimentos, vendas e tarefas de hoje no LocalPro CRM." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: HojePage,
 });
 

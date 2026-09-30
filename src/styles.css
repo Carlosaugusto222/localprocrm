@@ -220,3 +220,14 @@ div[style*="Edit with Lovable"],
   position: absolute !important;
   z-index: -9999 !important;
 }
+
+/* MCX's imported presentation has its own palette; application tokens remain unchanged. */
+@theme inline {
+  --color-mcx-surface: #080a0e;
+  --color-mcx-ink: #f8fafc;
+  --color-mcx-soft: #cbd5e1;
+  --color-mcx-muted: #94a3b8;
+  --color-mcx-brand: #3b82f6;
+  --color-mcx-brand-strong: #2563eb;
+  --color-mcx-highlight: #60a5fa;
+}

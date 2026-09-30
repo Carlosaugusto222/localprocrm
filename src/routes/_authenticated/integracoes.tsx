@@ -15,6 +15,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const Route = createFileRoute('/_authenticated/integracoes')({
+  head: () => ({ meta: [
+    { title: 'Integrações — LocalPro CRM' },
+    { name: 'description', content: 'Configure as integrações da sua loja com o LocalPro CRM.' },
+    { property: 'og:title', content: 'Integrações — LocalPro CRM' },
+    { property: 'og:description', content: 'Configure as integrações da sua loja com o LocalPro CRM.' },
+    { property: 'og:type', content: 'website' },
+    { name: 'twitter:card', content: 'summary' },
+  ] }),
   component: IntegracoesPage,
 });
 
