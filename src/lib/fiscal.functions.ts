@@ -92,7 +92,7 @@ export const issueFiscalDocument = createServerFn({ method: 'POST' }).middleware
       if (lines.some((line: any) => line.products?.kind === 'service')) throw new Error('A NFC-e não pode conter serviços. Separe os serviços para NFS-e.');
       const payment: Record<string, string> = { cash: '01', credit: '03', debit: '04', pix: '17', boleto: '15', transfer: '18' };
       if (!payment[sale.payment_method ?? '']) throw new Error('Forma de pagamento incompatível com emissão fiscal.');
-      const items = lines.map((line: any, index: number) => {
+      const items: Record<string, any>[] = lines.map((line: any, index: number) => {
         const p = line.products;
         if (!p?.sku || !p.fiscal_ncm || !p.fiscal_cfop || !p.fiscal_icms_origin || !p.fiscal_icms_cst) throw new Error(`Complete SKU, NCM, CFOP, origem e CST/CSOSN de ${line.description} no Estoque.`);
         return { numero_item: String(index + 1), codigo_produto: p.sku, descricao: line.description, codigo_ncm: p.fiscal_ncm, cfop: p.fiscal_cfop,
