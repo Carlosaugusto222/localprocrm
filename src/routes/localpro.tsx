@@ -102,7 +102,7 @@ function Landing() {
             <Link to="/contato" className="hover:text-foreground">Contato</Link>
           </nav>
           <div className="flex items-center gap-2">
-            <Link to="/" className="hidden sm:inline text-sm text-muted-foreground hover:text-foreground mr-2">MCX Digital</Link>
+            <Link to="/" className="text-xs sm:text-sm text-muted-foreground hover:text-foreground mr-1">MCX</Link>
             <Link to="/auth"><Button variant="ghost" size="sm">Entrar</Button></Link>
             <Link to="/auth"><Button size="sm" className="gap-1">Criar conta <ArrowRight className="size-3.5" /></Button></Link>
           </div>

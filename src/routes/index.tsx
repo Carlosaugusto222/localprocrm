@@ -2,9 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { 
-  MessageSquare, 
-  Target, 
-  TrendingUp,
   Send,
   ArrowRight,
   ExternalLink,
@@ -68,7 +65,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-mcx-surface text-mcx-ink selection:bg-mcx-brand/30 font-sans">
       {/* 1. Hero Section */}
-      <section className="relative min-h-[min(760px,85svh)] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[min(720px,78svh)] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-mcx-surface/70 z-10" />
           <img 
@@ -112,7 +109,7 @@ function Index() {
       </section>
 
       {/* 2. Sobre a MCX Section */}
-      <section id="sobre" className="py-32 bg-mcx-surface border-y border-mcx-ink/5">
+      <section id="sobre" className="py-16 md:py-32 bg-mcx-surface border-y border-mcx-ink/5">
         <div className="container mx-auto px-4 text-center max-w-4xl">
           <motion.div
             initial={{ opacity: 0 }}
@@ -261,8 +258,6 @@ function Index() {
           </p>
           <Button asChild className="h-14 px-10 rounded-sm bg-mcx-ink text-mcx-brand-strong text-xs uppercase font-bold hover:bg-mcx-ink/90"><Link to="/contato">Solicitar diagnóstico</Link></Button>
         </div>
-        <div className="absolute top-0 right-0 w-96 h-96 bg-mcx-ink/10 rounded-full -mr-48 -mt-48 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-mcx-surface/10 rounded-full -ml-48 -mb-48 blur-3xl" />
       </section>
 
       {/* 6. Footer */}
