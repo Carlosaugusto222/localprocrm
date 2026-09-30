@@ -17,8 +17,10 @@ import { toast } from "sonner";
 import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
 import { generateBusinessPDF } from "@/lib/exporters";
+import { FiscalPanel } from "@/components/fiscal-panel";
 
 export const Route = createFileRoute("/_authenticated/os/$id")({
+  head: () => ({ meta: [{ title: "Ordem de serviço — LocalPro CRM" }, { name: "description", content: "Detalhes e emissão fiscal de ordens de serviço no LocalPro CRM." }, { property: "og:title", content: "Ordem de serviço — LocalPro CRM" }, { property: "og:description", content: "Detalhes e emissão fiscal de ordens de serviço no LocalPro CRM." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" }] }),
   component: OSDetail,
 });
 
@@ -241,6 +243,8 @@ function OSDetail() {
           )}
         </div>
       </div>
+
+      {org?.id && ['done', 'delivered'].includes(os.status) && <div className="mb-4"><FiscalPanel organizationId={org.id} originId={id} kind="nfse" /></div>}
 
       <div className="grid lg:grid-cols-3 gap-4">
         <Card className="lg:col-span-2">

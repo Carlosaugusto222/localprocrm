@@ -1,0 +1,1 @@
+CREATE POLICY fiscal_configs_server_only ON public.fiscal_configs FOR SELECT TO authenticated USING (false);
