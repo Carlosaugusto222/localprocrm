@@ -8,6 +8,14 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Scissors, Sparkles, Stethoscope, Wrench, UtensilsCrossed, Dumbbell, Building2, BookOpen, Calendar, Users, Wallet, ShoppingBag, MessageCircle, BarChart3, Settings, CheckCircle2, Lightbulb, Zap, ClipboardList, MonitorSmartphone, Package } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/guia")({
+  head: () => ({ meta: [
+    { title: "Guia de Uso — LocalPro CRM" },
+    { name: "description", content: "Orientações para usar o LocalPro CRM no seu negócio." },
+    { property: "og:title", content: "Guia de Uso — LocalPro CRM" },
+    { property: "og:description", content: "Orientações para usar o LocalPro CRM no seu negócio." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: GuiaPage,
 });
 
