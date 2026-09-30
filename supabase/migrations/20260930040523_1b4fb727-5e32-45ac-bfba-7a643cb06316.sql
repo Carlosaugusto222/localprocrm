@@ -1,0 +1,13 @@
+CREATE TABLE public.fiscal_configs (organization_id uuid PRIMARY KEY REFERENCES public.organizations(id) ON DELETE CASCADE, provider_token text, environment text NOT NULL DEFAULT 'homologation' CHECK (environment IN ('homologation','production')), accountant_approved boolean NOT NULL DEFAULT false, approved_at timestamptz, municipal_registration text, municipality_code text, simple_national boolean, service_code text, service_tax_rate numeric, service_iss_withheld boolean NOT NULL DEFAULT false, service_nature text, updated_at timestamptz NOT NULL DEFAULT now());
+GRANT ALL ON public.fiscal_configs TO service_role;
+ALTER TABLE public.fiscal_configs ENABLE ROW LEVEL SECURITY;
+CREATE TRIGGER fiscal_configs_touch BEFORE UPDATE ON public.fiscal_configs FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+CREATE TABLE public.fiscal_documents (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE, sale_id uuid REFERENCES public.sales(id), service_order_id uuid REFERENCES public.service_orders(id), kind text NOT NULL CHECK (kind IN ('nfce','nfse')), reference text NOT NULL, environment text NOT NULL CHECK (environment IN ('homologation','production')), status text NOT NULL DEFAULT 'pending', number text, access_key text, xml_url text, pdf_url text, error_message text, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now(), UNIQUE (organization_id, reference), CONSTRAINT fiscal_origin CHECK ((kind = 'nfce' AND sale_id IS NOT NULL AND service_order_id IS NULL) OR (kind = 'nfse' AND service_order_id IS NOT NULL AND sale_id IS NULL)));
+GRANT SELECT ON public.fiscal_documents TO authenticated;
+GRANT ALL ON public.fiscal_documents TO service_role;
+ALTER TABLE public.fiscal_documents ENABLE ROW LEVEL SECURITY;
+CREATE POLICY fiscal_documents_member_read ON public.fiscal_documents FOR SELECT TO authenticated USING (public.is_org_member(organization_id));
+CREATE UNIQUE INDEX fiscal_sale_once ON public.fiscal_documents(sale_id) WHERE kind = 'nfce';
+CREATE UNIQUE INDEX fiscal_os_once ON public.fiscal_documents(service_order_id) WHERE kind = 'nfse';
+CREATE TRIGGER fiscal_documents_touch BEFORE UPDATE ON public.fiscal_documents FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+ALTER TABLE public.products ADD COLUMN fiscal_ncm text, ADD COLUMN fiscal_cfop text, ADD COLUMN fiscal_icms_origin text, ADD COLUMN fiscal_icms_cst text, ADD COLUMN fiscal_unit text DEFAULT 'UN';

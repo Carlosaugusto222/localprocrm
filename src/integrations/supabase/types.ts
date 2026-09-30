@@ -352,6 +352,138 @@ export type Database = {
           },
         ]
       }
+      fiscal_configs: {
+        Row: {
+          accountant_approved: boolean
+          approved_at: string | null
+          environment: string
+          municipal_registration: string | null
+          municipality_code: string | null
+          organization_id: string
+          provider_token: string | null
+          service_code: string | null
+          service_iss_withheld: boolean
+          service_nature: string | null
+          service_tax_rate: number | null
+          simple_national: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          accountant_approved?: boolean
+          approved_at?: string | null
+          environment?: string
+          municipal_registration?: string | null
+          municipality_code?: string | null
+          organization_id: string
+          provider_token?: string | null
+          service_code?: string | null
+          service_iss_withheld?: boolean
+          service_nature?: string | null
+          service_tax_rate?: number | null
+          simple_national?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          accountant_approved?: boolean
+          approved_at?: string | null
+          environment?: string
+          municipal_registration?: string | null
+          municipality_code?: string | null
+          organization_id?: string
+          provider_token?: string | null
+          service_code?: string | null
+          service_iss_withheld?: boolean
+          service_nature?: string | null
+          service_tax_rate?: number | null
+          simple_national?: boolean | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_configs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_documents: {
+        Row: {
+          access_key: string | null
+          created_at: string
+          environment: string
+          error_message: string | null
+          id: string
+          kind: string
+          number: string | null
+          organization_id: string
+          pdf_url: string | null
+          reference: string
+          sale_id: string | null
+          service_order_id: string | null
+          status: string
+          updated_at: string
+          xml_url: string | null
+        }
+        Insert: {
+          access_key?: string | null
+          created_at?: string
+          environment: string
+          error_message?: string | null
+          id?: string
+          kind: string
+          number?: string | null
+          organization_id: string
+          pdf_url?: string | null
+          reference: string
+          sale_id?: string | null
+          service_order_id?: string | null
+          status?: string
+          updated_at?: string
+          xml_url?: string | null
+        }
+        Update: {
+          access_key?: string | null
+          created_at?: string
+          environment?: string
+          error_message?: string | null
+          id?: string
+          kind?: string
+          number?: string | null
+          organization_id?: string
+          pdf_url?: string | null
+          reference?: string
+          sale_id?: string | null
+          service_order_id?: string | null
+          status?: string
+          updated_at?: string
+          xml_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_service_order_id_fkey"
+            columns: ["service_order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invitations: {
         Row: {
           accepted_at: string | null
@@ -678,6 +810,11 @@ export type Database = {
           created_at: string
           description: string | null
           duration_minutes: number | null
+          fiscal_cfop: string | null
+          fiscal_icms_cst: string | null
+          fiscal_icms_origin: string | null
+          fiscal_ncm: string | null
+          fiscal_unit: string | null
           id: string
           kind: string
           name: string
@@ -698,6 +835,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
+          fiscal_cfop?: string | null
+          fiscal_icms_cst?: string | null
+          fiscal_icms_origin?: string | null
+          fiscal_ncm?: string | null
+          fiscal_unit?: string | null
           id?: string
           kind?: string
           name: string
@@ -718,6 +860,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_minutes?: number | null
+          fiscal_cfop?: string | null
+          fiscal_icms_cst?: string | null
+          fiscal_icms_origin?: string | null
+          fiscal_ncm?: string | null
+          fiscal_unit?: string | null
           id?: string
           kind?: string
           name?: string
