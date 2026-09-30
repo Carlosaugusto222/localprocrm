@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "MCX Digital | Tecnologia Inteligente para Crescimento" },
       { property: "og:title", content: "MCX Digital | Tecnologia Inteligente para Crescimento" },
-      { property: "og:description", content: "Automação, CRM e inteligência artificial para empresas que querem crescer." },
+      { property: "og:description", content: "A MCX Digital desenvolve soluções personalizadas em Automação, CRM e IA para empresas que buscam eficiência e crescimento." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "description", content: "A MCX Digital desenvolve soluções personalizadas em Automação, CRM e IA para empresas que buscam eficiência e crescimento." },
