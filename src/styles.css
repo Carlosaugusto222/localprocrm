@@ -230,4 +230,7 @@ div[style*="Edit with Lovable"],
   --color-mcx-brand: #3b82f6;
   --color-mcx-brand-strong: #2563eb;
   --color-mcx-highlight: #60a5fa;
+  --color-mcx-panel: #10151e;
+  --color-mcx-display: #162335;
+  --color-mcx-success: #59c7a6;
 }

@@ -10,6 +10,7 @@ import {
   Zap,
   Globe
 } from "lucide-react";
+import { McxProductCard } from "@/components/mcx-product-card";
 import logoAsset from "@/assets/mcx-logo.png.asset.json";
 import backgroundAsset from "@/assets/mcx-background.jpg.asset.json";
 
@@ -80,12 +81,13 @@ function Index() {
             <img src={logoAsset.url} alt="MCX Digital" className="h-10 md:h-12 w-auto" />
           </div>
           <div className="hidden lg:flex gap-8 text-xs uppercase font-medium text-mcx-soft">
+            <Link to="/produtos" className="hover:text-mcx-brand transition">Produtos</Link>
             <a href="#solucoes" className="hover:text-mcx-brand transition">Soluções</a>
             <a href="#como-funciona" className="hover:text-mcx-brand transition">Como Funciona</a>
             <a href="#sobre" className="hover:text-mcx-brand transition">Sobre</a>
             <a href="#contato" className="hover:text-mcx-brand transition">Contato</a>
           </div>
-          <Link to="/localpro" className="shrink-0 border border-mcx-ink/30 px-4 py-2 text-xs font-semibold uppercase text-mcx-ink transition hover:border-mcx-brand hover:text-mcx-brand focus-visible:outline-2 focus-visible:outline-mcx-brand">LocalPro CRM <ArrowRight className="inline size-3" /></Link>
+          <Link to="/produtos" className="shrink-0 inline-flex items-center gap-2 border-b border-mcx-highlight py-2 text-xs font-semibold uppercase text-mcx-ink transition hover:text-mcx-highlight focus-visible:outline-2 focus-visible:outline-mcx-brand lg:hidden">Produtos <ArrowRight className="size-3" aria-hidden="true" /></Link>
         </nav>
 
         <div className="relative z-20 container mx-auto px-4 text-center max-w-5xl">
@@ -105,6 +107,20 @@ function Index() {
               <Button asChild variant="outline" className="h-14 px-10 rounded-sm border-mcx-ink/20 bg-transparent text-mcx-ink text-xs uppercase font-bold hover:bg-mcx-ink/10 hover:text-mcx-ink"><a href="#solucoes">Conhecer soluções</a></Button>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Produtos da MCX */}
+      <section className="border-y border-mcx-ink/10 bg-mcx-surface py-20 sm:py-28" aria-labelledby="produtos-title">
+        <div className="container mx-auto max-w-7xl px-4">
+          <div className="mb-10 flex flex-col justify-between gap-6 sm:mb-12 sm:flex-row sm:items-end">
+            <div>
+              <p className="mb-4 text-xs font-semibold uppercase text-mcx-highlight">Feito pela MCX Digital</p>
+              <h2 id="produtos-title" className="font-display text-4xl font-semibold leading-tight sm:text-5xl">Nossos produtos<span className="text-mcx-highlight">.</span></h2>
+            </div>
+            <Link to="/produtos" className="inline-flex items-center gap-2 self-start border-b border-mcx-ink/30 pb-1 text-sm text-mcx-soft transition hover:border-mcx-highlight hover:text-mcx-ink focus-visible:outline-2 focus-visible:outline-mcx-highlight">Ver catálogo <ArrowRight size={16} aria-hidden="true" /></Link>
+          </div>
+          <McxProductCard />
         </div>
       </section>
 
@@ -270,7 +286,7 @@ function Index() {
             
             <div className="flex gap-6">
               <Link to="/contato" aria-label="Contato" className="p-3 border border-mcx-ink/10 hover:bg-mcx-ink/10 transition"><Send size={20} /></Link>
-              <Link to="/localpro" aria-label="LocalPro CRM" className="p-3 border border-mcx-ink/10 hover:bg-mcx-ink/10 transition"><ExternalLink size={20} /></Link>
+              <Link to="/produtos" aria-label="Produtos MCX Digital" className="p-3 border border-mcx-ink/10 hover:bg-mcx-ink/10 transition"><ExternalLink size={20} /></Link>
             </div>
 
             <p className="text-mcx-muted text-xs uppercase font-light">
