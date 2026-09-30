@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { logAudit } from "@/lib/audit";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FiscalPanel } from "@/components/fiscal-panel";
 
 export const Route = createFileRoute("/_authenticated/vendas")({
   head: () => ({ meta: [{ title: "Vendas — LocalPro CRM" }] }),
@@ -118,6 +119,11 @@ function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: 
     stock_qty: editing?.stock_qty?.toString() ?? "0",
     stock_min: editing?.stock_min?.toString() ?? "0",
     duration_minutes: editing?.duration_minutes?.toString() ?? "",
+    fiscal_ncm: editing?.fiscal_ncm ?? "",
+    fiscal_cfop: editing?.fiscal_cfop ?? "",
+    fiscal_icms_origin: editing?.fiscal_icms_origin ?? "",
+    fiscal_icms_cst: editing?.fiscal_icms_cst ?? "",
+    fiscal_unit: editing?.fiscal_unit ?? "UN",
   });
   const save = useMutation({
     mutationFn: async () => {
@@ -130,6 +136,11 @@ function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: 
         kind: form.kind,
         price: Number(form.price),
         sku: form.sku || null,
+        fiscal_ncm: form.fiscal_ncm || null,
+        fiscal_cfop: form.fiscal_cfop || null,
+        fiscal_icms_origin: form.fiscal_icms_origin || null,
+        fiscal_icms_cst: form.fiscal_icms_cst || null,
+        fiscal_unit: form.fiscal_unit || 'UN',
         cost: form.cost ? Number(form.cost) : null,
         track_stock: form.track_stock,
         stock_qty: Number(form.stock_qty || 0),
@@ -165,7 +176,7 @@ function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: 
     onError: (e: any) => toast.error(e.message),
   });
   return (
-    <DialogContent className="max-w-xl">
+    <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
       <DialogHeader><DialogTitle>{isEdit ? "Editar item" : "Novo produto ou serviço"}</DialogTitle></DialogHeader>
       <form onSubmit={(e) => { e.preventDefault(); save.mutate(); }} className="space-y-3">
         <div className="space-y-1.5"><Label>Nome *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
@@ -191,6 +202,13 @@ function ProductDialog({ orgId, editing, onClose }: { orgId?: string; editing?: 
         )}
         {form.kind === "product" && (
           <div className="border rounded-lg p-3 space-y-3">
+            <p className="text-sm font-medium">Dados fiscais da NFC-e</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {([
+                ['fiscal_ncm', 'NCM'], ['fiscal_cfop', 'CFOP'], ['fiscal_icms_origin', 'Origem ICMS'],
+                ['fiscal_icms_cst', 'CST / CSOSN'], ['fiscal_unit', 'Unidade'],
+              ] as const).map(([key, label]) => <div key={key} className="space-y-1"><Label htmlFor={key}>{label}</Label><Input id={key} value={form[key]} onChange={e => setForm({ ...form, [key]: e.target.value })} /></div>)}
+            </div>
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input type="checkbox" checked={form.track_stock} onChange={e => setForm({ ...form, track_stock: e.target.checked })} />
               Controlar estoque deste produto
