@@ -1,223 +1,288 @@
-import { createFileRoute, Link, redirect } from "@tanstack/react-router";
-// Erro "invalid input syntax for type time: """ corrigido ao salvar planos e módulos.
-
-
-
-
-
-
-
-
-import { ArrowRight, Calendar, Sparkles, Users, Wallet, ShoppingBag, BarChart3, Check, Zap } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/integrations/supabase/client";
-
-const URL = "https://localprocrm.lovable.app";
-const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/7cde7e02-1ecb-4de6-95c6-2e23c449c4cc/id-preview-879f10b7--5ebb0209-08e6-4040-a14d-664df6d7e6d9.lovable.app-1782399781510.png";
-
-const FAQ = [
-  { q: "O LocalPro CRM serve para qual tipo de negócio?", a: "Para qualquer negócio local: barbearias, salões, clínicas, oficinas, restaurantes, assistência técnica, hotéis, imobiliárias e mais. O sistema se adapta ao seu segmento no onboarding." },
-  { q: "Posso testar grátis?", a: "Sim. Você cria sua conta e começa a usar imediatamente, sem cartão de crédito." },
-  { q: "O sistema funciona no celular?", a: "Sim. A plataforma é 100% responsiva e funciona em qualquer dispositivo." },
-  { q: "Tem PDV e controle de caixa?", a: "Sim. Inclui terminal PDV, leitor de código de barras, formas de pagamento múltiplas, cupom não fiscal e controle diário de caixa." },
-  { q: "Posso enviar mensagens pelo WhatsApp?", a: "Sim. Há templates prontos para confirmação, lembrete, cobrança, boas-vindas, promoções e avaliações, com envio em um clique." },
-];
+import { motion } from "framer-motion";
+import { 
+  MessageSquare, 
+  Target, 
+  TrendingUp,
+  Send,
+  ArrowRight,
+  ExternalLink,
+  Cpu,
+  Layers,
+  Zap,
+  Globe
+} from "lucide-react";
+import logoAsset from "@/assets/mcx-logo.png.asset.json";
+import backgroundAsset from "@/assets/mcx-background.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
+  component: Index,
   head: () => ({
     meta: [
-      { title: "LocalPro CRM — Gestão completa para negócios locais" },
-      { name: "description", content: "CRM, agenda, PDV, ordens de serviço, financeiro e IA em uma única plataforma modular. Comece grátis." },
-      { property: "og:title", content: "LocalPro CRM — Gestão completa para negócios locais" },
-      { property: "og:description", content: "CRM, agenda, PDV, OS, financeiro e IA em uma única plataforma modular. Comece grátis." },
-      { property: "og:url", content: URL },
+      { title: "MCX Digital | Tecnologia Inteligente para Crescimento" },
+      { property: "og:title", content: "MCX Digital | Tecnologia Inteligente para Crescimento" },
+      { property: "og:description", content: "Automação, CRM e inteligência artificial para empresas que querem crescer." },
       { property: "og:type", content: "website" },
-      { property: "og:image", content: OG_IMAGE },
-      { name: "twitter:title", content: "LocalPro CRM — Gestão completa para negócios locais" },
-      { name: "twitter:description", content: "Plataforma modular: CRM, agenda, PDV, OS, financeiro e IA." },
-      { name: "twitter:image", content: OG_IMAGE },
-    ],
-    links: [{ rel: "canonical", href: URL }],
-
-
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "SoftwareApplication",
-          name: "LocalPro CRM",
-          applicationCategory: "BusinessApplication",
-          operatingSystem: "Web",
-          description: "Plataforma modular de gestão para negócios locais com CRM, agenda, PDV, OS, financeiro e IA.",
-          offers: { "@type": "Offer", price: "49", priceCurrency: "BRL" },
-          aggregateRating: { "@type": "AggregateRating", ratingValue: "4.9", reviewCount: "120" },
-        }),
-      },
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: FAQ.map(f => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
-        }),
-      },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "description", content: "A MCX Digital desenvolve soluções personalizadas em Automação, CRM e IA para empresas que buscam eficiência e crescimento." },
     ],
   }),
-  beforeLoad: async () => {
-    if (typeof window === "undefined") return;
-    const { data } = await supabase.auth.getUser();
-    if (data.user) throw redirect({ to: "/inicio" });
-  },
-  component: Landing,
 });
 
-const modules = [
-  { icon: Users, title: "CRM", desc: "Clientes, tags, funil de vendas e histórico completo." },
-  { icon: Calendar, title: "Agenda", desc: "Calendário diário, semanal e mensal com confirmações." },
-  { icon: Wallet, title: "Financeiro", desc: "Receitas, despesas, fluxo de caixa e relatórios." },
-  { icon: ShoppingBag, title: "Vendas", desc: "Produtos, serviços, orçamentos e pedidos." },
-  { icon: Sparkles, title: "Assistente IA", desc: "Sugestões de mensagens, campanhas e insights preditivos." },
-  { icon: BarChart3, title: "Relatórios", desc: "Receita, conversão, clientes e ticket médio." },
-  { icon: ShoppingBag, title: "Integrador", desc: "Criar integração para lojas virtuais." },
-];
+function Index() {
+  const solutions = [
+    {
+      icon: Zap,
+      title: "Automação Inteligente",
+      desc: "Criamos fluxos automáticos para reduzir tarefas manuais e melhorar processos.",
+      items: ["Atendimento automatizado", "Follow-up comercial", "Integrações", "Processos internos"]
+    },
+    {
+      icon: Layers,
+      title: "CRM Personalizado",
+      desc: "Estruturamos o relacionamento com clientes e oportunidades de vendas.",
+      items: ["Cadastro de clientes", "Funil de vendas", "Histórico de contatos", "Gestão comercial"]
+    },
+    {
+      icon: Cpu,
+      title: "Inteligência Artificial",
+      desc: "Aplicamos IA para tornar operações mais rápidas e inteligentes.",
+      items: ["Assistentes virtuais", "Chatbots", "Organização de informações"]
+    },
+    {
+      icon: Globe,
+      title: "Presença Digital",
+      desc: "Criamos estruturas digitais para fortalecer negócios.",
+      items: ["Landing Pages", "Sites", "Link na Bio Premium"]
+    }
+  ];
 
-const plans = [
-  { name: "Básico", price: "R$ 49", desc: "Para começar com o essencial.", features: ["CRM completo", "Cadastro ilimitado de clientes", "Tags e funil", "Gestão de estoque"], cta: "Começar" },
-  { name: "Profissional", price: "R$ 99", desc: "CRM + Agenda + Financeiro.", features: ["Tudo do Básico", "Agenda completa", "Ordens de serviço", "PDV e Caixa", "Exportações PDF/Excel"], cta: "Mais popular", featured: true },
-  { name: "Premium", price: "R$ 199", desc: "Todos os módulos + IA.", features: ["Tudo do Profissional", "Assistente IA & Marketing", "WhatsApp Automático", "Loja Própria & Integrações", "Audit Log & Super Admin"], cta: "Falar com vendas" },
-];
+  const steps = [
+    { number: "01", title: "Diagnóstico", desc: "Entendimento do negócio." },
+    { number: "02", title: "Estratégia", desc: "Definição da melhor solução." },
+    { number: "03", title: "Desenvolvimento", desc: "Criação e implementação." },
+    { number: "04", title: "Evolução", desc: "Melhorias contínuas." }
+  ];
 
-function Landing() {
   return (
-    <div className="min-h-screen bg-background selection:bg-primary/20">
-      {/* Header */}
-      <header className="sticky top-0 z-30 surface-glass">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 sm:px-6 h-16">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-gradient-to-br from-primary to-chart-4 grid place-items-center text-primary-foreground">
-              <Zap className="size-4" />
+    <div className="min-h-screen bg-mcx-surface text-mcx-ink selection:bg-mcx-brand/30 font-sans">
+      {/* 1. Hero Section */}
+      <section className="relative min-h-[min(760px,85svh)] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-mcx-surface/70 z-10" />
+          <img 
+            src={backgroundAsset.url} 
+            alt="Planeta visto do espaço à noite" 
+            className="w-full h-full object-cover opacity-40"
+          />
+        </div>
+
+        <nav className="absolute top-0 left-0 right-0 z-50 px-4 py-4 md:px-10 md:py-6 flex justify-between items-center gap-4">
+          <div className="flex items-center">
+            <img src={logoAsset.url} alt="MCX Digital" className="h-10 md:h-12 w-auto" />
+          </div>
+          <div className="hidden lg:flex gap-8 text-xs uppercase font-medium text-mcx-soft">
+            <a href="#solucoes" className="hover:text-mcx-brand transition">Soluções</a>
+            <a href="#como-funciona" className="hover:text-mcx-brand transition">Como Funciona</a>
+            <a href="#sobre" className="hover:text-mcx-brand transition">Sobre</a>
+            <a href="#contato" className="hover:text-mcx-brand transition">Contato</a>
+          </div>
+          <Link to="/localpro" className="shrink-0 border border-mcx-ink/30 px-4 py-2 text-xs font-semibold uppercase text-mcx-ink transition hover:border-mcx-brand hover:text-mcx-brand focus-visible:outline-2 focus-visible:outline-mcx-brand">LocalPro CRM <ArrowRight className="inline size-3" /></Link>
+        </nav>
+
+        <div className="relative z-20 container mx-auto px-4 text-center max-w-5xl">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl md:text-7xl font-medium leading-tight tracking-tight mb-8">
+              Tecnologia <span className="text-mcx-highlight">inteligente</span> para empresas que querem <span className="text-mcx-highlight">crescer</span>.
+            </h1>
+            <p className="text-lg md:text-xl text-mcx-soft mb-10 max-w-2xl mx-auto font-light">
+              Criamos soluções com automação, CRM e inteligência artificial para otimizar processos, organizar vendas e acelerar negócios.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild className="h-14 px-10 rounded-sm bg-mcx-brand text-mcx-ink text-xs uppercase font-bold hover:bg-mcx-brand-strong"><Link to="/contato">Solicitar diagnóstico</Link></Button>
+              <Button asChild variant="outline" className="h-14 px-10 rounded-sm border-mcx-ink/20 bg-transparent text-mcx-ink text-xs uppercase font-bold hover:bg-mcx-ink/10 hover:text-mcx-ink"><a href="#solucoes">Conhecer soluções</a></Button>
             </div>
-            <span className="font-display font-bold text-lg">LocalPro <span className="text-muted-foreground">CRM</span></span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6 text-sm text-muted-foreground" aria-label="Principal">
-            <Link to="/recursos" className="hover:text-foreground">Recursos</Link>
-            <Link to="/segmentos" className="hover:text-foreground">Segmentos</Link>
-            <Link to="/precos" className="hover:text-foreground">Planos</Link>
-            <Link to="/contato" className="hover:text-foreground">Contato</Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Link to="/auth"><Button variant="ghost" size="sm">Entrar</Button></Link>
-            <Link to="/auth"><Button size="sm" className="gap-1">Criar conta <ArrowRight className="size-3.5" /></Button></Link>
-          </div>
-        </div>
-      </header>
-
-      <main>
-      {/* Hero */}
-      <section className="relative overflow-hidden" aria-label="Apresentação">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,var(--color-accent),transparent_70%)]" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
-          <Badge variant="outline" className="mb-6 gap-1.5 py-1.5 px-3 text-primary animate-in-fade">
-            <Sparkles className="size-3" /> Gestão inteligente para o seu negócio
-          </Badge>
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-display font-bold tracking-tight animate-in-slide-up">
-            Gestão completa<br />
-            <span className="gradient-text">para o seu negócio local.</span>
-          </h1>
-
-          <p className="mt-6 text-lg text-muted-foreground max-w-2xl mx-auto">
-            CRM, agenda, financeiro, vendas e IA em uma única plataforma modular. Ative apenas o que você precisa.
-          </p>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-            <Link to="/auth"><Button size="lg" className="gap-2">Começar grátis <ArrowRight className="size-4" /></Button></Link>
-            <a href="#planos"><Button size="lg" variant="outline">Ver planos</Button></a>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* Módulos */}
-      <section id="modulos" className="py-20 border-t" aria-labelledby="modulos-title">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 id="modulos-title" className="text-3xl sm:text-4xl font-display font-bold">Tudo em um só lugar</h2>
-            <p className="mt-3 text-muted-foreground">Módulos que crescem com o seu negócio.</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {modules.map(m => (
-              <div key={m.title} className="rounded-2xl border bg-card p-6 hover:border-primary/30 transition-colors">
-                <div className="size-10 rounded-lg bg-accent grid place-items-center text-accent-foreground mb-4">
-                  <m.icon className="size-5" />
-                </div>
-                <h3 className="font-display font-semibold text-lg">{m.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{m.desc}</p>
+      {/* 2. Sobre a MCX Section */}
+      <section id="sobre" className="py-32 bg-mcx-surface border-y border-mcx-ink/5">
+        <div className="container mx-auto px-4 text-center max-w-4xl">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
+            <span className="text-mcx-brand text-xs uppercase tracking-[0.3em] font-bold">Sobre a MCX</span>
+            <h2 className="text-3xl md:text-5xl font-medium tracking-tight leading-snug">
+              Tecnologia aplicada aos <span className="text-mcx-highlight">desafios reais</span> dos negócios.
+            </h2>
+            <div className="w-24 h-[1px] bg-gradient-to-r from-transparent via-mcx-brand to-transparent mx-auto" />
+            <p className="text-mcx-muted text-lg font-light leading-relaxed">
+              A MCX Digital desenvolve soluções personalizadas para empresas que buscam mais eficiência, organização e crescimento através da tecnologia.
+            </p>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* 3. Soluções Section */}
+      <section id="solucoes" className="py-32 container mx-auto px-4">
+        <div className="text-center mb-20">
+          <span className="text-mcx-brand text-xs uppercase tracking-[0.3em] font-bold">Soluções</span>
+          <h2 className="text-4xl md:text-5xl font-medium mt-4">Quatro pilares de atuação</h2>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          {solutions.map((item, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.1 }}
+              className="group p-8 md:p-12 border border-mcx-ink/10 rounded-3xl bg-mcx-ink/[0.02] hover:bg-mcx-ink/[0.05] transition-all duration-500 flex flex-col gap-6"
+            >
+              <div className="p-4 w-fit rounded-2xl bg-mcx-brand/10 text-mcx-highlight group-hover:bg-mcx-brand group-hover:text-mcx-ink transition-colors duration-500">
+                <item.icon size={32} strokeWidth={1.5} />
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Segmentos */}
-      <section id="segmentos" className="py-20 border-t bg-muted/30" aria-labelledby="segmentos-title">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
-          <h2 id="segmentos-title" className="text-3xl sm:text-4xl font-display font-bold">Feito para qualquer segmento</h2>
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {["Barbearias","Salões","Clínicas","Consultórios","Oficinas","Restaurantes","Pousadas","Hotéis","Imobiliárias","Advocacia","Energia Solar","Academias","Prestadores"].map(s => (
-              <Badge key={s} variant="secondary" className="text-sm px-3 py-1.5">{s}</Badge>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Planos */}
-      <section id="planos" className="py-20 border-t" aria-labelledby="planos-title">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-12">
-            <h2 id="planos-title" className="text-3xl sm:text-4xl font-display font-bold">Planos transparentes</h2>
-            <p className="mt-3 text-muted-foreground">Comece grátis. Faça upgrade quando precisar.</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-4">
-            {plans.map(p => (
-              <div key={p.name} className={`rounded-2xl border bg-card p-6 ${p.featured ? "border-primary shadow-lg ring-1 ring-primary/30" : ""}`}>
-                {p.featured && <Badge className="mb-3">Mais popular</Badge>}
-                <h3 className="font-display font-bold text-xl">{p.name}</h3>
-                <div className="mt-2"><span className="text-3xl font-bold">{p.price}</span><span className="text-muted-foreground">/mês</span></div>
-                <p className="text-sm text-muted-foreground mt-2">{p.desc}</p>
-                <ul className="mt-6 space-y-2 text-sm">
-                  {p.features.map(f => (
-                    <li key={f} className="flex items-start gap-2"><Check className="size-4 text-success shrink-0 mt-0.5" />{f}</li>
+              <div className="space-y-4">
+                <h3 className="text-2xl font-medium tracking-tight">{item.title}</h3>
+                <p className="text-mcx-muted font-light leading-relaxed">{item.desc}</p>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-6 border-t border-mcx-ink/5">
+                  {item.items.map((point, i) => (
+                    <li key={i} className="flex items-center gap-2 text-sm text-mcx-muted">
+                      <span className="text-mcx-brand">›</span>
+                      {point}
+                    </li>
                   ))}
                 </ul>
-                <Link to="/auth" className="block mt-6">
-                  <Button className="w-full" variant={p.featured ? "default" : "outline"}>{p.cta}</Button>
-                </Link>
               </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* 4. Como Funciona Section */}
+      <section id="como-funciona" className="py-32 bg-mcx-surface border-y border-mcx-ink/5">
+        <div className="container mx-auto px-4 max-w-6xl">
+          <div className="text-center mb-20">
+            <span className="text-mcx-brand text-xs uppercase tracking-[0.3em] font-bold">Como Funciona</span>
+            <h2 className="text-4xl md:text-5xl font-medium mt-4">Jornada em quatro etapas</h2>
+          </div>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {steps.map((step, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group relative p-8 border border-mcx-ink/10 rounded-3xl bg-mcx-ink/[0.02] hover:bg-mcx-ink/[0.05] transition-all duration-500"
+              >
+                <span className="text-5xl font-bold text-mcx-brand/20 group-hover:text-mcx-brand/40 transition-colors duration-500">
+                  {step.number}
+                </span>
+                <div className="mt-6 space-y-3">
+                  <h3 className="text-xl font-medium tracking-tight">{step.title}</h3>
+                  <p className="text-mcx-muted font-light text-sm leading-relaxed">{step.desc}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* FAQ */}
-      <section id="faq" className="py-20 border-t bg-muted/30" aria-labelledby="faq-title">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="text-center mb-10">
-            <h2 id="faq-title" className="text-3xl sm:text-4xl font-display font-bold">Perguntas frequentes</h2>
+      {/* 5. Resultados Esperados Section */}
+      <section className="py-32 container mx-auto px-4 max-w-6xl">
+        <div className="text-center mb-20">
+          <span className="text-mcx-brand text-xs uppercase tracking-[0.3em] font-bold">Resultados Esperados</span>
+          <h2 className="text-4xl md:text-5xl font-medium mt-4">Transformação digital real</h2>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-px bg-mcx-ink/10 rounded-3xl overflow-hidden border border-mcx-ink/10">
+          <div className="p-12 bg-mcx-surface/40">
+            <h3 className="text-xs uppercase tracking-widest text-mcx-muted font-bold mb-10 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500/50" /> Antes
+            </h3>
+            <ul className="space-y-6">
+              <li className="flex items-center gap-4 text-lg text-mcx-muted font-light">
+                <span className="text-red-500/50 text-2xl">×</span>
+                Processos desorganizados
+              </li>
+              <li className="flex items-center gap-4 text-lg text-mcx-muted font-light">
+                <span className="text-red-500/50 text-2xl">×</span>
+                Perda de oportunidades
+              </li>
+              <li className="flex items-center gap-4 text-lg text-mcx-muted font-light">
+                <span className="text-red-500/50 text-2xl">×</span>
+                Falta de acompanhamento
+              </li>
+            </ul>
           </div>
-          <dl className="space-y-4">
-            {FAQ.map(f => (
-              <div key={f.q} className="rounded-2xl border bg-card p-5">
-                <dt className="font-display font-semibold">{f.q}</dt>
-                <dd className="text-sm text-muted-foreground mt-1">{f.a}</dd>
-              </div>
-            ))}
-          </dl>
+          <div className="p-12 bg-mcx-brand/5">
+            <h3 className="text-xs uppercase tracking-widest text-mcx-brand font-bold mb-10 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-mcx-brand" /> Depois
+            </h3>
+            <ul className="space-y-6">
+              <li className="flex items-center gap-4 text-lg text-mcx-ink font-light">
+                <span className="text-mcx-brand text-2xl">✓</span>
+                Processos inteligentes
+              </li>
+              <li className="flex items-center gap-4 text-lg text-mcx-ink font-light">
+                <span className="text-mcx-brand text-2xl">✓</span>
+                Clientes organizados
+              </li>
+              <li className="flex items-center gap-4 text-lg text-mcx-ink font-light">
+                <span className="text-mcx-brand text-2xl">✓</span>
+                Mais controle comercial
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
-      </main>
 
-      <footer className="border-t py-10 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} LocalPro CRM. Plataforma modular para negócios locais.
+      {/* 6. CTA Final Section */}
+      <section id="contato" className="py-32 relative overflow-hidden bg-mcx-brand-strong">
+        <div className="container mx-auto px-4 text-center relative z-10 max-w-4xl">
+          <span className="text-mcx-ink/70 text-xs uppercase font-bold mb-6 block">MCX Digital</span>
+          <h2 className="text-4xl md:text-6xl font-medium tracking-tight mb-8">
+            Sua empresa está pronta para trabalhar de forma mais inteligente?
+          </h2>
+          <p className="text-mcx-ink/80 text-lg md:text-xl mb-12 font-light">
+            Solicite um diagnóstico com a MCX Digital.
+          </p>
+          <Button asChild className="h-14 px-10 rounded-sm bg-mcx-ink text-mcx-brand-strong text-xs uppercase font-bold hover:bg-mcx-ink/90"><Link to="/contato">Solicitar diagnóstico</Link></Button>
+        </div>
+        <div className="absolute top-0 right-0 w-96 h-96 bg-mcx-ink/10 rounded-full -mr-48 -mt-48 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-mcx-surface/10 rounded-full -ml-48 -mb-48 blur-3xl" />
+      </section>
+
+      {/* 6. Footer */}
+      <footer className="py-20 border-t border-mcx-ink/5">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-10">
+            <div className="flex items-center">
+              <img src={logoAsset.url} alt="MCX Digital" className="h-8 w-auto opacity-80" />
+            </div>
+            
+            <div className="flex gap-6">
+              <Link to="/contato" aria-label="Contato" className="p-3 border border-mcx-ink/10 hover:bg-mcx-ink/10 transition"><Send size={20} /></Link>
+              <Link to="/localpro" aria-label="LocalPro CRM" className="p-3 border border-mcx-ink/10 hover:bg-mcx-ink/10 transition"><ExternalLink size={20} /></Link>
+            </div>
+
+            <p className="text-mcx-muted text-xs uppercase font-light">
+              © {new Date().getFullYear()} MCX Digital. Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
       </footer>
     </div>
   );

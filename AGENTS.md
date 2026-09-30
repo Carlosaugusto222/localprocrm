@@ -11,3 +11,4 @@
 
 - Fiscal issuance uses protected server functions with Focus NFe per-organization credentials stored in RLS-locked fiscal_configs; only owners configure and production requires accountant approval, to prevent credential exposure and accidental live issuance.
 - Fiscal documents retain one stable reference per sale/OS and query the provider before retrying, to avoid duplicate tax invoices on uncertain responses.
+- Keep the uploaded MCX Digital presentation at `/` and the existing LocalPro presentation at `/localpro`; preserve authenticated LocalPro routes, because the corporate site now owns the opening page.
