@@ -58,8 +58,9 @@ export const saveFiscalSettings = createServerFn({ method: 'POST' }).middleware(
   .handler(async ({ data, context }) => {
     await authorize(context, data.organizationId, true);
     const { supabaseAdmin } = await import('@/integrations/supabase/client.server');
-    const { data: old } = await supabaseAdmin.from('fiscal_configs').select('accountant_approved,environment').eq('organization_id', data.organizationId).maybeSingle();
+    const { data: old } = await supabaseAdmin.from('fiscal_configs').select('accountant_approved,environment,provider_token').eq('organization_id', data.organizationId).maybeSingle();
     if (data.environment === 'production' && !data.accountant_approved) throw new Error('A produção exige aprovação do contador.');
+    if (old && data.environment !== old.environment && !data.token) throw new Error('Informe o token correspondente ao novo ambiente.');
     const { token, organizationId, ...fields } = data;
     const { error } = await supabaseAdmin.from('fiscal_configs').upsert({
       ...fields, organization_id: organizationId, ...(token ? { provider_token: token } : {}),
@@ -80,6 +81,7 @@ export const issueFiscalDocument = createServerFn({ method: 'POST' }).middleware
     const sourceColumn = data.kind === 'nfce' ? 'sale_id' : 'service_order_id';
     const { data: previous } = await supabaseAdmin.from('fiscal_documents').select('*').eq('organization_id', data.organizationId).eq(sourceColumn, data.originId).maybeSingle();
     if (previous?.status === 'authorized' || previous?.status === 'processing' || previous?.status === 'pending') return { document: previous, message: 'Nota já enviada. Consulte o status antes de tentar novamente.' };
+    if (previous && previous.environment !== config.environment) throw new Error('Esta nota começou em outro ambiente. Consulte a emissão existente.');
     const { data: org } = await context.supabase.from('organizations').select('cnpj').eq('id', data.organizationId).single();
     if (!org?.cnpj || org.cnpj.replace(/\D/g, '').length !== 14) throw new Error('Informe o CNPJ da empresa em Configurações.');
     const reference = previous?.reference ?? `${data.kind}-${data.originId}`;
@@ -89,7 +91,7 @@ export const issueFiscalDocument = createServerFn({ method: 'POST' }).middleware
       if (!sale || sale.status !== 'paid') throw new Error('A venda deve estar paga para emitir NFC-e.');
       const { data: lines } = await context.supabase.from('sale_items').select('description,quantity,unit_price,subtotal,product_id,products(sku,fiscal_ncm,fiscal_cfop,fiscal_icms_origin,fiscal_icms_cst,fiscal_unit,kind)').eq('sale_id', sale.id);
       if (!lines?.length) throw new Error('A venda não possui itens.');
-      if (lines.some((line: any) => line.products?.kind === 'service')) throw new Error('A NFC-e não pode conter serviços. Separe os serviços para NFS-e.');
+      if (lines.some((line: any) => line.products?.kind !== 'product')) throw new Error('A NFC-e deve conter somente produtos cadastrados. Separe serviços para NFS-e.');
       const payment: Record<string, string> = { cash: '01', credit: '03', debit: '04', pix: '17', boleto: '15', transfer: '18' };
       if (!payment[sale.payment_method ?? '']) throw new Error('Forma de pagamento incompatível com emissão fiscal.');
       const items: Record<string, any>[] = lines.map((line: any, index: number) => {
@@ -102,7 +104,14 @@ export const issueFiscalDocument = createServerFn({ method: 'POST' }).middleware
       const gross = items.reduce((sum: number, item: any) => sum + item.valor_bruto, 0);
       const deduction = Math.round((gross - Number(sale.total)) * 100) / 100;
       if (deduction < -0.01 || deduction > gross) throw new Error('Total da venda não confere com os itens.');
-      if (deduction > 0) items[items.length - 1].valor_desconto = deduction;
+      if (deduction > 0) {
+        let remainder = Math.round(deduction * 100);
+        items.forEach((item, index) => {
+          const cents = index === items.length - 1 ? remainder : Math.min(remainder, Math.round(deduction * 100 * item.valor_bruto / gross));
+          item.valor_desconto = cents / 100;
+          remainder -= cents;
+        });
+      }
       payload = { cnpj_emitente: org.cnpj.replace(/\D/g, ''), data_emissao: new Date().toISOString(), presenca_comprador: '1', modalidade_frete: '9', local_destino: '1', natureza_operacao: 'VENDA AO CONSUMIDOR', items,
         formas_pagamento: [{ forma_pagamento: payment[sale.payment_method ?? ''], valor_pagamento: Number(sale.total) }] };
     } else {
@@ -122,15 +131,16 @@ export const issueFiscalDocument = createServerFn({ method: 'POST' }).middleware
           ...(config.service_tax_rate != null ? { aliquota: Number(config.service_tax_rate) } : {}) } };
     }
     // A stable reference prevents accidental duplicate issuance on retry.
-    const { data: row, error: insertError } = previous ? { data: previous, error: null } : await supabaseAdmin.from('fiscal_documents').insert({ organization_id: data.organizationId, [sourceColumn]: data.originId, kind: data.kind, reference, environment: config.environment, status: 'pending' }).select().single();
+    const { data: row, error: insertError } = previous ? { data: previous, error: null } : await supabaseAdmin.from('fiscal_documents').insert({ organization_id: data.organizationId, sale_id: data.kind === 'nfce' ? data.originId : null, service_order_id: data.kind === 'nfse' ? data.originId : null, kind: data.kind, reference, environment: config.environment, status: 'pending' }).select().single();
     if (insertError || !row) throw new Error('Não foi possível reservar esta emissão. Consulte o histórico antes de repetir.');
     try {
       // If a previous attempt was inconclusive, consult first rather than transmit twice.
       if (previous) {
-        const checked = await providerRequest(config, data.kind, reference, 'GET');
-        if (checked.ok && checked.body.status !== 'erro') return await persist(checked, row.id, supabaseAdmin);
+        const checked = await providerRequest({ provider_token: config.provider_token, environment: config.environment }, data.kind, reference, 'GET');
+        if (checked.ok) return await persist(checked, row.id, supabaseAdmin);
+        if (checked.body.codigo !== 'nao_encontrado') throw new Error('Não foi possível confirmar a nota anterior.');
       }
-      const sent = await providerRequest(config, data.kind, reference, 'POST', payload);
+      const sent = await providerRequest({ provider_token: config.provider_token, environment: config.environment }, data.kind, reference, 'POST', payload);
       return await persist(sent, row.id, supabaseAdmin);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Falha de comunicação';
