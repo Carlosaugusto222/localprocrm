@@ -66,7 +66,7 @@ function Index() {
   return (
     <div className="min-h-screen bg-mcx-surface text-mcx-ink selection:bg-mcx-brand/30 font-sans">
       {/* 1. Hero Section */}
-      <section className="relative min-h-[min(720px,78svh)] flex items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-[min(720px,78svh)] flex-col overflow-hidden">
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-mcx-surface/70 z-10" />
           <img 
@@ -90,7 +90,7 @@ function Index() {
           <Link to="/produtos" className="shrink-0 inline-flex items-center gap-2 border-b border-mcx-highlight py-2 text-xs font-semibold uppercase text-mcx-ink transition hover:text-mcx-highlight focus-visible:outline-2 focus-visible:outline-mcx-brand lg:hidden">Produtos <ArrowRight className="size-3" aria-hidden="true" /></Link>
         </nav>
 
-        <div className="relative z-20 container mx-auto px-4 text-center max-w-5xl">
+        <div className="relative z-20 container mx-auto flex max-w-5xl flex-1 items-center justify-center px-4 pb-16 pt-32 text-center md:pb-20 md:pt-40">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
