@@ -1,2 +1,3 @@
 - [x] Incorporar a página MCX do anexo como abertura.
 - [x] Preservar o LocalPro como aba acessível e manter o sistema existente.
+- [x] Criar catálogo de produtos MCX e substituir o botão lateral por navegação integrada; LocalPro abre pela vitrine.
