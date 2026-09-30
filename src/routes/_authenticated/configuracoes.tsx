@@ -14,6 +14,7 @@ import { useCurrentOrg } from "@/hooks/use-current-org";
 import { supabase } from "@/integrations/supabase/client";
 import { ALL_MODULES, PLANS } from "@/lib/modules";
 import { toast } from "sonner";
+import { FiscalSettings } from "@/components/fiscal-settings";
 
 export const Route = createFileRoute("/_authenticated/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — LocalPro CRM" }] }),
@@ -119,6 +120,7 @@ function Settings() {
           <TabsTrigger value="modules">Módulos & Plano</TabsTrigger>
           <TabsTrigger value="hours">Horários</TabsTrigger>
           <TabsTrigger value="caixa">Caixa</TabsTrigger>
+          <TabsTrigger value="fiscal">Fiscal</TabsTrigger>
           <TabsTrigger value="booking">Portal do Cliente</TabsTrigger>
         </TabsList>
 
@@ -287,6 +289,8 @@ function Settings() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="fiscal" className="mt-4"><FiscalSettings organizationId={org.id} /></TabsContent>
 
         <TabsContent value="booking" className="mt-4">
           <Card>

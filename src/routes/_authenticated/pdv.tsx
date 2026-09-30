@@ -21,6 +21,7 @@ import { logAudit } from "@/lib/audit";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { FiscalPanel } from "@/components/fiscal-panel";
 
 export const Route = createFileRoute("/_authenticated/pdv")({
   head: () => ({ meta: [{ title: "PDV — LocalPro CRM" }] }),
@@ -59,6 +60,7 @@ function PDVPage() {
   const [paid, setPaid] = useState("");
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [lastSaleId, setLastSaleId] = useState<string | null>(null);
 
   const { data: products = [] } = useQuery({
     enabled: !!orgId,
@@ -194,7 +196,8 @@ function PDVPage() {
       }
       return sale;
     },
-    onSuccess: () => {
+    onSuccess: (sale) => {
+      setLastSaleId(sale.id);
       toast.success("Venda finalizada com sucesso");
       setCart([]); setDiscount("0"); setPaid(""); setCustomerId(""); setPaymentMethod("cash");
       setCheckoutOpen(false);
@@ -473,6 +476,7 @@ function PDVPage() {
         </div>
 
         {/* CHECKOUT DIALOG */}
+        {orgId && lastSaleId && <div className="px-4 py-2 border-b bg-background"><FiscalPanel organizationId={orgId} originId={lastSaleId} kind="nfce" /></div>}
         <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
           <DialogContent className="sm:max-w-lg">
             <DialogHeader>
